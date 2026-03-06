@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Email</title>
+    <link rel="stylesheet" href="/static/verify_email.css">
+</head>
+
+<body>
+    <div class="verification-container">
+        <!-- Header Section -->
+        <div class="verification-header">
+            <h1>Verificar tu Email</h1>
+            <p>Completa el proceso de verificación</p>
+        </div>
+
+        <!-- Message Section -->
+        {% if message %}
+        {% if "enviado" in message.lower() or "reenviado" in message.lower() %}
+        <div class="message-box success">{{ message }}</div>
+        {% elif "error" in message.lower() or "inválido" in message.lower() or "expirado" in message.lower() %}
+        <div class="message-box error">{{ message }}</div>
+        {% else %}
+        <div class="message-box info">{{ message }}</div>
+        {% endif %}
+        {% endif %}
+
+        <div class="info-text">
+            Se ha enviado un código de verificación a tu email: <strong>{{ email }}</strong>
+        </div>
+
+        <form action="/home/verify-email" method="post">
+            <div class="form-group">
+                <label for="code">Código de Verificación:</label>
+                <input type="text" id="code" name="code" placeholder="Ingresa el código de 6 dígitos" required
+                    maxlength="6" pattern="[0-9]{6}" autocomplete="off">
+            </div>
+            {% if verification_jwt %}
+            <input type="hidden" name="verification_jwt" value="{{ verification_jwt }}">
+            {% endif %}
+            <button type="submit">Verificar</button>
+        </form>
+
+        <!-- Formulario para reenviar el código -->
+        <form action="/home/resend-verification-email" method="post">
+            {% if verification_jwt %}
+            <input type="hidden" name="verification_jwt" value="{{ verification_jwt }}">
+            {% endif %}
+            <button type="submit">Reenviar Código</button>
+        </form>
+    </div>
+</body>
+
+</html>

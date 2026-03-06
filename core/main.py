@@ -1,0 +1,28 @@
+#uvicorn main:app --reload para rodar o app
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from users.users_route import home_router 
+from inventory.inventory_route import inventory_router
+from production.production_route import production_router
+from contacts.contacts_route import contacts_router
+from core.database import base, engine
+from core.dependencies import templates
+
+app = FastAPI()
+
+base.metadata.create_all(bind=engine)
+
+app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
+
+@app.get("/")
+def home(request: Request):
+    return templates.TemplateResponse(
+    "home/base.html",
+    {"request": request, "name": ""}
+    )
+
+
+app.include_router(home_router)
+app.include_router(inventory_router)
+app.include_router(production_router)
+app.include_router(contacts_router)

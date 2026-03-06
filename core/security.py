@@ -13,8 +13,6 @@ bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/home/login")
 
-
-
 def create_token(user_id: int):
 
     expiration = datetime.utcnow() + timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
@@ -25,8 +23,6 @@ def create_token(user_id: int):
     token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return token
 
-
-
 def create_refresh_token(user_id: int):
     expiration = datetime.utcnow() + timedelta(minutes=int(REFRESH_TOKEN_EXPIRE_MINUTES))
     to_encode = {
@@ -35,7 +31,6 @@ def create_refresh_token(user_id: int):
         }
     RefreshToken = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return RefreshToken
-
 
 def verify_token(request: Request, session: Session = Depends(CreateSession)) -> User:
 

@@ -1,0 +1,264 @@
+/* --- VARIABLES Y CONFIGURACIÓN BASE --- */
+:root {
+    --bg-page: #f2f4f7;
+    --bg-main: #ffffff;
+    --border: #d0d7de;
+    --text-main: #1f2328;
+    --text-muted: #6e7781;
+    --blue: #1e40af;
+    --blue-hover: #1e3a8a;
+    --red: #dc2626;
+    --sidebar-width: 240px;
+    --sidebar-collapsed: 70px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: var(--bg-page);
+    color: var(--text-main);
+    display: flex;
+    min-height: 100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar {
+    width: var(--sidebar-width);
+    background: #fff;
+    border-right: 1px solid var(--border);
+    position: fixed;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed) !important;
+}
+
+.sidebar-header {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+}
+
+.sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding: 0;
+}
+
+.app-icon {
+    font-size: 24px;
+}
+
+.sidebar.collapsed .app-icon {
+    display: none;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+/* =========================
+   NAV
+========================= */
+.sidebar-nav {
+    padding: 10px 12px;
+    flex: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: #e7edff;
+    color: var(--blue);
+}
+
+.nav-item .icon {
+    width: 24px;
+    text-align: center;
+}
+
+.sidebar.collapsed .nav-item .label {
+    display: none;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.logout-link {
+    color: var(--red);
+    text-decoration: none;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 40px;
+    flex: 1;
+    background: var(--bg-page);
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed + .main-content {
+    margin-left: var(--sidebar-collapsed);
+}
+
+/* =========================
+   PAGE HEADER (TÍTULO + BOTÓN)
+========================= */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+}
+
+/* =========================
+   ADD BUTTON
+========================= */
+.add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.add-btn:hover {
+    background: var(--blue-hover);
+}
+
+/* =========================
+   ADD CONTACT FORM
+========================= */
+.add-contact-form {
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+}
+
+.add-contact-form.hidden {
+    display: none;
+}
+
+.form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.form-row input,
+.form-row select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+/* =========================
+   FILTER FORM
+========================= */
+.main-content form:not(.add-contact-form) {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.main-content form input,
+.main-content form select {
+    min-width: 220px;
+    padding: 10px 4px;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+}
+
+.main-content form button {
+    padding: 10px 22px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* =========================
+   TABLE
+========================= */
+table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+th {
+    background: #f8fafc;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+tr:hover {
+    background: #f1f5f9;
+}
+
+thead, tbody, tr {
+    width: 100%;
+}
+
+th, td {
+    box-sizing: border-box;
+    text-align: left;
+    padding: 16px;
+    border-bottom: 1px solid var(--border)
+}

@@ -9,6 +9,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from users.users_service import authuser, generate_and_send_verification_code, verify_user_email
 from core.dependencies import templates
 
+from utilities.net.autorouter import use_autorouter
+
 home_router = APIRouter(prefix="/home", tags=["home"])
 
 @home_router.post("/login")
@@ -92,25 +94,11 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
         session.rollback()
         raise HTTPException(status_code=401, detail=f"Error creating user: {str(e)}")
 
-
-
-# VIEWS
-@home_router.get("/login")
-def login_page(request: Request):
-    return templates.TemplateResponse("home/login.html", {"request": request})
-
-
-
-@home_router.get("/signup")
-def signup_page(request: Request):
-    return templates.TemplateResponse("home/signup.html", {"request": request})
-
-
-
-@home_router.get("/verify-email")
-def verify_email_page(request: Request):
-    return templates.TemplateResponse("home/verify_email.html", {"request": request})
-
+use_autorouter(
+    home_router, 
+    templates, 
+    '/home'
+)
 
 
 @home_router.post("/verify-email")

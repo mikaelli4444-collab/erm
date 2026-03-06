@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, EmailStr
-from typing import Optional, Literal
+from typing import Literal
 
 class UserSchema(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
