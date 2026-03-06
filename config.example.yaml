@@ -22,8 +22,8 @@ email_verification:
   server:
     port: 587
     host: smtp.gmail.com
-    tls: true
-    ssl: false
+    start_tls: true
+    use_ssl: false
   
 database:
   url: postgresql://user:password@localhost:5432/erm_db
