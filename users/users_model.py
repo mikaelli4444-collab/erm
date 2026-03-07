@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Column, DateTime
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
@@ -17,4 +17,18 @@ class User(base):
     verification_code = Column(String, nullable=True)
     verification_code_expires_at = Column(DateTime, nullable=True)
     inventory_items = relationship("Inventory", back_populates="owner")
-    inventory_logs = relationship("InventoryLogs", back_populates="user")
+    company_id = Column(Integer, ForeignKey("companies.id"))
+    company = relationship("Company", back_populates="users")
+
+class Company(base):
+    __tablename__ = 'companies'
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String, index=True, nullable=False)
+    legal_name = Column(String, index=True, nullable=False)
+    tax_id = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    plan = Column(String, default='basic', nullable=False)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    owner = relationship("User", foreign_keys=[owner_id])
+    company_items = relationship("Inventory", back_populates="company")

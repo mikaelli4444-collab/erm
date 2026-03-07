@@ -1,4 +1,4 @@
-#uvicorn main:app --reload para rodar o app
+#uvicorn core.main:app --reload para rodar o app
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from users.users_route import home_router 
