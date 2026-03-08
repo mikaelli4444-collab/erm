@@ -32,3 +32,5 @@ class Company(base):
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", foreign_keys=[owner_id])
     company_items = relationship("Inventory", back_populates="company")
+    contacts = relationship("Contacts", back_populates="company")
+    productions = relationship("Production", back_populates="company")

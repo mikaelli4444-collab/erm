@@ -12,19 +12,17 @@ production_router = APIRouter(prefix="/production", tags=["production"])
 
 @production_router.post("/add")
 def create_project_in_production(production: create_production, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized, invalid token")
     
     new_production_item = Production(
         project_name=production.project_name,
         client_name=production.client_name,
         description=production.description,
         delivery_date=production.delivery_date,
-        status=production.status
+        status=production.status,
+        company_id = user.company_id
     )
 
-    if session.query(Production).filter(Production.project_name == new_production_item.project_name, Production.client_name == new_production_item.client_name).first():
+    if session.query(Production).filter(Production.project_name == new_production_item.project_name, Production.client_name == new_production_item.client_name, Production.company_id == user.company_id).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This production item already exists, please provide different data to create a new production item")
         
     session.add(new_production_item)
@@ -37,12 +35,9 @@ def create_project_in_production(production: create_production, session: Session
     }
 
 @production_router.post("/delete/{production_name}")
-def delete_project_route(project_name: str, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+def delete_production_route(project_name: str, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
-    if not user:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="User not authenticated")
-
-    project_to_delete = session.query(Production).filter(Production.project_name == project_name).first()
+    project_to_delete = session.query(Production).filter(Production.project_name == project_name, Production.company_id == user.company_id).first()
 
     if not project_to_delete:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
@@ -61,11 +56,9 @@ def delete_project_route(project_name: str, session: Session = Depends(CreateSes
 
 @production_router.get("/")
 def show_production_by_client(request: Request, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized, invalid token")
     
-    production_projects = session.query(Production).all()
+    production_projects = session.query(Production).filter(Production.company_id == user.company_id).all()
+
     
     return templates.TemplateResponse(
         "production/production.html",
@@ -78,10 +71,8 @@ def show_production_by_client(request: Request, session: Session = Depends(Creat
 
 @production_router.get("/delete/{production_id}")
 def delete_project_get(production_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Unauthorized")
 
-    project = session.query(Production).filter(Production.id == production_id).first()
+    project = session.query(Production).filter(Production.id == production_id, Production.company_id == user.company_id).first()
 
     if not project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Project not found")

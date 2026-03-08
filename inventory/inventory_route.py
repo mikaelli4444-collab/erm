@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import CreateSession
 from inventory.inventory_model import Inventory
 from inventory.inventory_schema import ItemCreate
-from users.users_model import User
-from users.users_schemas import CompanySchema
+from users.users_model import User, Company
 from core.security import verify_token
 from inventory.inventory_service import edit_inventory_item, delete_inventory_item, create_inventory_item
 from core.dependencies import templates
@@ -33,22 +32,21 @@ def delete_inventory_item_route(item_name: str, session: Session = Depends(Creat
 
 
 @inventory_router.get("/dashboard")
-def inventory_dashboard(request: Request, company: CompanySchema, search: str = None, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-    query = session.query(Inventory).filter(Inventory.company_id == company.id)
+def inventory_dashboard(request: Request, search: str = None, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    query = session.query(Inventory).filter(Inventory.company_id == user.company_id)
 
     if search:
         query = query.filter(Inventory.item_name.ilike(f"%{search}%"))
 
     items = query.all()
-
+    
     return templates.TemplateResponse(
         "inv/dashboard.html",
         {
             "request": request,
             "items": items,
             "user": user
-        }
-    )
+        })
 
 
 
