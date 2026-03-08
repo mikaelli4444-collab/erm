@@ -1,26 +1,37 @@
+import yaml
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+
 from alembic import context
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
 from core.database import base
-from users import users_model
-from inventory import inventory_model
-from production import production_model
+from users.users_model import User, Company
+from inventory.inventory_model import Inventory
+from contacts.contacts_models import Contacts
+from production.production_model import Production
+
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
+
+def get_url():
+    with open("config.yaml", "r") as f:
+        config_data = yaml.safe_load(f)
+    return config_data['database']['url']
 
 config = context.config
+if config.get_main_option("sqlalchemy.url") is None or config.get_main_option("sqlalchemy.url") == "://":
+    config.set_main_option("sqlalchemy.url", get_url())
 
-config.set_main_option(
-    "sqlalchemy.url",
-    os.getenv("DATABASE_URL")
-)
-
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
 target_metadata = base.metadata
 
 # other values from the config, defined by the needs of env.py,

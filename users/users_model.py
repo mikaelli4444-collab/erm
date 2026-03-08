@@ -18,7 +18,7 @@ class User(base):
     verification_code_expires_at = Column(DateTime, nullable=True)
     inventory_items = relationship("Inventory", back_populates="owner")
     company_id = Column(Integer, ForeignKey("companies.id"))
-    company = relationship("Company", back_populates="users")
+    company = relationship("Company", back_populates="owner", foreign_keys=[company_id])
 
 class Company(base):
     __tablename__ = 'companies'

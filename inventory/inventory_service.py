@@ -12,7 +12,8 @@ def create_inventory_item(item_name: str = Form(...), description: str = Form(..
         item_name=item_name,
         description=description,
         quantity=quantity,
-        owner_id=user.id
+        owner_id=user.id,
+        company_id=user.company_id
     )
 
     session.add(new_item)
