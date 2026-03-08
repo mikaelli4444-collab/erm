@@ -7,7 +7,6 @@ from core.email_service import send_verification_email
 from core.config import VERIFICATION_TOKEN_EXPIRE_MINUTES
 
 def authuser(identifier: str, password: str, db: Session):
-    """Busca usuario por username O email, y verifica contraseña."""
     user = db.query(User).filter(
         (User.username == identifier) | (User.email == identifier)
     ).first()

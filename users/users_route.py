@@ -8,7 +8,6 @@ from core.security import create_token, create_verification_token, verify_verifi
 from fastapi.security import OAuth2PasswordRequestForm
 from users.users_service import authuser, generate_and_send_verification_code, verify_user_email
 from core.dependencies import templates
-
 from utilities.net.autorouter import use_autorouter
 
 home_router = APIRouter(prefix="/home", tags=["home"])
@@ -41,14 +40,6 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
     )
 
     return response
-
-@home_router.get("/refresh")
-def refresh_token(user: User = Depends(verify_token)):
-    access_token = create_token(user.id)
-    return {
-        "access_token": access_token, 
-        "token_type": "bearer"
-     }
     
 @home_router.post("/signup")
 async def create_user(request: Request, session: Session = Depends(CreateSession), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
@@ -93,13 +84,6 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=401, detail=f"Error creating user: {str(e)}")
-
-use_autorouter(
-    home_router, 
-    templates, 
-    '/home'
-)
-
 
 @home_router.post("/verify-email")
 async def verify_email(request: Request,session: Session = Depends(CreateSession), code: str = Form(...), verification_jwt: str = Form(...)):
@@ -162,3 +146,20 @@ async def resend_verification_email(request: Request, session: Session = Depends
         "verification_jwt": new_verification_jwt,
         "message": "A new verification code has been sent to your email."
     })
+
+
+#VIEWS
+
+use_autorouter(
+    home_router, 
+    templates, 
+    '/home'
+)
+
+@home_router.get("/refresh")
+def refresh_token(user: User = Depends(verify_token)):
+    access_token = create_token(user.id)
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer"
+     }

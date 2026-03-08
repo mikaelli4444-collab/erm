@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import CreateSession
 from inventory.inventory_model import Inventory
 from inventory.inventory_schema import ItemCreate
-from users.users_model import User
+from users.users_model import User, Company
 from core.security import verify_token
 
 def create_inventory_item(item_name: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
