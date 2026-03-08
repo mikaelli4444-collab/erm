@@ -3,6 +3,6 @@
 3. verify email in singup .... DONE
 4. show logs in inventory frontend ..... NO GOOD IDEA
 5. add add and remove endpoints in inventory ........ NO GOOD IDEA
-6. save inventory & log in db automaticly ........ 
-7. diferent db between 2 users
+6. save inventory & log in db automaticly ........ IDK, MAYBE BAD IDEA
+7. diferent db between 2 users ..... DONE
 8. resend verification code dont work (idk why) ....... DONE
