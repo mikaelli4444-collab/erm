@@ -17,4 +17,3 @@ class User(base):
     verification_code = Column(String, nullable=True)
     verification_code_expires_at = Column(DateTime, nullable=True)
     inventory_items = relationship("Inventory", back_populates="owner")
-    inventory_logs = relationship("InventoryLogs", back_populates="user")
