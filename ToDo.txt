@@ -3,6 +3,11 @@
 3. verify email in singup .... DONE
 4. show logs in inventory frontend ..... NO GOOD IDEA
 5. add add and remove endpoints in inventory ........ NO GOOD IDEA
-6. save inventory & log in db automaticly ........ IDK, MAYBE BAD IDEA
-7. diferent db between 2 users ..... DONE
+6. save inventory & log in db automaticly ........ 
+7. diferent db between 2 users 
+    7.1 notify company_owner when a new user will conect with his enterprise
+        7.1.1 compny_owner can choose if he accepted a new user or not
+    7.2 new formulary in singup
 8. resend verification code dont work (idk why) ....... DONE
+9. financery study
+10. save and show pictures, pdf and data in projects
