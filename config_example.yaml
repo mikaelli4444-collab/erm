@@ -27,3 +27,10 @@ email_verification:
   
 database:
   url: postgresql://user:password@localhost:5432/erm_db
+
+# Opcional: LLM para mejorar la detección de intención del agente (crear usuario, contactos, inventario, etc.)
+agent:
+  llm:
+    api_key: ""           # ej. OpenAI: sk-...
+    provider: "openai"    # openai
+    model: "gpt-4o-mini"  # modelo a usar

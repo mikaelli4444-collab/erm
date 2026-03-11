@@ -24,9 +24,11 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
         )
     
     if not user.is_verified:
+        verification_jwt = create_verification_token(user.email)
         return templates.TemplateResponse("home/verify_email.html", {
-            "request": request, 
-            "email": user.email, 
+            "request": request,
+            "email": user.email,
+            "verification_jwt": verification_jwt,
             "message": "Please verify your email address before logging in."
         })
 
@@ -77,19 +79,23 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
         session.commit()
         session.refresh(new_user)
 
-        await generate_and_send_verification_code(new_user, session)
-
         user_email = new_user.email
-
         verification_jwt = create_verification_token(new_user.email)
+
+        try:
+            await generate_and_send_verification_code(new_user, session)
+            message = "A verification code has been sent to your email."
+        except Exception as e:
+            message = "Usuario creado. No se pudo enviar el correo; usá 'Reenviar código' para recibir el código por email."
 
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request,
             "verification_jwt": verification_jwt,
-            "message": "A verification code has been sent to your email.",
-            "user_email": user_email
+            "message": message,
+            "user_email": user_email,
+            "email": user_email
         })
-    
+
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=401, detail=f"Error creating user: {str(e)}")
@@ -149,16 +155,21 @@ async def resend_verification_email(request: Request, session: Session = Depends
         })
     
     if user.is_verified:
-
         return RedirectResponse(url="/home/login", status_code=status.HTTP_303_SEE_OTHER)
 
-    await generate_and_send_verification_code(user, session)
-    
-    new_verification_jwt = create_verification_token(user.email)
-
-    return templates.TemplateResponse("home/verify_email.html", {
-        "request": request, 
-        "email": user.email,
-        "verification_jwt": new_verification_jwt,
-        "message": "A new verification code has been sent to your email."
-    })
+    try:
+        await generate_and_send_verification_code(user, session)
+        new_verification_jwt = create_verification_token(user.email)
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request,
+            "email": user.email,
+            "verification_jwt": new_verification_jwt,
+            "message": "A new verification code has been sent to your email."
+        })
+    except Exception:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request,
+            "email": user.email,
+            "verification_jwt": verification_jwt,
+            "message": "No se pudo enviar el correo. Revisá en config.yaml el servidor SMTP (host, usuario, contraseña)."
+        })

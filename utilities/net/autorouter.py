@@ -21,12 +21,10 @@ def use_autorouter(
         if path.endswith('.html'):
             return RedirectResponse(f"{router.prefix}/{path.removesuffix('.html')}")
         
-        if path and not path.endswith("/"):
-            return RedirectResponse(f"{router.prefix}/{path}/")
-        
         if path in exclude:
             raise HTTPException(status_code=404)
         
+        # Normalizar: con o sin barra final sirve el mismo template (evita 307)
         if path.endswith("/"):
             path = path.removesuffix("/")
 
