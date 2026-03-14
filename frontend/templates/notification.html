@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Campana Notificaciones</title>
+
+<style>
+/* Botón flotante */
+#notification-bell {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #111;
+    color: white;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* Badge contador */
+#notification-count {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 50%;
+}
+
+/* Menú flotante */
+#notification-menu {
+    position: fixed;
+    bottom: 95px;
+    right: 25px;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+}
+
+/* Item */
+.notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Notificación nueva */
+.notification-new {
+    background-color: #d9f0ff; /* azul claro */
+}
+</style>
+</head>
+
+<body>
+
+<!-- Botón -->
+<button id="notification-bell">
+    🔔
+    <span id="notification-count"></span>
+</button>
+
+<!-- Menú -->
+<div id="notification-menu"></div>
+
+<script>
+const bell = document.getElementById("notification-bell");
+const menu = document.getElementById("notification-menu");
+const countBadge = document.getElementById("notification-count");
+
+let notifications = [];
+
+// Alternar menú
+bell.addEventListener("click", () => {
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+});
+
+// Cargar notificaciones desde API
+async function loadNotifications() {
+    try {
+        const response = await fetch("/notifications", {
+            headers: {
+                "Authorization": "Bearer YOUR_TOKEN"
+            }
+        });
+
+        notifications = await response.json();
+        renderNotifications();
+
+    } catch (error) {
+        console.error("Error cargando notificaciones:", error);
+    }
+}
+
+// Renderizar
+function renderNotifications() {
+    menu.innerHTML = "";
+
+    let unreadCount = 0;
+
+    notifications.forEach(notif => {
+
+        if (!notif.is_read) unreadCount++;
+
+        const div = document.createElement("div");
+        div.classList.add("notification-item");
+
+        if (!notif.is_read) {
+            div.classList.add("notification-new");
+        }
+
+        div.innerText = notif.type + " - " + JSON.stringify(notif.data);
+
+        div.onclick = () => markAsRead(notif.id);
+
+        menu.appendChild(div);
+    });
+
+    countBadge.innerText = unreadCount > 0 ? unreadCount : "";
+}
+
+// Marcar como leída
+async function markAsRead(id) {
+    await fetch(`/notifications/${id}`, {
+        method: "PATCH",
+        headers: {
+            "Authorization": "Bearer YOUR_TOKEN"
+        }
+    });
+
+    await loadNotifications();
+}
+
+// WebSocket para tiempo real
+function connectWebSocket() {
+    const socket = new WebSocket("ws://localhost:8000/ws");
+
+    socket.onmessage = function(event) {
+        const message = JSON.parse(event.data);
+
+        // Si llega nueva notificación
+        if (message.type) {
+            loadNotifications();
+        }
+    };
+}
+
+// Inicializar
+loadNotifications();
+connectWebSocket();
+
+</script>
+
+</body>
+</html>
