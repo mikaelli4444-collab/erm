@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Form
+from fastapi import APIRouter, Depends, Request, Form, WebSocket
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession
@@ -10,7 +10,12 @@ from inventory.inventory_service import edit_inventory_item, delete_inventory_it
 from core.dependencies import templates
 
 inventory_router = APIRouter(prefix="/inv", tags=["inv"])
-    
+
+
+@inventory_router.websocket("/ws/notification/{users.id}")
+async def notify_owner(websocket: WebSocket):
+    pass
+
 
 @inventory_router.post("/add")
 def create_inventory_item_route(item_name: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
@@ -47,7 +52,6 @@ def inventory_dashboard(request: Request, search: str = None, session: Session =
             "items": items,
             "user": user
         })
-
 
 
 #proxima tarefa, quero que el inventory_log seja criado automaticamente toda vez que um item for editado ou deletado, e que ele armazene o id do 

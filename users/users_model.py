@@ -11,14 +11,15 @@ class User(base):
     email = Column(String, unique=True, index=True, nullable=False)
     fullname = Column(String, nullable=False)
     password = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow(), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_verified = Column(Integer, default=0, nullable=False)
     verification_code = Column(String, nullable=True)
     verification_code_expires_at = Column(DateTime, nullable=True)
     inventory_items = relationship("Inventory", back_populates="owner")
     company_id = Column(Integer, ForeignKey("companies.id"))
-    company = relationship("Company", back_populates="owner", foreign_keys=[company_id])
+    company = relationship("Company", foreign_keys=[company_id])
+    role = Column(String, index=True, default="pending", nullable=False)#pending, employee, owner, admin
 
 class Company(base):
     __tablename__ = 'companies'
@@ -34,3 +35,15 @@ class Company(base):
     company_items = relationship("Inventory", back_populates="company")
     contacts = relationship("Contacts", back_populates="company")
     productions = relationship("Production", back_populates="company")
+
+class CompanyJoinRequest(base):
+    __tablename__ = 'company_join_requests'
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    user = relationship("User", foreign_keys=[user_id])
+    company_id = Column(Integer, ForeignKey("companies.id"), index=True)
+    company = relationship("Company", foreign_keys=[company_id])
+    status = Column(String, default="pending", index=True, nullable=False)#pending, rejected, accepted
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    message = Column(String, index=True, nullable=False)

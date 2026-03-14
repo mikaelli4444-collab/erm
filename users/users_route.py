@@ -12,6 +12,7 @@ from utilities.net.autorouter import use_autorouter
 
 home_router = APIRouter(prefix="/home", tags=["home"])
 
+
 @home_router.post("/login")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(CreateSession)):
     user = authuser(form_data.username, form_data.password, session)
@@ -41,8 +42,9 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
 
     return response
     
+
 @home_router.post("/signup")
-async def create_user(request: Request, session: Session = Depends(CreateSession), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+async def create_user(request: Request, session: Session = Depends(CreateSession), company: str = Form(...), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     user = session.query(User).filter((User.email==email) | (User.username==username)).first()
     
     try:
@@ -62,7 +64,8 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             username=username,
             email=email,
             password=password,
-            fullname=fullname
+            fullname=fullname,
+            company=company
         )
         session.add(new_user)
         session.commit()
@@ -81,9 +84,10 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             "user_email": user_email
         })
     
-    except Exception as e:
+    except Exception:
         session.rollback()
-        raise HTTPException(status_code=401, detail=f"Error creating user: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Error creating user: {str(Exception)}")
+
 
 @home_router.post("/verify-email")
 async def verify_email(request: Request,session: Session = Depends(CreateSession), code: str = Form(...), verification_jwt: str = Form(...)):
@@ -155,6 +159,7 @@ use_autorouter(
     templates, 
     '/home'
 )
+
 
 @home_router.get("/refresh")
 def refresh_token(user: User = Depends(verify_token)):
