@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Column, DateTime, ForeignKey
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
@@ -46,4 +46,4 @@ class CompanyJoinRequest(base):
     company = relationship("Company", foreign_keys=[company_id])
     status = Column(String, default="pending", index=True, nullable=False)#pending, rejected, accepted
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    message = Column(String, index=True, nullable=False)
+    message = Column(JSON, index=True, nullable=False)

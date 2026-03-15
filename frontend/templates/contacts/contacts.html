@@ -133,7 +133,6 @@
                 {% endif %}
             </tbody>
         </table>
-        <div id="navbar-container"></div>
     </main>
 
     <script>
@@ -147,13 +146,8 @@
         addBtn.addEventListener('click', () => {
             addForm.classList.toggle('hidden');
         });
-        
-        fetch("/notification.html")
-            .then(res => res.text())
-            .then(data => {
-                document.getElementById("navbar-container").innerHTML = data;
-         });
     </script>
+    {% include 'notification.html' %}
 </body>
 
 </html>

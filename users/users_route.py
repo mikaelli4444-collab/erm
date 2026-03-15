@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from users.users_model import User
+from users.users_model import User, Company, CompanyJoinRequest
+from notification.notification_services import manager, notify_company_join
 from core.security import bcrypt_context, verify_token
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token
@@ -60,22 +61,51 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             
         password = bcrypt_context.hash(password)
 
+        company_obj = session.query(Company).filter(Company.name == company).first()
+
         new_user = User(
             username=username,
             email=email,
             password=password,
             fullname=fullname,
-            company=company
+            #company=company_obj.id
         )
+
         session.add(new_user)
         session.commit()
         session.refresh(new_user)
 
+        verification_jwt = create_verification_token(new_user.email)
+
+        if company_obj:
+            join_request = CompanyJoinRequest(
+            user_id=new_user.id,
+            company_id=company_obj.id,
+            message = {
+                        "type": "company_join_request",
+                        "data": {
+                                    "username": new_user.username
+                        }
+                    }
+        )
+            
+            session.add(join_request)
+            session.commit()
+            
+        else:
+            raise HTTPException(status_code=404, detail="Company not found")
+
+        owner_id = company_obj.owner_id
+            
         await generate_and_send_verification_code(new_user, session)
+        
+        try:
+            await manager.send_to_user(owner_id, join_request.message)
+        
+        except:
+            pass
 
         user_email = new_user.email
-
-        verification_jwt = create_verification_token(new_user.email)
 
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request,
@@ -84,9 +114,9 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             "user_email": user_email
         })
     
-    except Exception:
+    except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=401, detail=f"Error creating user: {str(Exception)}")
+        raise HTTPException(status_code=401, detail=f"Error creating user: {str(e)}")
 
 
 @home_router.post("/verify-email")
@@ -111,7 +141,7 @@ async def verify_email(request: Request,session: Session = Depends(CreateSession
     
     if verify_user_email(user, code, session):
         return RedirectResponse(url="/home/login", status_code=status.HTTP_303_SEE_OTHER)
-    else:\
+    else:
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request, 
             "email": email, 

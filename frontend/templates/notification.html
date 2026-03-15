@@ -1,167 +1,206 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Campana Notificaciones</title>
-
+<!-- Componente de Campana de Notificaciones para FastAPI -->
 <style>
-/* Botón flotante */
-#notification-bell {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: #111;
-    color: white;
-    font-size: 24px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
+    /* Botón flotante de la campana */
+    #notification-bell {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #1e40af;
+        color: white;
+        font-size: 24px;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+    }
 
-/* Badge contador */
-#notification-count {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: red;
-    color: white;
-    font-size: 12px;
-    padding: 3px 6px;
-    border-radius: 50%;
-}
+    #notification-bell:hover {
+        transform: scale(1.05);
+    }
 
-/* Menú flotante */
-#notification-menu {
-    position: fixed;
-    bottom: 95px;
-    right: 25px;
-    width: 300px;
-    max-height: 400px;
-    overflow-y: auto;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-    display: none;
-    flex-direction: column;
-}
+    /* Círculo rojo (Contador) - OCULTO POR DEFECTO */
+    #notification-count {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #ff0000;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 2px;
+        border-radius: 50%;
+        min-width: 18px;
+        height: 18px;
+        display: none; /* Se activa solo si hay notificaciones */
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #111; /* Para que resalte sobre la campana negra */
+    }
 
-/* Item */
-.notification-item {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    font-size: 14px;
-    cursor: pointer;
-}
+    /* Menú de notificaciones */
+    #notification-menu {
+        position: fixed;
+        bottom: 95px;
+        right: 25px;
+        width: 320px;
+        max-height: 450px;
+        overflow-y: auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        display: none; /* Se controla con JS */
+        flex-direction: column;
+        z-index: 1001;
+        border: 1px solid #eee;
+    }
 
-/* Notificación nueva */
-.notification-new {
-    background-color: #d9f0ff; /* azul claro */
-}
+    /* Estilo de cada notificación */
+    .notification-item {
+        padding: 15px;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .notification-item:hover {
+        background-color: #fcfcfc;
+    }
+
+    /* Estilo para notificaciones NO leídas */
+    .notification-new {
+        background-color: #f0f7ff;
+        border-left: 4px solid #007bff;
+        font-weight: 500;
+    }
+
+    /* Mensaje cuando no hay notificaciones */
+    .no-notifications {
+        padding: 20px;
+        text-align: center;
+        color: #888;
+        font-style: italic;
+    }
 </style>
-</head>
 
-<body>
-
-<!-- Botón -->
-<button id="notification-bell">
+<!-- Estructura del Componente -->
+<button id="notification-bell" title="Notificaciones">
     🔔
     <span id="notification-count"></span>
 </button>
 
-<!-- Menú -->
-<div id="notification-menu"></div>
+<div id="notification-menu">
+    <!-- Las notificaciones se renderizan aquí dinámicamente -->
+</div>
 
+<!-- Lógica del Componente -->
 <script>
-const bell = document.getElementById("notification-bell");
-const menu = document.getElementById("notification-menu");
-const countBadge = document.getElementById("notification-count");
+    (function() {
+        const bell = document.getElementById("notification-bell");
+        const menu = document.getElementById("notification-menu");
+        const countBadge = document.getElementById("notification-count");
+        let notifications = [];
 
-let notifications = [];
-
-// Alternar menú
-bell.addEventListener("click", () => {
-    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-});
-
-// Cargar notificaciones desde API
-async function loadNotifications() {
-    try {
-        const response = await fetch("/notifications", {
-            headers: {
-                "Authorization": "Bearer YOUR_TOKEN"
-            }
+        // 1. Alternar visibilidad del menú
+        bell.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isVisible = menu.style.display === "flex";
+            menu.style.display = isVisible ? "none" : "flex";
         });
 
-        notifications = await response.json();
-        renderNotifications();
+        // 2. Cerrar menú al hacer clic fuera
+        document.addEventListener("click", () => {
+            menu.style.display = "none";
+        });
 
-    } catch (error) {
-        console.error("Error cargando notificaciones:", error);
-    }
-}
+        menu.addEventListener("click", (e) => e.stopPropagation());
 
-// Renderizar
-function renderNotifications() {
-    menu.innerHTML = "";
-
-    let unreadCount = 0;
-
-    notifications.forEach(notif => {
-
-        if (!notif.is_read) unreadCount++;
-
-        const div = document.createElement("div");
-        div.classList.add("notification-item");
-
-        if (!notif.is_read) {
-            div.classList.add("notification-new");
+        // 3. Cargar notificaciones desde la API
+        async function loadNotifications() {
+            try {
+                const response = await fetch("/notifications", {
+                    headers: { "Authorization": "Bearer YOUR_TOKEN" } 
+                });
+                if (!response.ok) throw new Error("Error en la API");
+                
+                notifications = await response.json();
+                renderNotifications();
+            } catch (error) {
+                console.error("Error cargando notificaciones:", error);
+            }
         }
 
-        div.innerText = notif.type + " - " + JSON.stringify(notif.data);
+        // 4. Renderizar notificaciones y controlar el Círculo Rojo
+        function renderNotifications() {
+            menu.innerHTML = "";
+            let unreadCount = 0;
 
-        div.onclick = () => markAsRead(notif.id);
+            if (notifications.length === 0) {
+                menu.innerHTML = '<div class="no-notifications">No tienes notificaciones</div>';
+                countBadge.style.display = "none"; // Ocultar círculo rojo si no hay nada
+                return;
+            }
 
-        menu.appendChild(div);
-    });
+            notifications.forEach(notif => {
+                if (!notif.is_read) unreadCount++;
 
-    countBadge.innerText = unreadCount > 0 ? unreadCount : "";
-}
+                const div = document.createElement("div");
+                div.className = `notification-item ${!notif.is_read ? 'notification-new' : ''}`;
+                
+                const content = typeof notif.data === 'string' ? notif.data : JSON.stringify(notif.data);
+                div.innerText = `${notif.type}: ${content}`;
+                
+                div.onclick = () => markAsRead(notif.id);
+                menu.appendChild(div);
+            });
 
-// Marcar como leída
-async function markAsRead(id) {
-    await fetch(`/notifications/${id}`, {
-        method: "PATCH",
-        headers: {
-            "Authorization": "Bearer YOUR_TOKEN"
+            // Lógica para mostrar u ocultar el círculo rojo
+            if (unreadCount > 0) {
+                countBadge.innerText = unreadCount > 9 ? "9+" : unreadCount;
+                countBadge.style.display = "flex"; // MOSTRAR si hay nuevas
+            } else {
+                countBadge.style.display = "none"; // OCULTAR si no hay nuevas
+            }
         }
-    });
 
-    await loadNotifications();
-}
-
-// WebSocket para tiempo real
-function connectWebSocket() {
-    const socket = new WebSocket("ws://localhost:8000/ws");
-
-    socket.onmessage = function(event) {
-        const message = JSON.parse(event.data);
-
-        // Si llega nueva notificación
-        if (message.type) {
-            loadNotifications();
+        // 5. Marcar como leída
+        async function markAsRead(id) {
+            try {
+                await fetch(`/notifications/${id}`, {
+                    method: "PATCH",
+                    headers: { "Authorization": "Bearer YOUR_TOKEN" }
+                });
+                await loadNotifications();
+            } catch (error) {
+                console.error("Error al marcar como leída:", error);
+            }
         }
-    };
-}
 
-// Inicializar
-loadNotifications();
-connectWebSocket();
+        // 6. WebSocket para actualizaciones en tiempo real
+        function connectWebSocket() {
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            const socket = new WebSocket(`${protocol}//${window.location.host}/ws` );
 
+            socket.onmessage = function(event) {
+                const message = JSON.parse(event.data);
+                if (message.type) {
+                    loadNotifications(); // Recargar automáticamente al recibir mensaje
+                }
+            };
+
+            socket.onclose = () => setTimeout(connectWebSocket, 3000); 
+        }
+
+        // Inicialización
+        loadNotifications();
+        connectWebSocket();
+    })();
 </script>
-
-</body>
-</html>

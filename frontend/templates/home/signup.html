@@ -27,6 +27,7 @@
         {% endif %}
 
         <form action="/home/signup" method="POST">
+
             <div class="form-group">
                 <label for="fullname">Full Name</label>
                 <input type="text" id="fullname" name="fullname" placeholder="E.g: John Doe" required>
@@ -53,8 +54,16 @@
                 </div>
             </div>
 
+            <!-- NUEVO CAMPO -->
+            <div class="form-group">
+                <label for="company">Company you want to join</label>
+                <input type="text" id="company" name="company"required placeholder="Company Name">
+            </div>
+
             <button type="submit" class="btn-signup">Sign Up</button>
+
         </form>
+
 
         <div class="footer-links">
             <p>Already have an account? <a href="/home/login">Log in</a></p>
