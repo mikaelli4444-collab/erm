@@ -1,35 +1,65 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession
-from inventory.inventory_model import Notification
-from users.users_model import User
 from core.security import verify_token
+from users.users_model import User, CompanyJoinRequest
+from notification.notification_model import Notification
 
+notification_router = APIRouter(
+    prefix="/notification",
+    tags=["notification"]
+)
 
-notification_router = APIRouter(prefix="/notification", tags=["notification"])
 
 @notification_router.get("/notifications")
-def get_notifications(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+def get_notifications(user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
 
-    notifications = session.query(Notification).filter(Notification.user_id == user.id).order_by(Notification.created_at.desc()).all()
+    notifications = (session.query(Notification).filter(Notification.user_id == user.id).order_by(Notification.id.desc()).all())
 
     return notifications
 
+@notification_router.post("/notification/request/{request_id}/accept")
+async def accepted_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
-@notification_router.patch("/notifications/{notification_id}")
-def mark_notification_read(notification_id: int, session: Session = Depends(CreateSession)):
+    request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
 
-    notification = session.query(Notification).filter(Notification.id == notification_id).first()
+    if not request:
+        raise HTTPException(404, "Request not found")
 
-    notification.is_read = True
+    if request.company.owner_id != user.id:
+        raise HTTPException(403, "No autorizado")
+
+    request.status = "accepted"
+
+    user_to_add = session.query(User).get(request.user_id)
+    user_to_add.company_id = request.company_id
+
     session.commit()
 
-    return {"message": "Notification marked as read"}
+@notification_router.post("/notification/request/{request_id}/reject")
+async def rejected_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
+    request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
 
-@notification_router.get("/notifications/unread-count")
-def unread_notifications(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    if not request:
+        raise HTTPException(404, "Request not found")
 
-    count = session.query(Notification).filter(Notification.user_id == user.id,Notification.is_read == False).count()
+    if request.company.owner_id != user.id:
+        raise HTTPException(403, "No autorizado")
 
-    return {"unread": count}
+    request.status = "rejected"
+
+    session.commit()
+
+    return {"status": "rejected"}
+
+@notification_router.patch("/notifications/{notification_id}")
+def mark_as_read(notification_id: int,user: User = Depends(verify_token),session: Session = Depends(CreateSession)):
+
+    notification = (session.query(Notification).filter(Notification.id == notification_id).filter(Notification.user_id == user.id).first())
+
+    if notification:
+        notification.is_read = True
+        session.commit()
+
+    return {"status": "ok"}

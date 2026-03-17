@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status, WebSocket
 from sqlalchemy.orm import Session
-from inventory.inventory_model import Inventory, Notification
+from inventory.inventory_model import Inventory
 from inventory.inventory_schema import ItemCreate
-from users.users_model import User, Company, CompanyJoinRequest
+from users.users_model import User
 
 #FUNCIONES
 

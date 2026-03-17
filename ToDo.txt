@@ -10,4 +10,4 @@
     7.2 new formulary in singup
 8. resend verification code dont work (idk why) ....... DONE
 9. financery study
-10. save and show pictures, pdf and data in projects
+10. save and show pictures, pdf and data in projects and show to client with a link (the client dont need login)

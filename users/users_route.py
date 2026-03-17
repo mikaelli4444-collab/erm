@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from users.users_model import User, Company, CompanyJoinRequest
-from notification.notification_services import manager, notify_company_join
+from notification.notification_services import manager, create_notification
 from core.security import bcrypt_context, verify_token
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token
@@ -10,6 +10,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from users.users_service import authuser, generate_and_send_verification_code, verify_user_email
 from core.dependencies import templates
 from utilities.net.autorouter import use_autorouter
+from notification.notification_model import Notification
 
 home_router = APIRouter(prefix="/home", tags=["home"])
 
@@ -72,7 +73,7 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
         )
 
         session.add(new_user)
-        session.commit()
+        session.flush()
         session.refresh(new_user)
 
         verification_jwt = create_verification_token(new_user.email)
@@ -91,6 +92,8 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             
             session.add(join_request)
             session.commit()
+
+            await create_notification(company_obj.owner_id, company_obj.id, join_request.message, session)
             
         else:
             raise HTTPException(status_code=404, detail="Company not found")

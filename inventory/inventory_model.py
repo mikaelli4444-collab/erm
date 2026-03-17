@@ -17,13 +17,3 @@ class Inventory(base):
     owner = relationship("User", back_populates="inventory_items")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
     company = relationship("Company", back_populates="company_items")
-
-class Notification(base):
-    __tablename__ = "notification"
-
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    type = Column(String)
-    data = Column(String)
-    is_read = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow(), nullable=False)

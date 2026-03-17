@@ -11,12 +11,6 @@ from core.dependencies import templates
 
 inventory_router = APIRouter(prefix="/inv", tags=["inv"])
 
-
-@inventory_router.websocket("/ws/notification/{users.id}")
-async def notify_owner(websocket: WebSocket):
-    pass
-
-
 @inventory_router.post("/add")
 def create_inventory_item_route(item_name: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     create_inventory_item(item_name, description, quantity, session, user)

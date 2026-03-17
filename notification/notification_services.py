@@ -1,7 +1,6 @@
-from fastapi import HTTPException, status, WebSocket
+from fastapi import HTTPException, WebSocket
 from sqlalchemy.orm import Session
-from inventory.inventory_model import Inventory, Notification
-from inventory.inventory_schema import ItemCreate
+from notification.notification_model import Notification
 from users.users_model import User, Company, CompanyJoinRequest
 
 
@@ -61,26 +60,33 @@ manager = ConnectionManager()
 
 #FUNCIONES
 
-async def notify_company_join(user: User, company: Company, companyjoinrequest: CompanyJoinRequest, session: Session):
-    #obtener company_id del user
-    user_company_id = user.company_id
+async def create_notification(user_id: int, session: Session, message: dict):
+
+    notification = Notification(
+        user_id=user_id,
+        type=message["type"]
+    )
+
+    session.add(notification)
+    session.commit()
+
+
+async def notify_company_join(user: User, session: Session):
+
+    company = session.query(Company).filter(Company.id == user.company_id).first()
+
+    if not company:
+        return
+
+    owner_id = company.owner_id
 
     message = {
         "type": "company_join_request",
-        "user_id": user.id,
-        "username": user.username,
-        "company_id": user.company_id
+        "data": f"{user.username} quiere unirse a la empresa",
+        "user_id": owner_id
     }
 
-    #obtener empresa y company_owner
-    company_obj = session.query(Company).filter(Company.id == user_company_id).first()
-
-    if not company_obj:
-        raise HTTPException(status_code=404, detail="Company not found")
-    
-    owner_id = company_obj.owner_id
-
-    await manager.send_to_user(owner_id, message)
+    await create_notification(owner_id, message, session)
 
 async def send_to_user(self, user_id: int, message: dict):
     ws = self.user_connections.get(user_id)
@@ -91,15 +97,23 @@ async def send_to_user(self, user_id: int, message: dict):
         except:
             pass
 
-async def create_notification(user_id: int, message: dict, session: Session):
+async def create_notification(user_id: int, company_id: int, message: dict, session: Session):
 
     notification = Notification(
         user_id=user_id,
+        company_id=company_id,
         type=message["type"],
-        data=str(message["data"])
+        data=message["data"]
     )
 
     session.add(notification)
     session.commit()
 
-    await manager.send_to_user(user_id, message)
+async def show_notifications(user: User, session: Session):
+    #obtener company_id
+    company_id = user.company_id
+
+    #obtener notificaciones
+    notifications = session.query(Notification).filter(Notification.company_id == company_id).all()
+
+    return notifications

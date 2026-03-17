@@ -1,4 +1,5 @@
-from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, JSON
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
@@ -35,6 +36,7 @@ class Company(base):
     company_items = relationship("Inventory", back_populates="company")
     contacts = relationship("Contacts", back_populates="company")
     productions = relationship("Production", back_populates="company")
+    company_messages = relationship("Notification", back_populates="company")
 
 class CompanyJoinRequest(base):
     __tablename__ = 'company_join_requests'
@@ -46,4 +48,4 @@ class CompanyJoinRequest(base):
     company = relationship("Company", foreign_keys=[company_id])
     status = Column(String, default="pending", index=True, nullable=False)#pending, rejected, accepted
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    message = Column(JSON, index=True, nullable=False)
+    message = Column(JSONB, index=True, nullable=False)
