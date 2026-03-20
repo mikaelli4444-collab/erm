@@ -4,6 +4,7 @@ from core.dependencies import CreateSession
 from core.security import verify_token
 from users.users_model import User, CompanyJoinRequest
 from notification.notification_model import Notification
+from notification.notification_services import notify_company_join, show_notifications
 
 notification_router = APIRouter(
     prefix="/notification",
@@ -12,13 +13,14 @@ notification_router = APIRouter(
 
 
 @notification_router.get("/notifications")
-def get_notifications(user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+async def get_notifications(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    await show_notifications(session, user)
 
-    notifications = (session.query(Notification).filter(Notification.user_id == user.id).order_by(Notification.id.desc()).all())
+@notification_router.post("/notifications/join-request")
+async def join_request(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    await notify_company_join(user, session)
 
-    return notifications
-
-@notification_router.post("/notification/request/{request_id}/accept")
+@notification_router.post("/notifications/join-request/accept")
 async def accepted_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
     request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
@@ -36,7 +38,7 @@ async def accepted_request(request_id: int, session: Session = Depends(CreateSes
 
     session.commit()
 
-@notification_router.post("/notification/request/{request_id}/reject")
+@notification_router.post("/notifications/join-request/reject")
 async def rejected_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
     request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()

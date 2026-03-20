@@ -1,26 +1,37 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
+from notification.notification_services import manager
+from core.database import SessionLocal
+from core.security import get_user_from_token
+
 
 ws_route = APIRouter()
-
-connections = []
 
 
 @ws_route.websocket("/ws")
 async def websocket_notifications(websocket: WebSocket):
 
-    await websocket.accept()
-    connections.append(websocket)
+    session = SessionLocal()
 
     try:
-        while True:
-            await websocket.receive_text()
 
-    except WebSocketDisconnect:
-        connections.remove(websocket)
+        token = websocket.query_params.get("token")
 
+        if not token:
+            await websocket.close()
+            return
 
-# función para enviar mensajes a todos
-async def broadcast(message: dict):
+        user = get_user_from_token(token, session)
 
-    for connection in connections:
-        await connection.send_json(message)
+        company_id = user.company_id
+
+        await manager.connect(websocket, user.id, company_id)
+
+        try:
+            while True:
+                await websocket.receive_text()
+
+        except WebSocketDisconnect:
+            manager.disconnect(websocket, user.id, company_id)
+
+    finally:
+        session.close()

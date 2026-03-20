@@ -1,7 +1,7 @@
-from fastapi import HTTPException, WebSocket
+from fastapi import WebSocket, HTTPException
 from sqlalchemy.orm import Session
 from notification.notification_model import Notification
-from users.users_model import User, Company, CompanyJoinRequest
+from users.users_model import User, Company
 
 
 
@@ -46,10 +46,10 @@ class ConnectionManager:
                 if not self.user_connections[user_id]:
                     del self.user_connections[user_id]
 
-
     async def send_to_company(self, company_id: int, message: dict):#esto envia el mensaje a todo el mundo
         for ws in self.company_connections.get(company_id, []):
             await ws.send_json(message)
+
 
     async def send_to_user(self, user_id: int, message: dict):#esto lo envia a un usuario en especifico
         for ws in self.user_connections.get(user_id, []):
@@ -60,42 +60,26 @@ manager = ConnectionManager()
 
 #FUNCIONES
 
-async def create_notification(user_id: int, session: Session, message: dict):
-
-    notification = Notification(
-        user_id=user_id,
-        type=message["type"]
-    )
-
-    session.add(notification)
-    session.commit()
-
 
 async def notify_company_join(user: User, session: Session):
 
     company = session.query(Company).filter(Company.id == user.company_id).first()
 
     if not company:
-        return
+        raise HTTPException(status_code=404, detail="Company not found")
 
     owner_id = company.owner_id
 
+    print(f"escribiendo mensaje")
     message = {
         "type": "company_join_request",
         "data": f"{user.username} quiere unirse a la empresa",
         "user_id": owner_id
     }
+    
+    print(f"enviando a {owner_id}")
+    await create_notification(owner_id, company.id, message, session)
 
-    await create_notification(owner_id, message, session)
-
-async def send_to_user(self, user_id: int, message: dict):
-    ws = self.user_connections.get(user_id)
-
-    if ws:
-        try:
-            await ws.send_json(message)
-        except:
-            pass
 
 async def create_notification(user_id: int, company_id: int, message: dict, session: Session):
 
@@ -108,8 +92,14 @@ async def create_notification(user_id: int, company_id: int, message: dict, sess
 
     session.add(notification)
     session.commit()
+    print(f"guardado en la db")
 
-async def show_notifications(user: User, session: Session):
+    print(f"conexiones activas: {manager.user_connections}")
+    print(f"enviando mensaje pero en create_notification")
+    await manager.send_to_user(user_id, message)
+
+
+async def show_notifications(session: Session, user: User):
     #obtener company_id
     company_id = user.company_id
 
