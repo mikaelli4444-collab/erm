@@ -6,11 +6,9 @@ from datetime import datetime, timedelta
 from core.email_service import send_verification_email
 from core.config import VERIFICATION_TOKEN_EXPIRE_MINUTES
 
-def authuser(identifier: str, password: str, db: Session):
-    """Busca usuario por username O email, y verifica contraseña."""
-    user = db.query(User).filter(
-        (User.username == identifier) | (User.email == identifier)
-    ).first()
+def authuser(identifier: str, password: str, session: Session):
+    user = session.query(User).filter((User.username == identifier) | (User.email == identifier)).first()
+
     if not user:
         return None
 
@@ -19,18 +17,18 @@ def authuser(identifier: str, password: str, db: Session):
 
     return user
 
-async def generate_and_send_verification_code(user: User, db: Session):
+async def generate_and_send_verification_code(user: User, session: Session):
     code = str(random.randint(100000, 999999))
     expires_at = datetime.utcnow() + timedelta(minutes=VERIFICATION_TOKEN_EXPIRE_MINUTES)
     user.verification_code = code
     user.verification_code_expires_at = expires_at
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
     await send_verification_email(user.email, code)
     return user
 
-def verify_user_email(user: User, code: str, db: Session):
+def verify_user_email(user: User, code: str, session: Session):
     if not user.verification_code or user.verification_code != code:
         return False
     if user.verification_code_expires_at < datetime.utcnow():
@@ -38,8 +36,7 @@ def verify_user_email(user: User, code: str, db: Session):
     user.is_verified = 1
     user.verification_code = None
     user.verification_code_expires_at = None
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
     return True
-

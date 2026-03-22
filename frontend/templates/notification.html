@@ -1,0 +1,299 @@
+<style>
+#notification-bell{
+position:fixed;
+bottom:25px;
+right:25px;
+width:60px;
+height:60px;
+border-radius:50%;
+background:#1e40af;
+color:white;
+font-size:24px;
+border:none;
+cursor:pointer;
+box-shadow:0 4px 12px rgba(0,0,0,0.4);
+z-index:1000;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+#notification-count{
+position:absolute;
+top:5px;
+right:5px;
+background:red;
+color:white;
+font-size:11px;
+font-weight:bold;
+border-radius:50%;
+min-width:18px;
+height:18px;
+display:none;
+align-items:center;
+justify-content:center;
+}
+
+#notification-menu{
+position:fixed;
+bottom:95px;
+right:25px;
+width:320px;
+max-height:450px;
+overflow-y:auto;
+background:white;
+border-radius:12px;
+box-shadow:0 10px 40px rgba(0,0,0,0.2);
+display:none;
+flex-direction:column;
+z-index:1001;
+}
+
+.notification-item{
+padding:15px;
+border-bottom:1px solid #eee;
+}
+
+.notification-new{
+background:#f0f7ff;
+border-left:4px solid #007bff;
+}
+
+.notification-actions{
+margin-top:10px;
+display:flex;
+gap:10px;
+}
+
+.btn{
+flex:1;
+padding:6px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+}
+
+.btn-accept{
+background:#22c55e;
+color:white;
+}
+
+.btn-reject{
+background:#ef4444;
+color:white;
+}
+</style>
+
+<button id="notification-bell">
+🔔
+<span id="notification-count"></span>
+</button>
+
+<div id="notification-menu"></div>
+
+<script>
+(function(){
+
+const bell = document.getElementById("notification-bell")
+const menu = document.getElementById("notification-menu")
+const badge = document.getElementById("notification-count")
+
+let notifications = []
+const token = localStorage.getItem("access_token")
+
+if(!token){
+    console.log("❌ No hay token")
+}
+
+// UI
+bell.onclick = (e)=>{
+    e.stopPropagation()
+    menu.style.display = menu.style.display==="flex" ? "none":"flex"
+}
+
+menu.onclick = (e)=> e.stopPropagation()
+
+document.onclick = ()=>{
+    menu.style.display="none"
+}
+
+// LOAD INICIAL
+async function loadNotifications(){
+    try{
+        const res = await fetch("/notification/notifications",{
+            headers:{ "Authorization":`Bearer ${token}` }
+        })
+
+        notifications = await res.json()
+        render()
+
+    }catch(e){
+        console.log("❌ Error:", e)
+    }
+}
+
+// RENDER
+function render(){
+
+    menu.innerHTML=""
+    let unread = 0
+
+    if(!notifications.length){
+        menu.innerHTML='<div style="padding:15px;">No tienes notificaciones</div>'
+        badge.style.display="none"
+        return
+    }
+
+    notifications.forEach(n=>{
+
+        if(!n.is_read) unread++
+
+        const div = document.createElement("div")
+        div.className = "notification-item"
+
+        if(!n.is_read) div.classList.add("notification-new")
+
+        let data
+        try{
+            data = typeof n.data === "string" ? JSON.parse(n.data) : n.data
+        }catch{
+            data = {}
+        }
+
+        console.log("DATA:", data)
+
+        if(n.type === "company_join_request"){
+
+            div.innerHTML = `
+            <div><b>${data.username || "Usuario"}</b> quiere unirse</div>
+            <div class="notification-actions">
+                <button class="btn btn-accept" data-request="${data.join_request_id}" data-noti="${n.id}">Aceptar</button>
+                <button class="btn btn-reject" data-request="${data.join_request_id}" data-noti="${n.id}">Rechazar</button>
+            </div>
+            `
+
+        }else{
+            div.innerText = n.type + ": " + JSON.stringify(data)
+        }
+
+        menu.appendChild(div)
+    })
+
+    // ACCEPT
+    document.querySelectorAll(".btn-accept").forEach(btn=>{
+        btn.onclick = async (e)=>{
+            e.stopPropagation()
+
+            const requestId = btn.dataset.request
+            const notiId = btn.dataset.noti
+
+            try{
+                const res = await fetch(`/notification/notifications/join-request/accept?request_id=${requestId}`,{
+                    method:"POST",
+                    headers:{ "Authorization":`Bearer ${token}` }
+                })
+
+                if(!res.ok){
+                    throw new Error("Error aceptando")
+                }
+
+                // eliminar de UI
+                notifications = notifications.filter(n => n.id != notiId)
+
+                render()
+
+                console.log("✅ Solicitud aceptada")
+
+            }catch(err){
+                console.log("❌", err)
+            }
+        }
+    })
+
+    // REJECT
+    document.querySelectorAll(".btn-reject").forEach(btn=>{
+        btn.onclick = async (e)=>{
+            e.stopPropagation()
+
+            const requestId = btn.dataset.request
+            const notiId = btn.dataset.noti
+
+            try{
+                const res = await fetch(`/notification/notifications/join-request/reject?request_id=${requestId}`,{
+                    method:"POST",
+                    headers:{ "Authorization":`Bearer ${token}` }
+                })
+
+                if(!res.ok){
+                    throw new Error("Error rechazando")
+                }
+
+                notifications = notifications.filter(n => n.id != notiId)
+
+                render()
+
+                console.log("❌ Solicitud rechazada")
+
+            }catch(err){
+                console.log("❌", err)
+            }
+        }
+    })
+
+    // BADGE
+    if(unread>0){
+        badge.innerText = unread
+        badge.style.display = "flex"
+    }else{
+        badge.style.display = "none"
+    }
+}
+
+// WEBSOCKET
+function connectWebSocket(){
+
+    if(!token) return
+
+    const protocol = location.protocol==="https:"?"wss":"ws"
+    const url = `${protocol}://${location.host}/ws?token=${token}`
+
+    const socket = new WebSocket(url)
+
+    socket.onopen = () => {
+        console.log("🟢 WS conectado")
+    }
+
+    socket.onmessage = (event) => {
+        try{
+            const msg = JSON.parse(event.data)
+
+            const exists = notifications.some(n => n.id === msg.id)
+
+            if(!exists){
+                notifications.unshift({
+                    id: msg.id,
+                    type: msg.type,
+                    data: msg.data,
+                    is_read: false
+                })
+            }
+
+            render()
+
+        }catch(e){
+            console.log("❌ WS error:", e)
+        }
+    }
+
+    socket.onclose = () => {
+        setTimeout(connectWebSocket, 3000)
+    }
+}
+
+// INIT
+loadNotifications()
+connectWebSocket()
+
+})()
+</script>

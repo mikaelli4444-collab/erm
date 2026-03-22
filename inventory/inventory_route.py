@@ -1,16 +1,15 @@
-from fastapi import APIRouter, Depends, Request, Form
+from fastapi import APIRouter, Depends, Request, Form, WebSocket
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession
 from inventory.inventory_model import Inventory
 from inventory.inventory_schema import ItemCreate
-from users.users_model import User
+from users.users_model import User, Company
 from core.security import verify_token
 from inventory.inventory_service import edit_inventory_item, delete_inventory_item, create_inventory_item
 from core.dependencies import templates
 
 inventory_router = APIRouter(prefix="/inv", tags=["inv"])
-    
 
 @inventory_router.post("/add")
 def create_inventory_item_route(item_name: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
@@ -33,22 +32,20 @@ def delete_inventory_item_route(item_name: str, session: Session = Depends(Creat
 
 @inventory_router.get("/dashboard")
 def inventory_dashboard(request: Request, search: str = None, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-    query = session.query(Inventory)
+    query = session.query(Inventory).filter(Inventory.company_id == user.company_id)
 
     if search:
         query = query.filter(Inventory.item_name.ilike(f"%{search}%"))
 
     items = query.all()
-
+    
     return templates.TemplateResponse(
         "inv/dashboard.html",
         {
             "request": request,
             "items": items,
             "user": user
-        }
-    )
-
+        })
 
 
 #proxima tarefa, quero que el inventory_log seja criado automaticamente toda vez que um item for editado ou deletado, e que ele armazene o id do 

@@ -72,10 +72,8 @@
                 <button type="submit">🔍</button>
             </form>
 
-            <!-- BOTÓN -->
             <button class="primary-btn" id="add-material-btn">➕ Add Material</button>
 
-            <!-- FORMULARIO (oculto por estado, no por display:none) -->
             <form method="post" action="/inv/add" class="add-material-form">
                 <input type="text" name="item_name" placeholder="Nombre" required>
                 <input type="text" name="description" placeholder="Descripción" required>
@@ -132,7 +130,6 @@
                 form.classList.toggle("active");
             });
 
-            // DELETE
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const row = btn.closest('tr');
@@ -149,7 +146,6 @@
                 });
             });
 
-            // EDIT
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const row = btn.closest('tr');
@@ -158,13 +154,14 @@
                     const originalName = row.children[1].innerText.trim();
                     const originalDesc = row.children[2].innerText.trim();
                     const originalQty = row.children[3].innerText.trim();
-                    const originalDate = row.children[5].innerText.trim();
+                    const originalDate = row.children[6].innerText.trim();
 
                     row.innerHTML = `
                         <td>${originalOwner}</td>
                         <td><input type="text" id="edit-name" value="${originalName}"></td>
                         <td><input type="text" id="edit-desc" value="${originalDesc}"></td>
                         <td><input type="number" id="edit-qty" value="${originalQty}"></td>
+                        <td>${originalCompany}</td>
                         <td class="actions">
                             <button type="button" class="save-btn">💾 Guardar</button>
                             <button type="button" class="cancel-edit">❌ Cancelar</button>
@@ -193,6 +190,6 @@
             });
         });
     </script>
-
+    {% include 'notification.html' %}
 </body>
 </html>

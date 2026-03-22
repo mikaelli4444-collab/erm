@@ -1,17 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from users.users_model import User
+from users.users_model import User, Company, CompanyJoinRequest
+from notification.notification_services import manager, create_notification, notify_company_join
 from core.security import bcrypt_context, verify_token
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token
 from fastapi.security import OAuth2PasswordRequestForm
 from users.users_service import authuser, generate_and_send_verification_code, verify_user_email
 from core.dependencies import templates
-
 from utilities.net.autorouter import use_autorouter
 
 home_router = APIRouter(prefix="/home", tags=["home"])
+
 
 @home_router.post("/login")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(CreateSession)):
@@ -39,19 +40,12 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
         httponly=True,
         samesite="lax"
     )
-
+    print(access_token)
     return response
-
-@home_router.get("/refresh")
-def refresh_token(user: User = Depends(verify_token)):
-    access_token = create_token(user.id)
-    return {
-        "access_token": access_token, 
-        "token_type": "bearer"
-     }
     
+
 @home_router.post("/signup")
-async def create_user(request: Request, session: Session = Depends(CreateSession), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+async def create_user(request: Request, session: Session = Depends(CreateSession), company: str = Form(...), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     user = session.query(User).filter((User.email==email) | (User.username==username)).first()
     
     try:
@@ -67,21 +61,50 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             
         password = bcrypt_context.hash(password)
 
+        company_obj = session.query(Company).filter(Company.name == company).first()
+
         new_user = User(
             username=username,
             email=email,
             password=password,
-            fullname=fullname
+            fullname=fullname,
+            #company=company_obj.id
         )
+
         session.add(new_user)
-        session.commit()
+        session.flush()
         session.refresh(new_user)
 
+        verification_jwt = create_verification_token(new_user.email)
+
+        if company_obj:
+            join_request = CompanyJoinRequest(
+            user_id=new_user.id,
+            company_id=company_obj.id,
+            )
+            
+            session.add(join_request)
+            session.commit()
+            session.refresh(join_request)
+
+            await notify_company_join(join_request.id, session, new_user)
+
+            await create_notification(company_obj.owner_id, company_obj.id, join_request.message, session)
+            
+        else:
+            raise HTTPException(status_code=404, detail="Company not found")
+
+        owner_id = company_obj.owner_id
+            
         await generate_and_send_verification_code(new_user, session)
+        
+        try:
+            await manager.send_to_user(owner_id, join_request.message)
+        
+        except:
+            pass
 
         user_email = new_user.email
-
-        verification_jwt = create_verification_token(new_user.email)
 
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request,
@@ -93,12 +116,6 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=401, detail=f"Error creating user: {str(e)}")
-
-use_autorouter(
-    home_router, 
-    templates, 
-    '/home'
-)
 
 
 @home_router.post("/verify-email")
@@ -123,7 +140,7 @@ async def verify_email(request: Request,session: Session = Depends(CreateSession
     
     if verify_user_email(user, code, session):
         return RedirectResponse(url="/home/login", status_code=status.HTTP_303_SEE_OTHER)
-    else:\
+    else:
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request, 
             "email": email, 
@@ -162,3 +179,21 @@ async def resend_verification_email(request: Request, session: Session = Depends
         "verification_jwt": new_verification_jwt,
         "message": "A new verification code has been sent to your email."
     })
+
+
+#VIEWS
+
+use_autorouter(
+    home_router, 
+    templates, 
+    '/home'
+)
+
+
+@home_router.get("/refresh")
+def refresh_token(user: User = Depends(verify_token)):
+    access_token = create_token(user.id)
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer"
+     }

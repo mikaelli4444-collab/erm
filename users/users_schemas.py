@@ -16,13 +16,9 @@ class UserLoginSchema(BaseModel):
     class Config:
         from_attributes = True
 
-class ContactSchema(BaseModel):
-    name: str = Field(..., min_length=2, max_length=100)
+class CompanySchema(BaseModel):
+    name: str
+    legal_name: str
+    tax_id: str
     email: EmailStr
-    phone: str = Field(..., min_length=6, max_length=20)
-    contact_type: Literal["client", "architect"]
-    address: str = Field(..., min_length=5, max_length=255)
-
-    class Config:
-        from_attributes = True
-
+    plan: Literal["basico", "pro", "enterprise"]

@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Column, DateTime, ForeignKey
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
@@ -15,3 +15,5 @@ class Inventory(base):
     updated_at = Column(DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow(), nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     owner = relationship("User", back_populates="inventory_items")
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    company = relationship("Company", back_populates="company_items")

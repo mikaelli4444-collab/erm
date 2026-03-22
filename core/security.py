@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Request, WebSocket
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
@@ -77,3 +77,26 @@ def verify_verification_token(token: str) -> Optional[str]:
         return email
     except JWTError:
         return None
+    
+def get_user_from_token(token: str, session: Session):
+
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+        if payload.get("sub") is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        id_user = int(payload.get("sub"))
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    user = session.query(User).filter(User.id == id_user).first()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    return user
