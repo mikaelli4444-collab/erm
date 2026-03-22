@@ -6,19 +6,16 @@ from users.users_model import User, CompanyJoinRequest
 from notification.notification_model import Notification
 from notification.notification_services import notify_company_join, show_notifications
 
-notification_router = APIRouter(
-    prefix="/notification",
-    tags=["notification"]
-)
+notification_router = APIRouter(prefix="/notification",tags=["notification"])
 
 
 @notification_router.get("/notifications")
 async def get_notifications(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-    await show_notifications(session, user)
+    return await show_notifications(session, user)
 
 @notification_router.post("/notifications/join-request")
-async def join_request(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-    await notify_company_join(user, session)
+async def join_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    await notify_company_join(request_id, session, user)
 
 @notification_router.post("/notifications/join-request/accept")
 async def accepted_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
@@ -26,17 +23,23 @@ async def accepted_request(request_id: int, session: Session = Depends(CreateSes
     request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
 
     if not request:
-        raise HTTPException(404, "Request not found")
+        raise HTTPException(status_code=404, detail="Request not found")
 
     if request.company.owner_id != user.id:
-        raise HTTPException(403, "No autorizado")
-
-    request.status = "accepted"
+        raise HTTPException(status_code=403, detail="Authentication error")
 
     user_to_add = session.query(User).get(request.user_id)
+
+    if user_to_add.company_id != None:
+        raise HTTPException(status_code=409, detail="Request error, user actually have a company")
+    
     user_to_add.company_id = request.company_id
 
+    request.status = "accepted"
+    
     session.commit()
+
+    return {"status": "accepted"}
 
 @notification_router.post("/notifications/join-request/reject")
 async def rejected_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
@@ -44,10 +47,10 @@ async def rejected_request(request_id: int, session: Session = Depends(CreateSes
     request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
 
     if not request:
-        raise HTTPException(404, "Request not found")
+        raise HTTPException(status_code=404, detail="Request not found")
 
     if request.company.owner_id != user.id:
-        raise HTTPException(403, "No autorizado")
+        raise HTTPException(status_code=403, detail="Authentication error")
 
     request.status = "rejected"
 

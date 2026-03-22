@@ -9,8 +9,10 @@ ws_route = APIRouter()
 
 @ws_route.websocket("/ws")
 async def websocket_notifications(websocket: WebSocket):
+    print('entro al ws')
 
     session = SessionLocal()
+    await websocket.accept() # no puede ser... 30 min buscando el error y nunca habia aceptado la conexion 👽👽👽
 
     try:
 

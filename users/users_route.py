@@ -10,7 +10,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from users.users_service import authuser, generate_and_send_verification_code, verify_user_email
 from core.dependencies import templates
 from utilities.net.autorouter import use_autorouter
-from notification.notification_model import Notification
 
 home_router = APIRouter(prefix="/home", tags=["home"])
 
@@ -41,7 +40,7 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
         httponly=True,
         samesite="lax"
     )
-
+    print(access_token)
     return response
     
 

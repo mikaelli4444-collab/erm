@@ -1,7 +1,7 @@
 from fastapi import WebSocket, HTTPException
 from sqlalchemy.orm import Session
 from notification.notification_model import Notification
-from users.users_model import User, Company
+from users.users_model import User, Company, CompanyJoinRequest
 
 
 
@@ -15,8 +15,6 @@ class ConnectionManager:
                                                                                                                                                              #  1: [ws20, ws100, ws8...]
                                                                                                                                                              #}
     async def connect(self, websocket: WebSocket, user_id:int, company_id: int):
-        await websocket.accept() #esto acepta la conexion al servidor
-
         # guardar usuario
         if user_id not in self.user_connections:
             self.user_connections[user_id] = []
@@ -61,22 +59,34 @@ manager = ConnectionManager()
 #FUNCIONES
 
 
-async def notify_company_join(user: User, session: Session):
+async def notify_company_join(request_id: int, session: Session, user: User):
 
-    company = session.query(Company).filter(Company.id == user.company_id).first()
+    request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
+    company = request.company
+
+    print(f"🤡🤡🤡🤡🤡🤡 esto es el request_id: {request.id}")
 
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
+    
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
 
     owner_id = company.owner_id
 
     print(f"escribiendo mensaje")
-    message = {
-        "type": "company_join_request",
-        "data": f"{user.username} quiere unirse a la empresa",
-        "user_id": owner_id
-    }
     
+    message = {
+                "type": "company_join_request",
+                "data": {
+                        "username": user.username,
+                        "user_id": user.id,
+                        "company_id": request.company_id,
+                        "join_request_id": request.id,
+                    },
+                "user_id": owner_id                     
+}
+
     print(f"enviando a {owner_id}")
     await create_notification(owner_id, company.id, message, session)
 
@@ -92,11 +102,16 @@ async def create_notification(user_id: int, company_id: int, message: dict, sess
 
     session.add(notification)
     session.commit()
+    session.refresh(notification)
     print(f"guardado en la db")
 
     print(f"conexiones activas: {manager.user_connections}")
     print(f"enviando mensaje pero en create_notification")
-    await manager.send_to_user(user_id, message)
+    await manager.send_to_user(user_id, {
+                                        "id": notification.id,
+                                        "type": message["type"],
+                                        "data": message["data"]
+    })
 
 
 async def show_notifications(session: Session, user: User):
