@@ -64,8 +64,6 @@ async def notify_company_join(request_id: int, session: Session, user: User):
     request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
     company = request.company
 
-    print(f"🤡🤡🤡🤡🤡🤡 esto es el request_id: {request.id}")
-
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
     
@@ -74,21 +72,20 @@ async def notify_company_join(request_id: int, session: Session, user: User):
 
     owner_id = company.owner_id
 
-    print(f"escribiendo mensaje")
-    
     message = {
-                "type": "company_join_request",
-                "data": {
-                        "username": user.username,
-                        "user_id": user.id,
-                        "company_id": request.company_id,
-                        "join_request_id": request.id,
-                    },
-                "user_id": owner_id                     
-}
+                        "type": "company_join_request",
+                        "data": {
+                                    "username": user.username,
+                                    "user_id": user.id,
+                                    "company_id": request.company_id,
+                                    "join_request_id": request.id,
+                            }
+                        }
+            
+    request.message = message
+    session.commit()
 
     print(f"enviando a {owner_id}")
-    await create_notification(owner_id, company.id, message, session)
 
 
 async def create_notification(user_id: int, company_id: int, message: dict, session: Session):

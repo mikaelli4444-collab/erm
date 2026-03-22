@@ -48,4 +48,4 @@ class CompanyJoinRequest(base):
     company = relationship("Company", foreign_keys=[company_id])
     status = Column(String, default="pending", index=True, nullable=False)#pending, rejected, accepted
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    message = Column(JSONB, index=True, nullable=False)
+    message = Column(JSONB, index=True, nullable=True)

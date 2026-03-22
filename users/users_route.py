@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from users.users_model import User, Company, CompanyJoinRequest
-from notification.notification_services import manager, create_notification
+from notification.notification_services import manager, create_notification, notify_company_join
 from core.security import bcrypt_context, verify_token
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token
@@ -81,16 +81,13 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             join_request = CompanyJoinRequest(
             user_id=new_user.id,
             company_id=company_obj.id,
-            message = {
-                        "type": "company_join_request",
-                        "data": {
-                                    "username": new_user.username
-                        }
-                    }
-        )
+            )
             
             session.add(join_request)
             session.commit()
+            session.refresh(join_request)
+
+            await notify_company_join(join_request.id, session, new_user)
 
             await create_notification(company_obj.owner_id, company_obj.id, join_request.message, session)
             

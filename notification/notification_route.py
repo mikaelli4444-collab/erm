@@ -21,6 +21,7 @@ async def join_request(request_id: int, session: Session = Depends(CreateSession
 async def accepted_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
     request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
+    notification = session.query(Notification).filter(Notification.data['join_request_id'].astext == str(request_id)).first()
 
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
@@ -35,8 +36,10 @@ async def accepted_request(request_id: int, session: Session = Depends(CreateSes
     
     user_to_add.company_id = request.company_id
 
-    request.status = "accepted"
-    
+    session.delete(request)
+    if notification:
+        session.delete(notification)
+        
     session.commit()
 
     return {"status": "accepted"}
@@ -45,6 +48,7 @@ async def accepted_request(request_id: int, session: Session = Depends(CreateSes
 async def rejected_request(request_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
     request = session.query(CompanyJoinRequest).filter(CompanyJoinRequest.id == request_id).first()
+    notification = session.query(Notification).filter(Notification.data['join_request_id'].astext == str(request_id)).first()
 
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
@@ -52,8 +56,10 @@ async def rejected_request(request_id: int, session: Session = Depends(CreateSes
     if request.company.owner_id != user.id:
         raise HTTPException(status_code=403, detail="Authentication error")
 
-    request.status = "rejected"
-
+    session.delete(request)
+    if notification:
+        session.delete(notification)
+        
     session.commit()
 
     return {"status": "rejected"}

@@ -168,8 +168,8 @@ function render(){
             div.innerHTML = `
             <div><b>${data.username || "Usuario"}</b> quiere unirse</div>
             <div class="notification-actions">
-                <button class="btn btn-accept" data-request="${data.request_id}" data-noti="${n.id}">Aceptar</button>
-                <button class="btn btn-reject" data-request="${data.request_id}" data-noti="${n.id}">Rechazar</button>
+                <button class="btn btn-accept" data-request="${data.join_request_id}" data-noti="${n.id}">Aceptar</button>
+                <button class="btn btn-reject" data-request="${data.join_request_id}" data-noti="${n.id}">Rechazar</button>
             </div>
             `
 
@@ -189,7 +189,7 @@ function render(){
             const notiId = btn.dataset.noti
 
             try{
-                const res = await fetch(`/notification/notifications/join-request/accept?request_id=${request}`,{
+                const res = await fetch(`/notification/notifications/join-request/accept?request_id=${requestId}`,{
                     method:"POST",
                     headers:{ "Authorization":`Bearer ${token}` }
                 })
