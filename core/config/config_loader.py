@@ -27,14 +27,17 @@ Map:
     2 - result
 """
 
-def parse_property(property:str, parser:Callable[[str|None], ParseConfigResult]):
+def parse_property(property: str, parser: Callable[[str | None], "ParseConfigResult"]):
+    property = property.removeprefix('.')
     
-    property.removeprefix('.')
-
-    value = eval(f'RAW_CONFIG.{property}') #esta linea
+    attrs = property.split(".")
+    value = RAW_CONFIG
+    for attr in attrs:
+        value = getattr(value, attr, None)
+    
     success, error, result = parser(value)
 
     if not success:
-        raise ValueError(f'The config {property} is invalid\n{error}')
+        raise ValueError(f"The config {property} is invalid\n{error}")
 
     return result
