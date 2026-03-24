@@ -20,3 +20,5 @@ class Production(base):
 # O navegador mostrará o formato local para o usuário (ex: DD/MM/YYYY no Brasil/LatAm).
 # Mas o navegador sempre enviará para o seu Python no formato YYYY-MM-DD por padrão. MDN Web Docs - Input Date.
 # Qual dessas opções se encaixa melhor no seu projeto? Se estiver usando um formulário HTML, a opção 3 é a mais fácil de todas.
+
+
