@@ -12,3 +12,5 @@ financery_router = APIRouter(prefix="/financery", tags=["financery"])
 
 # KPI, son indicadores que miden si un equipo o empresa esta alcanzando sus objetivos
 @financery_router.post("/")
+def kpi_balance(user, session):
+    pass
