@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, DECIMAL, Boolean
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, DECIMAL, Boolean, Date
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from core.database import base
@@ -10,7 +10,7 @@ class Sells(base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id")) #quien registro la venta o quien fue el responsable de la venta
     user = relationship("User", foreign_keys=[user_id], back_populates="sells")
-    company_id = Column(Integer, ForeignKey("companies.id"), index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_sells")
     type = Column(String)
     income = Column(Integer, nullable=False, index=True) #Ingresos
@@ -39,7 +39,7 @@ class Debt(base): #Deudas
     number_of_installments = Column(Integer, default=1) #aqui tengo el numero de cuotas, si tiene un valor > 1 entonces pagarla todos los meses el mismo dia que se indico en due_date
     description = Column(String)
     payments = relationship("Payment", back_populates="debt", cascade="all, delete-orphan")
-    company_id = Column(Integer, ForeignKey("companies.id"), index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_debts")
     status = Column(String, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado), 
 
@@ -51,9 +51,28 @@ class Payment(base):
     debt_id = Column(Integer, ForeignKey("debts.id"),ondelete="CASCADE")
     debt = relationship("Debt", back_populates="payments")
     amount = Column(DECIMAL, nullable=False, index=True) #cantidad a pagar CUOTAS
-    due_date = Column(DateTime, index=True) #todos los meses el mismo dia por la cantidad de meses que se indico
+    due_date = Column(Date, index=True) #todos los meses el mismo dia por la cantidad de meses que se indico
     paid = Column(Boolean, nullable=False, default=False)
-    paid_at = Column(DateTime, nullable=True)
-    company_id = Column(Integer, ForeignKey("companies.id"), index=True)
+    paid_at = Column(Date, nullable=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_payments")
     status = Column(String, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado)
+
+class Receivable(base):
+    __tablename__ = "receivables"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True) 
+    amount = Column(DECIMAL, nullable=False, index=True)
+    due_date = Column(Date, index=True)
+    receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    receiver = relationship("User", back_populates="to_recebe")
+    payer_id = Column(Integer, ForeignKey("contacts.id"), nullable=True, index=True) #pagador
+    payer = relationship("Contacts", back_populates="payments")
+    payer_name = Column(String, nullable=True, index=True)
+    description = Column(String, nullable=True, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    company = relationship("Company", back_populates="company_receivable")
+    paid_at = Column(Date, nullable=True)
+    
+
+#que hacer cuando  una empresa se borre, cascade...

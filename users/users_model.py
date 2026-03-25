@@ -23,6 +23,7 @@ class User(base):
     role = Column(String, index=True, default="pending", nullable=False)#pending, employee, client, architech, admin
     sells = relationship("Sells", foreign_keys="Sells.user_id", back_populates="user") # quien hizo la venta, relacion entre sells y users
     in_charge = relationship("Sells", foreign_keys="Sells.carpenter_id", back_populates="carpenter")
+    to_recebe = relationship("Receivable", foreign_keys="Receivable.receiver_id", back_populates="creditor")
 
 class Company(base):
     __tablename__ = 'companies'
@@ -42,7 +43,8 @@ class Company(base):
     company_sells = relationship("Sells", back_populates="company")
     company_debts = relationship("Debt", back_populates="company")
     company_payments = relationship("Payment", back_populates="company")
-
+    company_receivable = relationship("Receivable", back_populates="company")
+    
 class CompanyJoinRequest(base):
     __tablename__ = 'company_join_requests'
 

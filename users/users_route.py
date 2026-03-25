@@ -113,9 +113,9 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             "user_email": user_email
         })
     
-    except Exception as e:
+    except:
         session.rollback()
-        raise HTTPException(status_code=401, detail=f"Error creating user: {str(e)}")
+        raise HTTPException(status_code=401, detail=f"Error creating user, try again later")
 
 
 @home_router.post("/verify-email")
