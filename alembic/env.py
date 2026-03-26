@@ -6,10 +6,12 @@ from sqlalchemy import pool
 
 from alembic import context
 from core.database import base
-from users.users_model import User, Company
-from inventory.inventory_model import Inventory
-from contacts.contacts_models import Contacts
-from production.production_model import Production
+from users.users_model import *
+from inventory.inventory_model import *
+from contacts.contacts_models import *
+from production.production_model import *
+from notification.notification_model import *
+from financery.financery_models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

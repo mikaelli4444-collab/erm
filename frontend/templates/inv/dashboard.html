@@ -12,44 +12,6 @@
 
 <body>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="app-icon">🥵🥵🥵🥵🥵</div>
-            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a class="nav-item active" href="/inv/dashboard">
-                <span class="icon">📊</span>
-                <span class="label">Dashboard</span>
-            </a>
-
-            <a class="nav-item" href="/production">
-                <span class="icon">🏭</span>
-                <span class="label">Production</span>
-            </a>
-
-            <a class="nav-item" href="/ctc">
-                <span class="icon">👥</span>
-                <span class="label">Contacts</span>
-            </a>
-
-            <a class="nav-item" href="/projects">
-                <span class="icon">📁</span>
-                <span class="label">Projects</span>
-            </a>
-
-            <a class="nav-item" href="/financery">
-                <span class="icon">💵</span>
-                <span class="label">Financery</span>
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <a class="logout-link" href="/home/login">🚪 Sign Out</a>
-        </div>
-    </aside>
-
     <main class="main-content">
 
         <header class="header-top">
@@ -161,7 +123,6 @@
                         <td><input type="text" id="edit-name" value="${originalName}"></td>
                         <td><input type="text" id="edit-desc" value="${originalDesc}"></td>
                         <td><input type="number" id="edit-qty" value="${originalQty}"></td>
-                        <td>${originalCompany}</td>
                         <td class="actions">
                             <button type="button" class="save-btn">💾 Guardar</button>
                             <button type="button" class="cancel-edit">❌ Cancelar</button>
@@ -191,5 +152,6 @@
         });
     </script>
     {% include 'notification.html' %}
+    {% include 'aside.html' %}
 </body>
 </html>

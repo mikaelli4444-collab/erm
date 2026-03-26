@@ -1,18 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
+
 from sqlalchemy.orm import Session
 from users.users_model import User, Company, CompanyJoinRequest
 from notification.notification_services import manager, create_notification, notify_company_join
 from core.security import bcrypt_context, verify_token
 from core.dependencies import CreateSession
-from core.security import create_token, create_verification_token, verify_verification_token
+from core.security import create_token, create_verification_token, verify_verification_token, create_refresh_token
 from fastapi.security import OAuth2PasswordRequestForm
 from users.users_service import authuser, generate_and_send_verification_code, verify_user_email
 from core.dependencies import templates
+from core.config import SECRET_KEY, ALGORITHM
 from utilities.net.autorouter import use_autorouter
+from jose import jwt
 
 home_router = APIRouter(prefix="/home", tags=["home"])
-
 
 @home_router.post("/login")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(CreateSession)):
@@ -32,15 +34,26 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
         })
 
     access_token = create_token(user.id)
+    refresh_token = create_refresh_token(user.id)
 
     response = RedirectResponse(url="/inv/dashboard", status_code=303)
+    
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
+        secure=False, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
         samesite="lax"
     )
-    print(access_token)
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
+        samesite="lax"
+    )
+
     return response
     
 
@@ -190,10 +203,42 @@ use_autorouter(
 )
 
 
-@home_router.get("/refresh")
-def refresh_token(user: User = Depends(verify_token)):
-    access_token = create_token(user.id)
-    return {
-        "access_token": access_token, 
-        "token_type": "bearer"
-     }
+@home_router.post("/refresh")
+def refresh_token(request: Request, session: Session = Depends(CreateSession)):
+    
+    refresh_token_cookie = request.cookies.get("refresh_token")
+    
+    if not refresh_token_cookie:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    try:
+        payload = jwt.decode(refresh_token_cookie, SECRET_KEY, algorithms=[ALGORITHM])
+        
+    except:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    
+    sub = payload.get("sub")
+
+    if not sub:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    user_id = int(sub)
+    
+    user = session.query(User).filter(User.id == user_id).first() 
+    
+    if not user: 
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    new_access = create_token(user_id)
+    
+    response = JSONResponse(content={"message": "refreshed"})
+    
+    response.set_cookie(
+        key="access_token",
+        value=new_access,
+        httponly=True,
+        secure=False, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
+        samesite="lax"
+    )
+     
+    return response

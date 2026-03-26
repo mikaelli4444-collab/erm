@@ -1,9 +1,19 @@
-from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, DECIMAL, Boolean, Date
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, DECIMAL, Boolean, Date, Computed, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
+from enum import Enum
 
+class StatusEnum(str, Enum):
+    planning = "planning"
+    cutting = "cutting"
+    pre_assembly = "pre_assembly"
+    lamination = "lamination"
+    truck_loading = "truck_loading"
+    installation = "installation"
+    completed = "completed"
+    cancelled = "cancelled"
+    
 class Sells(base):
     __tablename__ = "sells"
 
@@ -12,22 +22,17 @@ class Sells(base):
     user = relationship("User", foreign_keys=[user_id], back_populates="sells")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_sells")
+    client_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    client_name =  Column(String, nullable=True, index=True)
     type = Column(String)
     income = Column(Integer, nullable=False, index=True) #Ingresos
     expenses = Column(Integer, nullable=False, index=True) #Egresos
-
-    @property
-    def profit(self):
-        return self.income - self.expenses #calcula los lucros automaticamente para no tener que hacerlo manualmente y evitar errores humanos  *LEER LA NOTA*
-    
+    profit = Column(Integer, Computed("income - expenses"), index=True)
+    status = Column(SQLEnum(StatusEnum), nullable=False)
     delivery = Column(DateTime, nullable=False) #definir fecha manualmente
     carpenter_id = Column(Integer, ForeignKey("users.id"))
     carpenter = relationship("User", foreign_keys=[carpenter_id], back_populates="in_charge")
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-
-    #EN ESE CASO EL PROFIT NO PODRA SER LLAMADO EN UNA QUERY PORQUE NO FORMA PARTE DEL SQL, FORMA PARTE DE PYTHON, PARA USARLO LO TENGO QUE LLAMAR COMO UNA PROPIEDAD NORMAL
-    # sells.profit, asi puedo usarlo, calcular con el y mandarlo al front
 
 
 class Debt(base): #Deudas
@@ -48,7 +53,7 @@ class Payment(base):
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    debt_id = Column(Integer, ForeignKey("debts.id"),ondelete="CASCADE")
+    debt_id = Column(Integer, ForeignKey("debts.id", ondelete="CASCADE"))
     debt = relationship("Debt", back_populates="payments")
     amount = Column(DECIMAL, nullable=False, index=True) #cantidad a pagar CUOTAS
     due_date = Column(Date, index=True) #todos los meses el mismo dia por la cantidad de meses que se indico
@@ -74,5 +79,3 @@ class Receivable(base):
     company = relationship("Company", back_populates="company_receivable")
     paid_at = Column(Date, nullable=True)
     
-
-#que hacer cuando  una empresa se borre, cascade...

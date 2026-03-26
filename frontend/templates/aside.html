@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Component</title>
+
+    <style>
+        /* =========================================================
+   VARIABLES Y CONFIGURACIÓN BASE
+   ========================================================= */
+        :root {
+            --bg-page: #f2f4f7;
+            --bg-main: #ffffff;
+            --border: #d0d7de;
+            --text-main: #1f2328;
+            --text-muted: #6e7781;
+            --blue: #1e40af;
+            --blue-hover: #1e3a8a;
+            --red: #dc2626;
+            --sidebar-width: 240px;
+            --sidebar-collapsed: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* =========================================================
+   SIDEBAR
+   ========================================================= */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            justify-content: center;
+            padding: 0;
+        }
+
+        .app-icon {
+            font-size: 24px;
+        }
+
+        .sidebar.collapsed .app-icon {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 8px;
+        }
+
+        /* =========================================================
+   NAVEGACIÓN
+   ========================================================= */
+        .sidebar-nav {
+            padding: 10px 12px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #e7edff;
+            color: var(--blue);
+        }
+
+        .nav-item .icon {
+            width: 24px;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .nav-item .label {
+            display: none;
+        }
+
+        /* =========================================================
+   FOOTER
+   ========================================================= */
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--red);
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .sidebar.collapsed .logout-link span:not(.icon) {
+            display: none;
+        }
+
+        .logout-link:hover {
+            background: #ffeeee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="app-icon">🥵🥵🥵🥵🥵</div>
+            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item {% if '/inv/dashboard' in request.url.path %}active{% endif %}" href="/inv/dashboard">
+                <span class="icon">📊</span>
+                <span class="label">Dashboard</span>
+            </a>
+
+            <a class="nav-item {% if '/production' in request.url.path %}active{% endif %}" href="/production">
+                <span class="icon">🏭</span>
+                <span class="label">Production</span>
+            </a>
+
+            <a class="nav-item {% if '/ctc' in request.url.path %}active{% endif %}" href="/ctc">
+                <span class="icon">👥</span>
+                <span class="label">Contacts</span>
+            </a>
+
+            <a class="nav-item {% if '/projects' in request.url.path %}active{% endif %}" href="/projects">
+                <span class="icon">📁</span>
+                <span class="label">Projects</span>
+            </a>
+
+            <a class="nav-item {% if '/financery' in request.url.path %}active{% endif %}" href="/financery">
+                <span class="icon">💵</span>
+                <span class="label">Financery</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a class="logout-link" href="#">
+                🚪 <span>Sign Out</span>
+            </a>
+        </div>
+    </aside>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+    </script>
+
+</body>
+
+</html>
