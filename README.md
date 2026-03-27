@@ -253,13 +253,6 @@ Se debe respetar el estilo ya existente:
 - `inventory_service.py`
 - `contacts_route.py`
 
-Para nuevos módulos dentro de `modules/`:
-
-- `model.py`
-- `service.py`
-- `route.py`
-- `schema.py`
-
 ---
 
 ## 💬 Convención de commits
