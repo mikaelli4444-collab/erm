@@ -2,12 +2,13 @@
 ![Python](https://img.shields.io/badge/python-3.11.9-000000?style=for-the-badge&logo=Python&logoColor=)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-000000?style=for-the-badge&logo=pydantic)
 ![Jinja](https://img.shields.io/badge/Jinja2-3.1.6-000000?style=for-the-badge&logo=jinja)
-![Posgresql](https://img.shields.io/badge/Postgresql-9.9-000000?style=for-the-badge&logo=postgresql)
-![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
-![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
-![Html](https://img.shields.io/badge/javascript-ES6+-000000?style=for-the-badge&logo=javascript)
+![Posgresql](https://img.shields.io/badge/Postgresql-9.9-000000?style=for-the-badge&logo=postgresql&logoColor=white)
+![js](https://img.shields.io/badge/javascript-ES6+-000000?style=for-the-badge&logo=javascript)
 ![WebSocket](https://img.shields.io/badge/websocket-16.0-000000?style=for-the-badge&logo=websocket)
 ![Alembic](https://img.shields.io/badge/Alembic-1.18.0-000000?style=for-the-badge&logo=alembic)
+![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
+![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
+![Google Gemini](https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=googlecloud)
 
 # ProntoERP
 
@@ -35,7 +36,7 @@ Este sistema ERP multi-tenancy busca solucionar problemas comunes de fabricas y 
 
 Este proyecto busca resolver:
 
-Este sistema permite a pequeñas y medianas carpinterias y negocios del sector mobiliario gestionar stock, contactos, producción, finanzas y proyectos en un solo lugar, reduciendo errores humanos, mejorando trazabilidad, comunicación y dando la oportunidad a los carpinteros de poder concentrarce mas en su trabajo sin perder tiempo ni energia en logistica y burocracias al mantener el contacto con el cliente de una forma mas facíl y satisfactoria para el usuario
+Este sistema permite a pequeñas y medianas carpinterias y negocios del sector mobiliario gestionar stock, contactos, producción, finanzas y proyectos en un solo lugar, reduciendo errores humanos, mejorando trazabilidad, comunicación y dando la oportunidad a los carpinteros de poder concentrarse mas en su trabajo sin perder tiempo ni energia en logistica y burocracias al mantener el contacto con el cliente de una forma mas facíl y satisfactoria para el usuario
 
 
 
@@ -114,7 +115,7 @@ erm/
 ├── README.md
 ├── alembic.ini
 ├── config_example.yaml
-└── requeriments.txt
+└── requirements.txt
 ```
 
 ## 🚀 Instalación
