@@ -1,9 +1,9 @@
 [🇺🇸 English](#english) | [🇪🇸 Español](#español) | [🇧🇷 Português](#português)
 
 <a name="español"></a>
-================================================================
-                ESPAÑOL (ORIGINAL)
-================================================================
+
+# ESPAÑOL (ORIGINAL)
+
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128.3-000000?style=for-the-badge&logo=fastapi )
 ![Python](https://img.shields.io/badge/python-3.11.9-000000?style=for-the-badge&logo=Python&logoColor=)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-000000?style=for-the-badge&logo=pydantic)
@@ -286,10 +286,11 @@ git commit -m "refactor: improve service layer structure"
 
 #### *Por favor, siempre crear rama desde main, desarrollar el modulo deseado siguiendo la estructura obligatoria, agradezco la comprensión de todos
 
+
+
 <a name="english"></a>
-================================================================
-                ENGLISH
-================================================================
+#   ENGLISH
+
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128.3-000000?style=for-the-badge&logo=fastapi )
 ![Python](https://img.shields.io/badge/python-3.11.9-000000?style=for-the-badge&logo=Python&logoColor=)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-000000?style=for-the-badge&logo=pydantic)
@@ -580,9 +581,9 @@ git commit -m "refactor: improve service layer structure"
 #### * Please always create branches from main, develop the desired module following the mandatory structure, thank you for your understanding.
 
 <a name="português"></a>
-================================================================
-                PORTUGUÊS
-================================================================
+
+# PORTUGUÊS
+
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128.3-000000?style=for-the-badge&logo=fastapi )
 ![Python](https://img.shields.io/badge/python-3.11.9-000000?style=for-the-badge&logo=Python&logoColor=)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-000000?style=for-the-badge&logo=pydantic)
