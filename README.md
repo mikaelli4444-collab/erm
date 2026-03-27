@@ -17,8 +17,17 @@ Este sistema ERP multi-tenancy busca solucionar problemas comunes de fabricas y 
 
 ## 📸 Vista previa
 
-<!-- Agrega aquí screenshots -->
-<!-- ![Dashboard](./screenshots/dashboard.png) -->
+![Home](https://i.imgur.com/Z89LSHn.png)
+
+![Login](https://i.imgur.com/Z8B7FX5.png)
+
+![Signup](https://i.imgur.com/SBVbcZB.png)
+
+![Inventory](https://i.imgur.com/h0xzs4F.png)
+
+![Verify Email](https://i.imgur.com/hvAY55S.png)
+
+![Notifications](https://i.imgur.com/lZjmEA6.png)
 
 ---
 

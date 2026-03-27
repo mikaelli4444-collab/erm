@@ -16,7 +16,7 @@ class User(base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_verified = Column(Integer, default=0, nullable=False)
     verification_code = Column(String, nullable=True)
-    verification_code_expires_at = Column(DateTime, nullable=True)
+    verification_code_expires_at = Column(DateTime(timezone=True), nullable=True)
     inventory_items = relationship("Inventory", back_populates="owner")
     company_id = Column(Integer, ForeignKey("companies.id"))
     company = relationship("Company", foreign_keys=[company_id])
