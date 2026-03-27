@@ -872,5 +872,3 @@ git commit -m "refactor: improve service layer structure"
 #### # Para testes, você pode remover as linhas que salvam as informações de e-mail, mas se quiser preenchê-las e ver todas as funcionalidades do sistema, pode acessar essas informações diretamente do seu aplicativo de e-mail.
 
 #### * Por favor, siempre crie branches a partir da main, desenvolva o módulo desejado seguindo a estrutura obrigatória, agradeço a compreensão de todos.
-=======
->>>>>>> 2c3586ede064f2b825da4a84941e06ec7a925be3
