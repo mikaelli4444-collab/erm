@@ -211,12 +211,12 @@ Cada nueva funcionalidad debe crearse como un **módulo independiente** dentro d
 
 Ejemplo:
 ```
-modules/
+erm/
 ├── users/
 ├── inventory/
 ├── financery/
 ├── contacts/
-└── new_feature/
+└── new_module/
 ```
 
 ---
@@ -226,10 +226,10 @@ modules/
 Cada módulo debe seguir este patrón:
 ```
 new_module/
-├── model.py
-├── service.py
-├── route.py
-└── schema.py
+├── %_model.py
+├── %_service.py
+├── %_route.py
+└── %_schema.py
 ```
 
 ---
