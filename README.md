@@ -285,7 +285,6 @@ git commit -m "refactor: improve service layer structure"
 #### #para pruebas, pueden eliminar las filas que guardan la informacion del email, pero si lo quieren llenar y ver todas las funcionalidades del sistema pueden acceder a esa informacion directamente desde su aplicacion de correo electronico
 
 #### *Por favor, siempre crear rama desde main, desarrollar el modulo deseado siguiendo la estructura obligatoria, agradezco la comprensión de todos
-<<<<<<< HEAD
 
 <a name="english"></a>
 ================================================================
