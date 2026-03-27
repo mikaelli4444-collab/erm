@@ -259,13 +259,6 @@ Se debe respetar el estilo ya existente:
 - `inventory_service.py`
 - `contacts_route.py`
 
-Para nuevos módulos dentro de `modules/`:
-
-- `model.py`
-- `service.py`
-- `route.py`
-- `schema.py`
-
 ---
 
 ## 💬 Convención de commits
@@ -292,6 +285,7 @@ git commit -m "refactor: improve service layer structure"
 #### #para pruebas, pueden eliminar las filas que guardan la informacion del email, pero si lo quieren llenar y ver todas las funcionalidades del sistema pueden acceder a esa informacion directamente desde su aplicacion de correo electronico
 
 #### *Por favor, siempre crear rama desde main, desarrollar el modulo deseado siguiendo la estructura obligatoria, agradezco la comprensión de todos
+<<<<<<< HEAD
 
 <a name="english"></a>
 ================================================================
@@ -878,3 +872,5 @@ git commit -m "refactor: improve service layer structure"
 #### # Para testes, você pode remover as linhas que salvam as informações de e-mail, mas se quiser preenchê-las e ver todas as funcionalidades do sistema, pode acessar essas informações diretamente do seu aplicativo de e-mail.
 
 #### * Por favor, siempre crie branches a partir da main, desenvolva o módulo desejado seguindo a estrutura obrigatória, agradeço a compreensão de todos.
+=======
+>>>>>>> 2c3586ede064f2b825da4a84941e06ec7a925be3
