@@ -1,1 +1,126 @@
-hola
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financery Dashboard</title>
+
+    <link rel="stylesheet" href="/static/inv/dashboard.css?v=999">
+    <script type="module" src="/static/js/refresh_token.js"></script>
+</head>
+
+<body>
+
+    <main class="main-content">
+
+        <header class="header-top">
+            <div class="page-title">
+                <h1>Financery</h1>
+                <p>Manage your sales</p>
+            </div>
+
+            <div class="top-bar">
+                <div class="username">
+                    {{ user.username }}
+                </div>
+            </div>
+        </header>
+
+        <section class="controls">
+            <form class="search-form" method="get" action="/financery/dashboard">
+                <input type="text" name="search" placeholder="Search sells..."
+                    value="{{ request.query_params.get('search', '') }}">
+                <button type="submit">🔍</button>
+            </form>
+
+            <button class="primary-btn" id="add-material-btn">➕ Add Sell</button>
+
+            <form method="post" action="/financery/dashboard" class="add-material-form">
+                <input type="datetime-local" name="delivery" required>
+                <input type="text" name="client_name" placeholder="Client" required>
+                <input type="number" name="carpenter_id" placeholder="Carpenter ID" required>
+                <input type="text" name="status" placeholder="Status" required>
+                <input type="number" name="income" placeholder="Income" required>
+                <input type="number" name="expenses" placeholder="Expenses" required>
+                <input type="text" name="type" placeholder="Type" required>
+
+                <button type="submit">Guardar</button>
+            </form>
+        </section>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Carpenter</th>
+                    <th>Status</th>
+                    <th>Income</th>
+                    <th>Expenses</th>
+                    <th>Type</th>
+                    <th>Delivery</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for sell in sells %}
+                <tr data-id="{{ sell.id }}">
+                    <td>{{ sell.client_name }}</td>
+                    <td>{{ sell.carpenter_id }}</td>
+                    <td>{{ sell.status }}</td>
+                    <td>{{ sell.income }}</td>
+                    <td>{{ sell.expenses }}</td>
+                    <td>{{ sell.type }}</td>
+                    <td>{{ sell.delivery }}</td>
+
+                    <td class="actions">
+                        <button class="edit-btn" data-id="{{ sell.id }}">✏️ Edit</button>
+                        <button class="delete-btn" data-id="{{ sell.id }}">🗑️ Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const addBtn = document.getElementById("add-material-btn");
+            const form = document.querySelector(".add-material-form");
+
+            if (!addBtn || !form) {
+                console.error("Botón o formulario no encontrado");
+                return;
+            }
+
+            addBtn.addEventListener("click", () => {
+                form.classList.toggle("active");
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.dataset.id;
+
+                    if (!confirm(`¿Eliminar esta venta?`)) return;
+
+                    const response = await fetch(`/financery/delete/${id}`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) location.reload();
+                    else alert("Error al eliminar");
+                });
+            });
+        });
+    </script>
+
+    {% include 'notification.html' %}
+    {% include 'aside.html' %}
+</body>
+</html>

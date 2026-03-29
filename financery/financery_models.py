@@ -14,6 +14,12 @@ class StatusEnum(str, Enum):
     completed = "completed"
     cancelled = "cancelled"
     
+class DebtStatusEnum(str, Enum):
+    pending = "pending"
+    cancelled = "cancelled"
+    paid = "paid"
+    overdue = "overdue"
+    
 class Sells(base):
     __tablename__ = "sells"
 
@@ -24,7 +30,7 @@ class Sells(base):
     company = relationship("Company", back_populates="company_sells")
     client_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     client_name =  Column(String, nullable=True, index=True)
-    type = Column(String)
+    #type = Column(String) no se porque lo puse, pero no creo que tenga mucho sentido
     income = Column(Integer, nullable=False, index=True) #Ingresos
     expenses = Column(Integer, nullable=False, index=True) #Egresos
     profit = Column(Integer, Computed("income - expenses"), index=True)
@@ -46,7 +52,7 @@ class Debt(base): #Deudas
     payments = relationship("Payment", back_populates="debt", cascade="all, delete-orphan")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_debts")
-    status = Column(String, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado), 
+    status = Column(SQLEnum(DebtStatusEnum), nullable=False)#pending, paid, cancelled, overdue (overdue = atrasado), 
 
 
 class Payment(base):

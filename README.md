@@ -210,7 +210,7 @@ Este proyecto sigue una estructura modular estricta para mantener escalabilidad,
 
 ## 🧱 Estructura modular obligatoria
 
-Cada nueva funcionalidad debe crearse como un **módulo independiente** dentro de `modules/`.
+Cada nueva funcionalidad debe crearse como un **módulo independiente**.
 
 ### 📌 Regla principal:
 > Una carpeta por cada parte específica del sistema.
@@ -497,7 +497,7 @@ This project follows a strict modular structure to maintain scalability, order, 
 
 ## 🧱 Mandatory Modular Structure
 
-Each new feature must be created as an **independent module** inside `modules/`.
+Each new feature must be created as an **independent module**.
 
 ### 📌 Main Rule:
 > One folder for each specific part of the system.
@@ -546,7 +546,7 @@ The existing style must be respected:
 - `inventory_service.py`
 - `contacts_route.py`
 
-For new modules inside `modules/`:
+For new modules:
 
 - `model.py`
 - `service.py`
@@ -790,7 +790,7 @@ Este proyecto segue uma estrutura modular estrita para manter escalabilidade, or
 
 ## 🧱 Estrutura modular obrigatória
 
-Cada nova funcionalidade deve ser criada como um **módulo independente** dentro de `modules/`.
+Cada nova funcionalidade deve ser criada como um **módulo independente**.
 
 ### 📌 Regra Principal:
 > Uma pasta para cada parte específica do sistema.
@@ -839,7 +839,7 @@ O estilo já existente deve ser respeitado:
 - `inventory_service.py`
 - `contacts_route.py`
 
-Para novos módulos dentro de `modules/`:
+Para novos módulos:
 
 - `model.py`
 - `service.py`
