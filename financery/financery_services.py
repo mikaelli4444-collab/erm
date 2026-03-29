@@ -7,10 +7,13 @@ from financery.financery_schema import SellsSchema
 
 def add_sell(data: SellsSchema, user: User, session: Session):
     
-    buscar_carpintero = session.query(User).filter(User.id == data.carpenter_id, User.company_id == user.company_id).one_or_none()
+    carpenter = None
     
-    if not buscar_carpintero:
-        return None
+    if data.carpenter_id:
+        carpenter = session.query(User).filter(User.id == data.carpenter_id, User.company_id == user.company_id).one_or_none()
+    
+    if not carpenter:
+        raise HTTPException(status_code=404, detail="Carpenter not found")
     
     new_sell = Sells(
         user_id = user.id,
@@ -20,7 +23,7 @@ def add_sell(data: SellsSchema, user: User, session: Session):
         expenses = data.expenses,
         status = data.status,
         delivery = data.delivery,
-        carpenter_id = buscar_carpintero.id
+        carpenter_id = carpenter.id if carpenter else None
     )
     
     session.add(new_sell)
