@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financery Dashboard</title>
 
-    <link rel="stylesheet" href="/static/inv/dashboard.css?v=999">
+    <link rel="stylesheet" href="/static/financery/financery_dashboard.css?v=999">
     <script type="module" src="/static/js/refresh_token.js"></script>
 </head>
 
@@ -27,6 +27,25 @@
             </div>
         </header>
 
+        <div class="kpi-container">
+
+            <div class="kpi-card income">
+                <span>Income</span>
+                <h2>R$ {{ kdi_data.total_income }}</h2>
+            </div>
+
+            <div class="kpi-card expenses">
+                <span>Expenses</span>
+                <h2>R$ {{ kdi_data.total_expenses }}</h2>
+            </div>
+
+            <div class="kpi-card profit">
+                <span>Profit</span>
+                <h2>R$ {{ kdi_data.total_profit }}</h2>
+            </div>
+
+        </div>
+
         <section class="controls">
             <form class="search-form" method="get" action="/financery/dashboard">
                 <input type="text" name="search" placeholder="Search sells..."
@@ -37,13 +56,13 @@
             <button class="primary-btn" id="add-material-btn">➕ Add Sell</button>
 
             <form method="post" action="/financery/dashboard" class="add-material-form">
-                <input type="datetime-local" name="delivery" required>
+                <input type="date" name="delivery" required>
                 <input type="text" name="client_name" placeholder="Client" required>
                 <input type="number" name="carpenter_id" placeholder="Carpenter ID" required>
                 <input type="text" name="status" placeholder="Status" required>
                 <input type="number" name="income" placeholder="Income" required>
                 <input type="number" name="expenses" placeholder="Expenses" required>
-                <input type="text" name="type" placeholder="Type" required>
+                <input type="number" name="installments" placeholder="Installments" required>
 
                 <button type="submit">Guardar</button>
             </form>
@@ -57,8 +76,8 @@
                     <th>Status</th>
                     <th>Income</th>
                     <th>Expenses</th>
-                    <th>Type</th>
-                    <th>Delivery</th>
+                    <th>Installments</th>
+                    <th>Sell Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -71,7 +90,7 @@
                     <td>{{ sell.status }}</td>
                     <td>{{ sell.income }}</td>
                     <td>{{ sell.expenses }}</td>
-                    <td>{{ sell.type }}</td>
+                    <td>{{ sell.installments }}</td>
                     <td>{{ sell.delivery }}</td>
 
                     <td class="actions">
@@ -99,8 +118,48 @@
                 return;
             }
 
+            // Mostrar/ocultar form
             addBtn.addEventListener("click", () => {
                 form.classList.toggle("active");
+            });
+
+            // 🔥 AQUÍ ESTÁ LA MAGIA (JSON)
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                const data = {
+                    delivery: formData.get("delivery"),
+                    client_name: formData.get("client_name"),
+                    carpenter_id: parseInt(formData.get("carpenter_id")),
+                    status: formData.get("status"),
+                    income: parseFloat(formData.get("income")),
+                    expenses: parseFloat(formData.get("expenses")),
+                    installments: parseInt(formData.get("installments"))
+                };
+
+                try {
+                    const response = await fetch("/financery/dashboard", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        const text = await response.text();
+                        console.error(text);
+                        alert(text);
+                    }
+
+                } catch (err) {
+                    console.error("ERROR COMPLETO:", err);
+                    alert(err.message);
+                }
             });
 
             document.querySelectorAll('.delete-btn').forEach(btn => {
@@ -109,12 +168,23 @@
 
                     if (!confirm(`¿Eliminar esta venta?`)) return;
 
-                    const response = await fetch(`/financery/delete/${id}`, {
-                        method: 'POST'
-                    });
+                    try {
+                        const response = await fetch(`/financery/delete/${id}`, {
+                            method: 'DELETE'
+                        });
 
-                    if (response.ok) location.reload();
-                    else alert("Error al eliminar");
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            const text = await response.text();
+                            console.error(text);
+                            alert(text);
+                        }
+
+                    } catch (err) {
+                        console.error(err);
+                        alert("Error de conexión");
+                    }
                 });
             });
         });
@@ -123,4 +193,5 @@
     {% include 'notification.html' %}
     {% include 'aside.html' %}
 </body>
+
 </html>

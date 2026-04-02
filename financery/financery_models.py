@@ -1,7 +1,7 @@
 from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, DECIMAL, Boolean, Date, Computed, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from core.database import base
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
 
 class StatusEnum(str, Enum):
@@ -20,6 +20,21 @@ class DebtStatusEnum(str, Enum):
     paid = "paid"
     overdue = "overdue"
     
+class TransactionTypeEnum(str, Enum):
+    income = "income"
+    expense = "expense"
+
+class TransactionCategoryEnum(str, Enum):
+    sale = "sale"
+    rent = "rent"
+    other_income = "other_income" #idk how to call this lol
+    salary = "salary"
+    purchases = "purchases"
+    utilities = "utilities"
+    debt_payment = "debt_payment"
+    material = "material"
+    
+    
 class Sells(base):
     __tablename__ = "sells"
 
@@ -30,12 +45,13 @@ class Sells(base):
     company = relationship("Company", back_populates="company_sells")
     client_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     client_name =  Column(String, nullable=True, index=True)
-    #type = Column(String) no se porque lo puse, pero no creo que tenga mucho sentido
-    income = Column(Integer, nullable=False, index=True) #Ingresos
-    expenses = Column(Integer, nullable=False, index=True) #Egresos
-    profit = Column(Integer, Computed("income - expenses"), index=True)
+    installments = Column(Integer, nullable=False, index=True)
+    income = Column(DECIMAL, nullable=False, index=True) #Ingresos
+    expenses = Column(DECIMAL, nullable=False, index=True) #Egresos
+    profit = Column(DECIMAL, Computed("income - expenses"), index=True)
     status = Column(SQLEnum(StatusEnum), nullable=False)
-    delivery = Column(DateTime, nullable=False) #definir fecha manualmente
+    date_sell = Column(Date, default=date.today, nullable=False) #definir fecha manualmente
+    delivery = Column(Date, nullable=False) #definir fecha manualmente
     carpenter_id = Column(Integer, ForeignKey("users.id"))
     carpenter = relationship("User", foreign_keys=[carpenter_id], back_populates="in_charge")
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -55,7 +71,7 @@ class Debt(base): #Deudas
     status = Column(SQLEnum(DebtStatusEnum), nullable=False)#pending, paid, cancelled, overdue (overdue = atrasado), 
 
 
-class Payment(base):
+class Payment(base): #cuotas
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -69,7 +85,7 @@ class Payment(base):
     company = relationship("Company", back_populates="company_payments")
     status = Column(String, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado)
 
-class Receivable(base):
+class Receivable(base): #para recibir
     __tablename__ = "receivables"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True) 
@@ -85,3 +101,16 @@ class Receivable(base):
     company = relationship("Company", back_populates="company_receivable")
     paid_at = Column(Date, nullable=True)
     
+class FinancialTransaction(base):
+    __tablename__ = "transactions" #METER SOLO LAS TRANSACCIONES QUE REALMENTE SE EFECTUARON, VERIFICAR ESO EN BACK
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    company = relationship("Company", back_populates="company_financial_transactions")
+    type = Column(SQLEnum(TransactionTypeEnum), nullable=False)
+    amount = Column(DECIMAL, nullable=False, index=True)
+    date = Column(Date, default=date.today, nullable=False, index=True)
+    category = Column(SQLEnum(TransactionCategoryEnum), nullable=False)
+    description = Column(String, nullable=True, index=True)
+    reference_id = Column(Integer, index=True)
+    is_variable = Column(Boolean, default=False)

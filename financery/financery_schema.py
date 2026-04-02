@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, Literal
 from decimal import Decimal
-from datetime import date
+from datetime import date as DATE
 
 Sellstatus = Literal[
     "planning",
@@ -28,13 +28,30 @@ DebtStatus = Literal[
     "overdue"
 ]
 
+FinancialTransactionType = Literal[
+    "income",
+    "expense"
+]
+
+FinancialTransactionCategory = Literal[
+    "sale",
+    "rent",
+    "other_income",
+    "salary",
+    "purchases",
+    "utilities",
+    "debt_payment",
+    "material"
+]
+
 class SellsSchema(BaseModel):
     client_name: str = Field(..., min_length=3, max_length=50)
-    income: int
-    expenses: int
+    income: Decimal
+    expenses: Decimal
     status: Sellstatus = "planning"
-    delivery: date
+    delivery: DATE
     carpenter_id: Optional[int] = None
+    installments: int
 
     class Config:
         from_attributes = True
@@ -47,7 +64,6 @@ class DebtCreate(BaseModel):
     status: DebtStatus = "pending"
     
 class DebtResponse(BaseModel):
-    id: int
     amount: Decimal
     creditor: str
     number_of_installments: int
@@ -61,17 +77,16 @@ class DebtResponse(BaseModel):
 class PaymentCreate(BaseModel):
     debt_id: int
     amount: Decimal
-    due_date: date
+    due_date: DATE
     paid: bool = False
     status: PaymentStatus = "pending"
     
 class PaymentResponse(BaseModel):
-    id: int
     debt_id: int
     amount: Decimal
-    due_date: date
+    due_date: DATE
     paid: bool
-    paid_at: Optional[date]
+    paid_at: Optional[DATE]
     status: PaymentStatus
     company_id: int
 
@@ -80,22 +95,30 @@ class PaymentResponse(BaseModel):
         
 class ReceivableCreate(BaseModel):
     amount: Decimal
-    due_date: date
+    due_date: DATE
     receiver_id: int
     payer_id: Optional[int] = None
     payer_name: Optional[str] = None
     description: Optional[str] = None
     
 class ReceivableResponse(BaseModel):
-    id: int
     amount: Decimal
-    due_date: date
+    due_date: DATE
     receiver_id: int
     payer_id: Optional[int]
     payer_name: Optional[str]
     description: Optional[str]
     company_id: int
-    paid_at: Optional[date]
+    paid_at: Optional[DATE]
 
     class Config:
         from_attributes = True
+        
+class FinancialTransactionSchema(BaseModel):
+    type: FinancialTransactionType 
+    category: FinancialTransactionCategory
+    amount: Decimal
+    date: DATE = Field(default_factory=DATE.today)
+    description: str
+    reference_id: int
+    is_variable: bool = False

@@ -44,6 +44,7 @@ class Company(base):
     company_debts = relationship("Debt", back_populates="company")
     company_payments = relationship("Payment", back_populates="company")
     company_receivable = relationship("Receivable", back_populates="company")
+    company_financial_transactions = relationship("FinancialTransaction", back_populates="company")
     
 class CompanyJoinRequest(base):
     __tablename__ = 'company_join_requests'
