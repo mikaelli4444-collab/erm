@@ -56,7 +56,7 @@ class SellsSchema(BaseModel):
     class Config:
         from_attributes = True
         
-class DebtCreate(BaseModel):
+class DebtCreateSchema(BaseModel):
     amount: Decimal
     creditor: str
     number_of_installments: int = 1

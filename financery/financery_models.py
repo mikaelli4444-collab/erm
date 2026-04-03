@@ -32,8 +32,14 @@ class TransactionCategoryEnum(str, Enum):
     purchases = "purchases"
     utilities = "utilities"
     debt_payment = "debt_payment"
+    receivable_payment = "receivable_payment"
     material = "material"
     
+class ReceivablesStatusEnum(str, Enum):
+    pending = "pending"
+    paid = "paid"
+    cancelled = "cancelled"
+    overdue = "overdue"
     
 class Sells(base):
     __tablename__ = "sells"
@@ -70,7 +76,6 @@ class Debt(base): #Deudas
     company = relationship("Company", back_populates="company_debts")
     status = Column(SQLEnum(DebtStatusEnum), nullable=False)#pending, paid, cancelled, overdue (overdue = atrasado), 
 
-
 class Payment(base): #cuotas
     __tablename__ = "payments"
 
@@ -84,7 +89,9 @@ class Payment(base): #cuotas
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_payments")
     status = Column(String, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado)
-
+    installment_number = Column(Integer, nullable=True)
+    total_installments = Column(Integer, nullable=False, default=1)
+    
 class Receivable(base): #para recibir
     __tablename__ = "receivables"
 
@@ -99,6 +106,7 @@ class Receivable(base): #para recibir
     description = Column(String, nullable=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_receivable")
+    status = Column(SQLEnum(ReceivablesStatusEnum), default=ReceivablesStatusEnum.pending)
     paid_at = Column(Date, nullable=True)
     
 class FinancialTransaction(base):
