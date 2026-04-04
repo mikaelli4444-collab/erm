@@ -63,6 +63,24 @@
 
             </button>
 
+            <div class="add-debt-form floating-form">
+                <input type="text" id="debt_creditor" placeholder="Proveedor / Acreedor" required>
+                <input type="number" id="debt_amount" step="0.01" placeholder="Monto" required>
+                <input type="number" id="debt_installments" placeholder="Cuotas" required>
+                <input type="date" id="debt_due_date" placeholder="Fecha de vencimiento" required>
+                <input type="text" id="debt_description" placeholder="Descripción">
+                <button id="save-debt" type="button">Guardar deuda</button>
+            </div>
+
+            <div class="add-receivable-form floating-form">
+                <input type="text" id="receive_client" placeholder="Cliente" required>
+                <input type="number" id="receive_amount" step="0.01" placeholder="Monto" required>
+                <input type="number" id="receive_installments" placeholder="Cuotas" required>
+                <input type="date" id="receive_due_date" placeholder="Fecha de vencimiento" required>
+                <input type="text" id="receive_description" placeholder="Descripción">
+                <button id="save-receivable" type="button">Guardar recibible</button>
+            </div>
+
             <!-- FORM SOLO FRONTEND (NO POST HTML) -->
             <div class="add-material-form">
                 <input type="date" name="delivery" id="delivery" required>
@@ -87,7 +105,7 @@
                     <th>Income</th>
                     <th>Expenses</th>
                     <th>Installments</th>
-                    <th>Sell Date</th>
+                    <th>Delivery</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -154,15 +172,6 @@
                 <h2>Deudas pendientes</h2>
             </div>
 
-            <div class="add-debt-form">
-                <input type="text" id="debt_creditor" placeholder="Proveedor / Acreedor" required>
-                <input type="number" id="debt_amount" step="0.01" placeholder="Monto" required>
-                <input type="number" id="debt_installments" placeholder="Cuotas" required>
-                <input type="date" id="debt_due_date" placeholder="Fecha de vencimiento" required>
-                <input type="text" id="debt_description" placeholder="Descripción">
-                <button id="save-debt" type="button">Guardar deuda</button>
-            </div>
-
             <div class="data-table-container">
                 <table>
                     <thead>
@@ -202,15 +211,6 @@
                 <h2>Cuentas por cobrar</h2>
             </div>
 
-            <div class="add-receivable-form">
-                <input type="text" id="receive_client" placeholder="Cliente" required>
-                <input type="number" id="receive_amount" step="0.01" placeholder="Monto" required>
-                <input type="number" id="receive_installments" placeholder="Cuotas" required>
-                <input type="date" id="receive_due_date" placeholder="Fecha de vencimiento" required>
-                <input type="text" id="receive_description" placeholder="Descripción">
-                <button id="save-receivable" type="button">Guardar recibible</button>
-            </div>
-
             <div class="data-table-container">
                 <table>
                     <thead>
@@ -246,7 +246,7 @@
         </section>
 
     </main>
-    
+
     <script id="dashboard-chart-data" type="application/json">
     {{ chart_data | tojson | safe }}
     </script>
@@ -301,11 +301,12 @@
 
             saveDebtBtn.addEventListener("click", async () => {
                 const data = {
-                    creditor_name: document.getElementById("debt_creditor").value,
+                    creditor: document.getElementById("debt_creditor").value,
                     amount: parseFloat(document.getElementById("debt_amount").value),
-                    installments: parseInt(document.getElementById("debt_installments").value),
+                    number_of_installments: parseInt(document.getElementById("debt_installments").value),
                     due_date: document.getElementById("debt_due_date").value,
-                    description: document.getElementById("debt_description").value
+                    description: document.getElementById("debt_description").value,
+                    status: "pending"
                 };
 
                 try {
@@ -327,11 +328,12 @@
 
             saveReceivableBtn.addEventListener("click", async () => {
                 const data = {
-                    client_name: document.getElementById("receive_client").value,
+                    payer_name: document.getElementById("receive_client").value,
                     amount: parseFloat(document.getElementById("receive_amount").value),
-                    installments: parseInt(document.getElementById("receive_installments").value),
                     due_date: document.getElementById("receive_due_date").value,
-                    description: document.getElementById("receive_description").value
+                    description: document.getElementById("receive_description").value,
+                    payer_id: null,
+                    receiver_id: null
                 };
 
                 try {
@@ -384,10 +386,10 @@
                 btn.addEventListener("click", async () => {
                     const id = btn.dataset.id;
                     const isDebt = btn.classList.contains("debt-edit-btn");
-                    const itemType = isDebt ? "debt" : "receivable";
+                    const itemType = isDebt ? "payment" : "receivable";
                     const fields = isDebt
-                        ? ["amount", "due_date", "status", "installment_number", "description"]
-                        : ["amount", "due_date", "status", "installments", "description"];
+                        ? ["amount", "due_date", "status", "installment_number"]
+                        : ["amount", "due_date", "payer_name", "description"];
                     const payload = {};
 
                     for (const field of fields) {
@@ -420,9 +422,9 @@
             });
         });
 
-            const chartData = JSON.parse(document.getElementById("dashboard-chart-data").textContent);
-            const pieCtx = document.getElementById("pieChart");
-            const lineCtx = document.getElementById("lineChart");
+        const chartData = JSON.parse(document.getElementById("dashboard-chart-data").textContent);
+        const pieCtx = document.getElementById("pieChart");
+        const lineCtx = document.getElementById("lineChart");
 
         if (pieCtx) {
             new Chart(pieCtx, {
