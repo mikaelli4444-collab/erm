@@ -14,3 +14,6 @@
 11. creo que voy a tener que aprovechar la db de ventas y usarlas en projects, talvez production sea eliminado, esa seccion la puedo unir con proyectos facilmente (pensare en ello)
 12. agregar seguridad CSRF
 13. agregar el cascade es las db que sean necesarias para eliminar correctamente datos relacionados si no tiene sentido guardarlos
+14. automatizar la creacion de cuotas para recibir en financery con la creacion de ventas, ya que se dice en cuantas cuotas se paga
+15. no guardar en financeryTransactions las ventas justo despues de crearlas, esperar los pagos realmente efectuarse
+16. hacer metodos de pago con mercadoPago API
