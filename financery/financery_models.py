@@ -75,7 +75,8 @@ class Debt(base): #Deudas
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_debts")
     status = Column(SQLEnum(DebtStatusEnum), nullable=False)#pending, paid, cancelled, overdue (overdue = atrasado), 
-
+    notification = Column(Boolean, nullable=False, default=False)
+    
 class Payment(base): #cuotas
     __tablename__ = "payments"
 
@@ -108,6 +109,7 @@ class Receivable(base): #para recibir
     company = relationship("Company", back_populates="company_receivable")
     status = Column(SQLEnum(ReceivablesStatusEnum), default=ReceivablesStatusEnum.pending)
     paid_at = Column(Date, nullable=True)
+    notification = Column(Boolean, nullable=False, default=False)
     
 class FinancialTransaction(base):
     __tablename__ = "transactions" #METER SOLO LAS TRANSACCIONES QUE REALMENTE SE EFECTUARON, VERIFICAR ESO EN BACK
