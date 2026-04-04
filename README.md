@@ -165,7 +165,7 @@ http://127.0.0.1:8000
 
 ✔️ Contactos
 
-👨🏻‍💻 Financiero (En proceso)
+✔️ Financiero
 
 👨🏻‍💻 Agente de IA (En proceso)
 
@@ -452,7 +452,7 @@ http://127.0.0.1:8000
 
 ✔️ Contacts
 
-👨🏻‍💻 Financial (In progress)
+✔️ Financial
 
 👨🏻‍💻 AI Agent (In progress)
 
@@ -745,7 +745,7 @@ http://127.0.0.1:8000
 
 ✔️ Contatos
 
-👨🏻‍💻 Financeiro (Em andamento)
+✔️ Financeiro
 
 👨🏻‍💻 Agente de IA (Em andamento)
 
