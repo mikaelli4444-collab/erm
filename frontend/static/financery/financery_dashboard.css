@@ -467,46 +467,70 @@ tr:hover {
     margin-bottom: 16px;
 }
 
-.add-debt-form,
-.add-receivable-form {
-    display: none;
-    flex-wrap: wrap;
-    gap: 12px;
-    background: var(--bg-main);
-    padding: 18px;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    margin-bottom: 24px;
-}
+/* =========================================================
+   SHARED FLOATING FORM (REUTILIZABLE)
+   ========================================================= */
+.floating-form {
+    position: absolute;
+    top: 100%;
+    right: 0;
 
-.add-debt-form.active,
-.add-receivable-form.active {
     display: flex;
+    align-items: center;
+    gap: 16px;
+
+    background: var(--bg-main);
+    padding: 16px 18px;
+    border-radius: 8px;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+
+    z-index: 50;
 }
 
-.add-debt-form input,
-.add-receivable-form input {
+.floating-form.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.floating-form input {
     min-width: 180px;
-    flex: 1;
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: #f8fafc;
+    padding: 8px 2px;
+    font-size: 14px;
     color: var(--text-main);
+
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
 }
 
-.add-debt-form button,
-.add-receivable-form button {
-    border: none;
-    border-radius: 10px;
-    padding: 12px 18px;
+.floating-form input::placeholder {
+    color: var(--text-muted);
+}
+
+.floating-form input:focus {
+    outline: none;
+    border-bottom-color: var(--blue);
+}
+
+.floating-form button {
+    padding: 8px 18px;
     background: var(--blue);
     color: white;
+    font-weight: 600;
+
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
 }
 
-.add-debt-form button:hover,
-.add-receivable-form button:hover {
+.floating-form button:hover {
     background: var(--blue-hover);
 }
 

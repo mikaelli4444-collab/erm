@@ -7,8 +7,18 @@ from datetime import date
 from users.users_model import User
 from financery.financery_models import Sells, FinancialTransaction, Debt, Payment, Receivable
 from financery.financery_schema import SellsSchema, FinancialTransactionSchema, DebtCreateSchema, PaymentCreate, ReceivableCreate
-from notification.notification_services import create_notification, show_notifications, manager
+from notification.notification_services import create_notification
+from financery.payments_domain import change_payment_status, change_receivable_status
 
+def mark_payment_as_paid(payment):
+    change_payment_status(payment, "paid")
+    
+def mark_payment_as_overdue(payment):
+    change_payment_status(payment, "overdue")
+    
+def cancel_payment(payment):
+    change_payment_status(payment, "cancelled")
+    
 def notify_invoice_due_date(user_id: int, company_id: int, message: dict, session: Session): #vencimiento de la factura
     create_notification(user_id, company_id, message, session)
     
@@ -34,20 +44,29 @@ def add_installments(user: User, session: Session, operation_num: int, debt_data
         raise HTTPException(status_code=404, detail="Debt not found")
     
     debt_id = debt.id
-    
+    total_amount = Decimal(debt.amount)
+
+    base_amount = (total_amount / operation_num).quantize(Decimal("0.01"))
+    distributed_total = base_amount * operation_num
+    residual = total_amount - distributed_total
+
     installments_list = []
     
     for i in range(operation_num):
+        if i == operation_num - 1:
+            amount = base_amount + residual
+        else:
+            amount = base_amount
 
         installments = Payment(
-            debt_id = debt_id,
-            amount = payment_schema.amount,
-            due_date = payment_schema.due_date + relativedelta(months= i + 1),
-            paid = payment_schema.paid,
-            status = payment_schema.status,
-            company_id = user.company_id,
-            installment_number = i + 1,
-            total_installments = operation_num
+            debt_id=debt_id,
+            amount=amount,
+            due_date=payment_schema.due_date + relativedelta(months=i + 1),
+            paid=payment_schema.paid,
+            status=payment_schema.status,
+            company_id=user.company_id,
+            installment_number=i + 1,
+            total_installments=operation_num
         )
         installments_list.append(installments)
     
@@ -182,8 +201,7 @@ def pay_debt(user: User, session: Session, payment_id: int):
     if payment.paid:
         raise HTTPException(status_code=400, detail="Payment already paid")
     
-    payment.paid = True
-    payment.status = "paid"
+    mark_payment_as_paid(payment)
     
     paid_debt_schema = FinancialTransactionSchema(
         type="expense",
@@ -209,8 +227,7 @@ def pending_debts(user: User, session: Session):
      
     for debt in pending_debts:
         if debt.due_date < date.today():
-            debt.status = "overdue"
-            session.commit()    
+            mark_payment_as_overdue(debt)
             
         elif 0 <= (debt.due_date - today).days <= 5 and debt.status == 'pending' and debt.notification == False:
             message = {
@@ -223,7 +240,7 @@ def pending_debts(user: User, session: Session):
             notify_invoice_due_date(owner_id, user.company_id, message, session)
         
     session.commit()
-    
+
 def to_receive(user: User, session: Session, data: ReceivableCreate):
     
     owner_id = session.query(User.id).filter(User.company_id == user.company_id, User.role == "owner").scalar()
@@ -300,153 +317,8 @@ def _monthly_sales_counts(user: User, session: Session, start: date, end: date):
     values = [counts_map.get(start + relativedelta(days=i), 0) for i in range(total_days)]
     return labels, values
 
-def financial_transaction_charts(user: User, session: Session):
-    today = date.today()
-    current_start, current_end = _month_start_end(today)
-    prev_start = current_start - relativedelta(months=1)
-    prev_end = current_start
-
-    current_labels, current_values = _monthly_sales_counts(user, session, current_start, current_end)
-    prev_labels, prev_values = _monthly_sales_counts(user, session, prev_start, prev_end)
-
-    month_transactions = session.query(
-        func.sum(case((FinancialTransaction.type == 'income', FinancialTransaction.amount), else_=0)),
-        func.sum(case((FinancialTransaction.type == 'expense', FinancialTransaction.amount), else_=0))
-    ).filter(
-        FinancialTransaction.date >= current_start,
-        FinancialTransaction.date < current_end,
-        FinancialTransaction.company_id == user.company_id
-    ).first()
-
-    total_income_amount = month_transactions[0] or Decimal("0")
-    total_expenses_amount = month_transactions[1] or Decimal("0")
-    total_profit = total_income_amount - total_expenses_amount
-    pie_total = total_income_amount + total_expenses_amount
-
-    return {
-        "line_chart": {
-            "current_month": {
-                "month": current_start.strftime("%B %Y"),
-                "days": current_labels,
-                "sales_count": current_values,
-                "total_sales": sum(current_values)
-            },
-            "previous_month": {
-                "month": prev_start.strftime("%B %Y"),
-                "days": prev_labels,
-                "sales_count": prev_values,
-                "total_sales": sum(prev_values)
-            }
-        },
-        "pie_chart": {
-            "income": {
-                "value": total_income_amount,
-                "percentage": _calculate_percentage(total_income_amount, pie_total)
-            },
-            "expense": {
-                "value": total_expenses_amount,
-                "percentage": _calculate_percentage(total_expenses_amount, pie_total)
-            },
-            "profit": {
-                "value": total_profit,
-                "percentage": _calculate_percentage(total_profit, total_income_amount) if total_income_amount != 0 else 0.0
-            }
-        }
-    }
-
-def get_pending_debts(user: User, session: Session):
-    return session.query(Payment).filter(
-        Payment.company_id == user.company_id,
-        Payment.status == "pending"
-    ).all()
-
 def get_pending_receivables(user: User, session: Session):
-    return session.query(Receivable).filter(
-        Receivable.company_id == user.company_id
-    ).all()
-
-def _month_start_end(reference_date: date):
-    start = reference_date.replace(day=1)
-    end = start + relativedelta(months=1)
-    return start, end
-
-def _calculate_percentage(value: Decimal, total: Decimal) -> float:
-    if total == 0:
-        return 0.0
-    return round(float((value / total) * Decimal("100")), 2)
-
-def _monthly_sales_counts(user: User, session: Session, start: date, end: date):
-    total_days = (end - start).days
-    labels = [str((start + relativedelta(days=i)).day) for i in range(total_days)]
-
-    counts_query = session.query(
-        FinancialTransaction.date,
-        func.count(FinancialTransaction.id)
-    ).filter(
-        FinancialTransaction.company_id == user.company_id,
-        FinancialTransaction.type == "income",
-        FinancialTransaction.category == "sale",
-        FinancialTransaction.date >= start,
-        FinancialTransaction.date < end
-    ).group_by(FinancialTransaction.date).all()
-
-    counts_map = {row[0]: row[1] for row in counts_query}
-    values = [counts_map.get(start + relativedelta(days=i), 0) for i in range(total_days)]
-    return labels, values
-
-def financial_transaction_charts(user: User, session: Session):
-    today = date.today()
-    current_start, current_end = _month_start_end(today)
-    prev_start = current_start - relativedelta(months=1)
-    prev_end = current_start
-
-    current_labels, current_values = _monthly_sales_counts(user, session, current_start, current_end)
-    prev_labels, prev_values = _monthly_sales_counts(user, session, prev_start, prev_end)
-
-    month_transactions = session.query(
-        func.sum(case((FinancialTransaction.type == 'income', FinancialTransaction.amount), else_=0)),
-        func.sum(case((FinancialTransaction.type == 'expense', FinancialTransaction.amount), else_=0))
-    ).filter(
-        FinancialTransaction.date >= current_start,
-        FinancialTransaction.date < current_end,
-        FinancialTransaction.company_id == user.company_id
-    ).first()
-
-    total_income_amount = month_transactions[0] or Decimal("0")
-    total_expenses_amount = month_transactions[1] or Decimal("0")
-    total_profit = total_income_amount - total_expenses_amount
-    pie_total = total_income_amount + total_expenses_amount
-
-    return {
-        "line_chart": {
-            "current_month": {
-                "month": current_start.strftime("%B %Y"),
-                "days": current_labels,
-                "sales_count": current_values,
-                "total_sales": sum(current_values)
-            },
-            "previous_month": {
-                "month": prev_start.strftime("%B %Y"),
-                "days": prev_labels,
-                "sales_count": prev_values,
-                "total_sales": sum(prev_values)
-            }
-        },
-        "pie_chart": {
-            "income": {
-                "value": total_income_amount,
-                "percentage": _calculate_percentage(total_income_amount, pie_total)
-            },
-            "expense": {
-                "value": total_expenses_amount,
-                "percentage": _calculate_percentage(total_expenses_amount, pie_total)
-            },
-            "profit": {
-                "value": total_profit,
-                "percentage": _calculate_percentage(total_profit, pie_total)
-            }
-        }
-    }
+    return session.query(Receivable).filter(Receivable.company_id == user.company_id).all()
 
 def _parse_date(value):
     if isinstance(value, date):
@@ -455,142 +327,28 @@ def _parse_date(value):
         return date.fromisoformat(value)
     return None
 
-
-def add_installments(user: User, session: Session, operation_num: int, debt_data: Debt, payment_schema: PaymentCreate):
-    if not debt_data:
-        raise HTTPException(status_code=400, detail="Debt data is required")
-
-    if operation_num <= 0:
-        raise HTTPException(status_code=400, detail="Installments must be a positive integer")
-
-    installment_amount = (Decimal(debt_data.amount) / operation_num).quantize(Decimal("0.01")) if debt_data.amount else Decimal("0.00")
-    installments_list = []
-
-    for i in range(operation_num):
-        due_date = payment_schema.due_date + relativedelta(months=i)
-        installment = Payment(
-            user_id=user.id,
-            company_id=user.company_id,
-            debt_id=debt_data.id if hasattr(Payment, "debt_id") else None,
-            amount=installment_amount,
-            due_date=due_date,
-            status="pending",
-            installment_number=i + 1,
-            description=getattr(payment_schema, "description", None)
-        )
-        installments_list.append(installment)
-
-    session.add_all(installments_list)
-    return installments_list
-
-
-def add_debts(user: User, session: Session, data: DebtCreateSchema):
-    creditor_name = getattr(data, "creditor_name", getattr(data, "supplier_name", None))
-    debt_kwargs = {
-        "user_id": user.id,
-        "company_id": user.company_id,
-        "amount": data.amount,
-        "installments": data.installments,
-        "due_date": data.due_date,
-        "description": getattr(data, "description", None),
-        "status": getattr(data, "status", "pending")
-    }
-
-    if creditor_name:
-        if hasattr(Debt, "creditor_name"):
-            debt_kwargs["creditor_name"] = creditor_name
-        else:
-            debt_kwargs["supplier_name"] = creditor_name
-
-    debt = Debt(**debt_kwargs)
-    session.add(debt)
-    session.flush()
-
-    payment_schema = PaymentCreate(
-        amount=data.amount,
-        due_date=data.due_date,
-        description=getattr(data, "description", None)
-    )
-
-    add_installments(user, session, data.installments, debt, payment_schema)
-    session.commit()
-    return debt
-
-
-def pay_debt(user: User, session: Session, payment_id: int):
-    payment = session.query(Payment).filter(
-        Payment.id == payment_id,
-        Payment.company_id == user.company_id
-    ).first()
-
-    if not payment:
-        raise HTTPException(status_code=404, detail="Pending payment not found")
-
-    payment.status = "paid"
-    if hasattr(payment, "paid_date"):
-        payment.paid_date = date.today()
-
-    session.commit()
-    return payment
-
-
-def pending_debts(user: User, session: Session):
-    return get_pending_debts(user, session)
-
-
-def to_receive(user: User, session: Session, data: ReceivableCreate):
-    receivable_kwargs = {
-        "user_id": user.id,
-        "company_id": user.company_id,
-        "amount": data.amount,
-        "installments": data.installments,
-        "due_date": data.due_date,
-        "description": getattr(data, "description", None),
-        "status": getattr(data, "status", "pending")
-    }
-
-    client_name = getattr(data, "client_name", None)
-    if client_name:
-        receivable_kwargs["client_name"] = client_name
-
-    receivable = Receivable(**receivable_kwargs)
-    session.add(receivable)
-    session.commit()
-    return receivable
-
-
 def get_pending_debts(user: User, session: Session):
-    return session.query(Payment).filter(
-        Payment.company_id == user.company_id,
-        Payment.status == "pending"
-    ).order_by(Payment.due_date).all()
-
-
-def get_pending_receivables(user: User, session: Session):
-    return session.query(Receivable).filter(
-        Receivable.company_id == user.company_id,
-        Receivable.paid_at.is_(None)
-    ).order_by(Receivable.due_date).all()
-
+    return session.query(Payment).filter(Payment.company_id == user.company_id,Payment.status == "pending").order_by(Payment.due_date).all()
 
 def pay_receivable(user: User, session: Session, receivable_id: int):
-    receivable = session.query(Receivable).filter(
-        Receivable.id == receivable_id,
-        Receivable.company_id == user.company_id
-    ).first()
+    receivable = session.query(Receivable).filter(Receivable.id == receivable_id,Receivable.company_id == user.company_id).first()
 
     if not receivable:
         raise HTTPException(status_code=404, detail="Receivable not found")
+    
+    if receivable.status == "paid":
+        raise HTTPException(status_code=400, detail="Receivable already paid")
 
     receivable.paid_at = date.today()
+    
+    receivable.status = "paid"
+    receivable.paid_at = date.today()
+    
     session.commit()
     return receivable
 
 def delete_payment(user: User, session: Session, payment_id: int):
-    payment = session.query(Payment).filter(
-        Payment.id == payment_id,
-        Payment.company_id == user.company_id
-    ).first()
+    payment = session.query(Payment).filter(Payment.id == payment_id,Payment.company_id == user.company_id).first()
 
     if not payment:
         raise HTTPException(status_code=404, detail="Pending payment not found")
@@ -601,10 +359,7 @@ def delete_payment(user: User, session: Session, payment_id: int):
 
 
 def delete_receivable(user: User, session: Session, receivable_id: int):
-    receivable = session.query(Receivable).filter(
-        Receivable.id == receivable_id,
-        Receivable.company_id == user.company_id
-    ).first()
+    receivable = session.query(Receivable).filter(Receivable.id == receivable_id,Receivable.company_id == user.company_id).first()
 
     if not receivable:
         raise HTTPException(status_code=404, detail="Receivable not found")
@@ -615,10 +370,7 @@ def delete_receivable(user: User, session: Session, receivable_id: int):
 
 
 def edit_payment(user: User, session: Session, payment_id: int, data: dict):
-    payment = session.query(Payment).filter(
-        Payment.id == payment_id,
-        Payment.company_id == user.company_id
-    ).first()
+    payment = session.query(Payment).filter(Payment.id == payment_id,Payment.company_id == user.company_id).first()
 
     if not payment:
         raise HTTPException(status_code=404, detail="Pending payment not found")
@@ -630,7 +382,7 @@ def edit_payment(user: User, session: Session, payment_id: int, data: dict):
         if parsed:
             payment.due_date = parsed
     if "status" in data:
-        payment.status = data["status"]
+        change_payment_status(payment, data["status"])
     if "installment_number" in data:
         payment.installment_number = data["installment_number"]
     if "description" in data:
@@ -641,10 +393,7 @@ def edit_payment(user: User, session: Session, payment_id: int, data: dict):
 
 
 def edit_receivable(user: User, session: Session, receivable_id: int, data: dict):
-    receivable = session.query(Receivable).filter(
-        Receivable.id == receivable_id,
-        Receivable.company_id == user.company_id
-    ).first()
+    receivable = session.query(Receivable).filter(Receivable.id == receivable_id,Receivable.company_id == user.company_id).first()
 
     if not receivable:
         raise HTTPException(status_code=404, detail="Receivable not found")
@@ -656,7 +405,7 @@ def edit_receivable(user: User, session: Session, receivable_id: int, data: dict
         if parsed:
             receivable.due_date = parsed
     if "status" in data:
-        receivable.status = data["status"]
+        change_receivable_status(receivable, data["status"])
     if "installments" in data:
         receivable.installments = data["installments"]
     if "description" in data:
@@ -679,12 +428,11 @@ def financial_transaction_charts(user: User, session: Session):
 
     month_transactions = session.query(
         func.sum(case((FinancialTransaction.type == 'income', FinancialTransaction.amount), else_=0)),
-        func.sum(case((FinancialTransaction.type == 'expense', FinancialTransaction.amount), else_=0))
-    ).filter(
-        FinancialTransaction.date >= current_start,
-        FinancialTransaction.date < current_end,
-        FinancialTransaction.company_id == user.company_id
-    ).first()
+        func.sum(case((FinancialTransaction.type == 'expense', FinancialTransaction.amount), else_=0))).filter(
+                                                                                                                FinancialTransaction.date >= current_start,
+                                                                                                                FinancialTransaction.date < current_end,
+                                                                                                                FinancialTransaction.company_id == user.company_id
+                                                                                                            ).first()
 
     total_income_amount = month_transactions[0] or Decimal("0")
     total_expenses_amount = month_transactions[1] or Decimal("0")

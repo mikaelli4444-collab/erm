@@ -74,7 +74,7 @@ class Debt(base): #Deudas
     payments = relationship("Payment", back_populates="debt", cascade="all, delete-orphan")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_debts")
-    status = Column(SQLEnum(DebtStatusEnum), nullable=False)#pending, paid, cancelled, overdue (overdue = atrasado), 
+    status = Column(SQLEnum(DebtStatusEnum), nullable=False, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado), 
     notification = Column(Boolean, nullable=False, default=False)
     
 class Payment(base): #cuotas
@@ -89,7 +89,7 @@ class Payment(base): #cuotas
     paid_at = Column(Date, nullable=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_payments")
-    status = Column(String, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado)
+    status = Column(SQLEnum(DebtStatusEnum), nullable=False, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado)
     installment_number = Column(Integer, nullable=True)
     total_installments = Column(Integer, nullable=False, default=1)
     
