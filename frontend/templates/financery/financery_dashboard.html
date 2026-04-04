@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financery Dashboard</title>
+
+    <link rel="stylesheet" href="/static/financery/financery_dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="/static/js/refresh_token.js"></script>
+</head>
+
+<body>
+
+    <main class="main-content">
+
+        <header class="header-top">
+            <div class="page-title">
+                <h1>Financery</h1>
+                <p>Manage your sales</p>
+            </div>
+
+            <div class="top-bar">
+                <div class="username">
+                    {{ user.username }}
+                </div>
+            </div>
+        </header>
+
+        <!-- KPIs -->
+        <div class="kpi-container">
+            <div class="kpi-card income">
+                <span>Income</span>
+                <h2>R$ {{ kdi_data.total_income }}</h2>
+            </div>
+
+            <div class="kpi-card expenses">
+                <span>Expenses</span>
+                <h2>R$ {{ kdi_data.total_expenses }}</h2>
+            </div>
+
+            <div class="kpi-card profit">
+                <span>Profit</span>
+                <h2>R$ {{ kdi_data.total_profit }}</h2>
+            </div>
+
+        </div>
+
+        <!-- CONTROLS -->
+        <section class="controls">
+
+            <button class="primary-btn" id="add-material-btn">
+                ➕ Add Sell
+            </button>
+
+            <button class="secondary-btn" id="add-debt-btn">
+                ➕ Agregar deuda
+            </button>
+
+            <button class="secondary-btn" id="add-receivable-btn">
+                ➕ Agregar recibible
+
+            </button>
+
+            <!-- FORM SOLO FRONTEND (NO POST HTML) -->
+            <div class="add-material-form">
+                <input type="date" name="delivery" id="delivery" required>
+                <input type="text" name="client_name" id="client_name" placeholder="Client" required>
+                <input type="number" name="carpenter_id" id="carpenter_id" placeholder="Carpenter ID" required>
+                <input type="text" name="status" id="status" placeholder="Status" required>
+                <input type="number" name="income" id="income" placeholder="Income" required>
+                <input type="number" name="expenses" id="expenses" placeholder="Expenses" required>
+                <input type="number" name="installments" id="installments" placeholder="Installments" required>
+
+                <button id="save-sell" type="button">Guardar</button>
+            </div>
+        </section>
+
+        <!-- TABLE -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Carpenter</th>
+                    <th>Status</th>
+                    <th>Income</th>
+                    <th>Expenses</th>
+                    <th>Installments</th>
+                    <th>Sell Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for sell in sells %}
+                <tr data-id="{{ sell.id }}">
+                    <td>{{ sell.client_name }}</td>
+                    <td>{{ sell.carpenter_id }}</td>
+                    <td>{{ sell.status }}</td>
+                    <td>{{ sell.income }}</td>
+                    <td>{{ sell.expenses }}</td>
+                    <td>{{ sell.installments }}</td>
+                    <td>{{ sell.delivery }}</td>
+
+                    <td>
+                        <button class="delete-btn" data-id="{{ sell.id }}">🗑️ Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- CHARTS -->
+        <section class="charts-row">
+            <article class="chart-card">
+                <h2>Distribución confirmada</h2>
+                <canvas id="pieChart"></canvas>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span>Ingresos</span>
+                        <strong>R$ {{ chart_data.pie_chart.income.value }}</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span>Gastos</span>
+                        <strong>R$ {{ chart_data.pie_chart.expense.value }}</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span>Lucro</span>
+                        <strong>R$ {{ chart_data.pie_chart.profit.value }}</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="chart-card">
+                <h2>Ventas del mes</h2>
+                <canvas id="lineChart"></canvas>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span>{{ chart_data.line_chart.current_month.month }}</span>
+                        <strong>{{ chart_data.line_chart.current_month.total_sales }} ventas</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span>{{ chart_data.line_chart.previous_month.month }}</span>
+                        <strong>{{ chart_data.line_chart.previous_month.total_sales }} ventas</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- DEUDAS -->
+        <section class="data-sections">
+            <div class="section-header">
+                <h2>Deudas pendientes</h2>
+            </div>
+
+            <div class="add-debt-form">
+                <input type="text" id="debt_creditor" placeholder="Proveedor / Acreedor" required>
+                <input type="number" id="debt_amount" step="0.01" placeholder="Monto" required>
+                <input type="number" id="debt_installments" placeholder="Cuotas" required>
+                <input type="date" id="debt_due_date" placeholder="Fecha de vencimiento" required>
+                <input type="text" id="debt_description" placeholder="Descripción">
+                <button id="save-debt" type="button">Guardar deuda</button>
+            </div>
+
+            <div class="data-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Proveedor</th>
+                            <th>Cuota</th>
+                            <th>Monto</th>
+                            <th>Vencimiento</th>
+                            <th>Status</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for debt in pending_debts %}
+                        <tr class="{% if debt.status != 'paid' and debt.due_date < today %}overdue{% endif %}">
+                            <td>{{ debt.creditor_name or debt.supplier_name or "—" }}</td>
+                            <td>{{ debt.installment_number or debt.installments or "—" }}</td>
+                            <td>{{ debt.amount }}</td>
+                            <td>{{ debt.due_date }}</td>
+                            <td>{{ debt.status }}</td>
+                            <td class="actions-row">
+                                <button class="small-btn pay debt-pay-btn" data-id="{{ debt.id }}">Pagado</button>
+                                <button class="small-btn edit debt-edit-btn" data-id="{{ debt.id }}">Editar</button>
+                                <button class="small-btn delete debt-delete-btn"
+                                    data-id="{{ debt.id }}">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- RECIBIBLES -->
+        <section class="data-sections">
+            <div class="section-header">
+                <h2>Cuentas por cobrar</h2>
+            </div>
+
+            <div class="add-receivable-form">
+                <input type="text" id="receive_client" placeholder="Cliente" required>
+                <input type="number" id="receive_amount" step="0.01" placeholder="Monto" required>
+                <input type="number" id="receive_installments" placeholder="Cuotas" required>
+                <input type="date" id="receive_due_date" placeholder="Fecha de vencimiento" required>
+                <input type="text" id="receive_description" placeholder="Descripción">
+                <button id="save-receivable" type="button">Guardar recibible</button>
+            </div>
+
+            <div class="data-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Cuota</th>
+                            <th>Monto</th>
+                            <th>Vencimiento</th>
+                            <th>Status</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for receive in receivables %}
+                        <tr class="{% if receive.status != 'paid' and receive.due_date < today %}overdue{% endif %}">
+                            <td>{{ receive.client_name }}</td>
+                            <td>{{ receive.installment_number or receive.installments or "—" }}</td>
+                            <td>{{ receive.amount }}</td>
+                            <td>{{ receive.due_date }}</td>
+                            <td>{{ "paid" if receive.paid_at else "pending" }}</td>
+                            <td class="actions-row">
+                                <button class="small-btn pay receive-pay-btn" data-id="{{ receive.id }}">Pagado</button>
+                                <button class="small-btn edit receive-edit-btn"
+                                    data-id="{{ receive.id }}">Editar</button>
+                                <button class="small-btn delete receive-delete-btn"
+                                    data-id="{{ receive.id }}">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+    
+    <script id="dashboard-chart-data" type="application/json">
+    {{ chart_data | tojson | safe }}
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const addSellBtn = document.getElementById("add-material-btn");
+            const sellForm = document.querySelector(".add-material-form");
+            const saveSellBtn = document.getElementById("save-sell");
+
+            const addDebtBtn = document.getElementById("add-debt-btn");
+            const debtForm = document.querySelector(".add-debt-form");
+            const saveDebtBtn = document.getElementById("save-debt");
+
+            const addReceivableBtn = document.getElementById("add-receivable-btn");
+            const receivableForm = document.querySelector(".add-receivable-form");
+            const saveReceivableBtn = document.getElementById("save-receivable");
+
+            addSellBtn.addEventListener("click", () => sellForm.classList.toggle("active"));
+            addDebtBtn.addEventListener("click", () => debtForm.classList.toggle("active"));
+            addReceivableBtn.addEventListener("click", () => receivableForm.classList.toggle("active"));
+
+            saveSellBtn.addEventListener("click", async () => {
+                const data = {
+                    delivery: document.getElementById("delivery").value,
+                    client_name: document.getElementById("client_name").value,
+                    carpenter_id: parseInt(document.getElementById("carpenter_id").value),
+                    status: document.getElementById("status").value,
+                    income: parseFloat(document.getElementById("income").value),
+                    expenses: parseFloat(document.getElementById("expenses").value),
+                    installments: parseInt(document.getElementById("installments").value)
+                };
+
+                try {
+                    const res = await fetch("/financery/sell", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (res.ok) {
+                        location.reload();
+                    } else {
+                        alert(await res.text());
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            saveDebtBtn.addEventListener("click", async () => {
+                const data = {
+                    creditor_name: document.getElementById("debt_creditor").value,
+                    amount: parseFloat(document.getElementById("debt_amount").value),
+                    installments: parseInt(document.getElementById("debt_installments").value),
+                    due_date: document.getElementById("debt_due_date").value,
+                    description: document.getElementById("debt_description").value
+                };
+
+                try {
+                    const res = await fetch("/financery/dashboard/debt", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (res.ok) {
+                        location.reload();
+                    } else {
+                        alert(await res.text());
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            saveReceivableBtn.addEventListener("click", async () => {
+                const data = {
+                    client_name: document.getElementById("receive_client").value,
+                    amount: parseFloat(document.getElementById("receive_amount").value),
+                    installments: parseInt(document.getElementById("receive_installments").value),
+                    due_date: document.getElementById("receive_due_date").value,
+                    description: document.getElementById("receive_description").value
+                };
+
+                try {
+                    const res = await fetch("/financery/dashboard/receivable", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (res.ok) {
+                        location.reload();
+                    } else {
+                        alert(await res.text());
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+
+            const bindActions = (selector, endpointBase, method = "POST", reload = true) => {
+                document.querySelectorAll(selector).forEach(btn => {
+                    btn.addEventListener("click", async () => {
+                        const id = btn.dataset.id;
+                        let url = endpointBase.replace(":id", id);
+
+                        if (!confirm(btn.textContent.includes("Eliminar") ? "Eliminar este registro?" : "Marcar como pagado?")) {
+                            return;
+                        }
+
+                        try {
+                            const res = await fetch(url, { method });
+                            if (res.ok) {
+                                if (reload) location.reload();
+                            } else {
+                                alert(await res.text());
+                            }
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    });
+                });
+            };
+
+            bindActions(".debt-pay-btn", "/financery/dashboard/payment/:id/pay");
+            bindActions(".debt-delete-btn", "/financery/dashboard/payment/:id", "DELETE");
+            bindActions(".receive-pay-btn", "/financery/dashboard/receivable/:id/pay");
+            bindActions(".receive-delete-btn", "/financery/dashboard/receivable/:id", "DELETE");
+
+            document.querySelectorAll(".debt-edit-btn, .receive-edit-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    const id = btn.dataset.id;
+                    const isDebt = btn.classList.contains("debt-edit-btn");
+                    const itemType = isDebt ? "debt" : "receivable";
+                    const fields = isDebt
+                        ? ["amount", "due_date", "status", "installment_number", "description"]
+                        : ["amount", "due_date", "status", "installments", "description"];
+                    const payload = {};
+
+                    for (const field of fields) {
+                        const value = prompt(`Nuevo ${field.replace("_", " ")} (dejar vacío para no cambiar)`);
+                        if (value !== null && value !== "") {
+                            payload[field] = field === "amount" ? parseFloat(value) : value;
+                        }
+                    }
+
+                    if (Object.keys(payload).length === 0) {
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`/financery/dashboard/${itemType}/${id}`, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (res.ok) {
+                            location.reload();
+                        } else {
+                            alert(await res.text());
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+            });
+        });
+
+            const chartData = JSON.parse(document.getElementById("dashboard-chart-data").textContent);
+            const pieCtx = document.getElementById("pieChart");
+            const lineCtx = document.getElementById("lineChart");
+
+        if (pieCtx) {
+            new Chart(pieCtx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Ingresos", "Gastos", "Lucro"],
+                    datasets: [{
+                        data: [
+                            chartData.pie_chart.income.value,
+                            chartData.pie_chart.expense.value,
+                            chartData.pie_chart.profit.value
+                        ],
+                        backgroundColor: ["#16a34a", "#dc2626", "#2563eb"],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: "bottom" } }
+                }
+            });
+        }
+
+        if (lineCtx) {
+            new Chart(lineCtx, {
+                type: "line",
+                data: {
+                    labels: chartData.line_chart.current_month.days,
+                    datasets: [
+                        {
+                            label: chartData.line_chart.current_month.month,
+                            data: chartData.line_chart.current_month.sales_count,
+                            borderColor: "#1e40af",
+                            backgroundColor: "rgba(30,64,175,0.2)",
+                            tension: 0.35,
+                            fill: true
+                        },
+                        {
+                            label: chartData.line_chart.previous_month.month,
+                            data: chartData.line_chart.previous_month.sales_count,
+                            borderColor: "#16a34a",
+                            backgroundColor: "rgba(22,163,74,0.15)",
+                            tension: 0.35,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: "Cantidad de ventas" } },
+                        x: { title: { display: true, text: "Días del mes" } }
+                    }
+                }
+            });
+        }
+    </script>
+
+    {% include 'notification.html' %}
+    {% include 'aside.html' %}
+
+</body>
+
+</html>

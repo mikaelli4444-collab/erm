@@ -12,3 +12,5 @@
 9. financery study
 10. save and show pictures, pdf and data in projects and show to client with a link (the client dont need login)
 11. creo que voy a tener que aprovechar la db de ventas y usarlas en projects, talvez production sea eliminado, esa seccion la puedo unir con proyectos facilmente (pensare en ello)
+12. agregar seguridad CSRF
+13. agregar el cascade es las db que sean necesarias para eliminar correctamente datos relacionados si no tiene sentido guardarlos

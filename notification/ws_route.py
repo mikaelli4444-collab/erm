@@ -12,17 +12,22 @@ async def websocket_notifications(websocket: WebSocket):
     print('entro al ws')
 
     session = SessionLocal()
-    await websocket.accept() # no puede ser... 30 min buscando el error y nunca habia aceptado la conexion 👽👽👽
 
     try:
 
         token = websocket.query_params.get("token")
+
+        await websocket.accept() # no puede ser... 30 min buscando el error y nunca habia aceptado la conexion 👽👽👽
 
         if not token:
             await websocket.close()
             return
 
         user = get_user_from_token(token, session)
+        
+        if not user:
+            await websocket.close(code=1008)
+            return
 
         company_id = user.company_id
 

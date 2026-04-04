@@ -1,33 +1,66 @@
-from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, DECIMAL, Boolean
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, DECIMAL, Boolean, Date, Computed, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from core.database import base
-from datetime import datetime
+from datetime import datetime, date
+from enum import Enum
 
+class StatusEnum(str, Enum):
+    planning = "planning"
+    cutting = "cutting"
+    pre_assembly = "pre_assembly"
+    lamination = "lamination"
+    truck_loading = "truck_loading"
+    installation = "installation"
+    completed = "completed"
+    cancelled = "cancelled"
+    
+class DebtStatusEnum(str, Enum):
+    pending = "pending"
+    cancelled = "cancelled"
+    paid = "paid"
+    overdue = "overdue"
+    
+class TransactionTypeEnum(str, Enum):
+    income = "income"
+    expense = "expense"
+
+class TransactionCategoryEnum(str, Enum):
+    sale = "sale"
+    rent = "rent"
+    other_income = "other_income" #idk how to call this lol
+    salary = "salary"
+    purchases = "purchases"
+    utilities = "utilities"
+    debt_payment = "debt_payment"
+    receivable_payment = "receivable_payment"
+    material = "material"
+    
+class ReceivablesStatusEnum(str, Enum):
+    pending = "pending"
+    paid = "paid"
+    cancelled = "cancelled"
+    overdue = "overdue"
+    
 class Sells(base):
     __tablename__ = "sells"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id")) #quien registro la venta o quien fue el responsable de la venta
     user = relationship("User", foreign_keys=[user_id], back_populates="sells")
-    company_id = Column(Integer, ForeignKey("companies.id"), index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_sells")
-    type = Column(String)
-    income = Column(Integer, nullable=False, index=True) #Ingresos
-    expenses = Column(Integer, nullable=False, index=True) #Egresos
-
-    @property
-    def profit(self):
-        return self.income - self.expenses #calcula los lucros automaticamente para no tener que hacerlo manualmente y evitar errores humanos  *LEER LA NOTA*
-    
-    delivery = Column(DateTime, nullable=False) #definir fecha manualmente
+    client_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    client_name =  Column(String, nullable=True, index=True)
+    installments = Column(Integer, nullable=False, index=True)
+    income = Column(DECIMAL, nullable=False, index=True) #Ingresos
+    expenses = Column(DECIMAL, nullable=False, index=True) #Egresos
+    profit = Column(DECIMAL, Computed("income - expenses"), index=True)
+    status = Column(SQLEnum(StatusEnum), nullable=False)
+    date_sell = Column(Date, default=date.today, nullable=False) #definir fecha manualmente
+    delivery = Column(Date, nullable=False) #definir fecha manualmente
     carpenter_id = Column(Integer, ForeignKey("users.id"))
     carpenter = relationship("User", foreign_keys=[carpenter_id], back_populates="in_charge")
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-
-    #EN ESE CASO EL PROFIT NO PODRA SER LLAMADO EN UNA QUERY PORQUE NO FORMA PARTE DEL SQL, FORMA PARTE DE PYTHON, PARA USARLO LO TENGO QUE LLAMAR COMO UNA PROPIEDAD NORMAL
-    # sells.profit, asi puedo usarlo, calcular con el y mandarlo al front
 
 
 class Debt(base): #Deudas
@@ -39,21 +72,55 @@ class Debt(base): #Deudas
     number_of_installments = Column(Integer, default=1) #aqui tengo el numero de cuotas, si tiene un valor > 1 entonces pagarla todos los meses el mismo dia que se indico en due_date
     description = Column(String)
     payments = relationship("Payment", back_populates="debt", cascade="all, delete-orphan")
-    company_id = Column(Integer, ForeignKey("companies.id"), index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_debts")
-    status = Column(String, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado), 
-
-
-class Payment(base):
+    status = Column(SQLEnum(DebtStatusEnum), nullable=False)#pending, paid, cancelled, overdue (overdue = atrasado), 
+    notification = Column(Boolean, nullable=False, default=False)
+    
+class Payment(base): #cuotas
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    debt_id = Column(Integer, ForeignKey("debts.id"),ondelete="CASCADE")
+    debt_id = Column(Integer, ForeignKey("debts.id", ondelete="CASCADE"))
     debt = relationship("Debt", back_populates="payments")
     amount = Column(DECIMAL, nullable=False, index=True) #cantidad a pagar CUOTAS
-    due_date = Column(DateTime, index=True) #todos los meses el mismo dia por la cantidad de meses que se indico
+    due_date = Column(Date, index=True) #todos los meses el mismo dia por la cantidad de meses que se indico
     paid = Column(Boolean, nullable=False, default=False)
-    paid_at = Column(DateTime, nullable=True)
-    company_id = Column(Integer, ForeignKey("companies.id"), index=True)
+    paid_at = Column(Date, nullable=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_payments")
     status = Column(String, default="pending")#pending, paid, cancelled, overdue (overdue = atrasado)
+    installment_number = Column(Integer, nullable=True)
+    total_installments = Column(Integer, nullable=False, default=1)
+    
+class Receivable(base): #para recibir
+    __tablename__ = "receivables"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True) 
+    amount = Column(DECIMAL, nullable=False, index=True)
+    due_date = Column(Date, index=True)
+    receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    receiver = relationship("User", back_populates="to_recebe")
+    payer_id = Column(Integer, ForeignKey("contacts.id"), nullable=True, index=True) #pagador
+    payer = relationship("Contacts", back_populates="payments")
+    payer_name = Column(String, nullable=True, index=True)
+    description = Column(String, nullable=True, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    company = relationship("Company", back_populates="company_receivable")
+    status = Column(SQLEnum(ReceivablesStatusEnum), default=ReceivablesStatusEnum.pending)
+    paid_at = Column(Date, nullable=True)
+    notification = Column(Boolean, nullable=False, default=False)
+    
+class FinancialTransaction(base):
+    __tablename__ = "transactions" #METER SOLO LAS TRANSACCIONES QUE REALMENTE SE EFECTUARON, VERIFICAR ESO EN BACK
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    company = relationship("Company", back_populates="company_financial_transactions")
+    type = Column(SQLEnum(TransactionTypeEnum), nullable=False)
+    amount = Column(DECIMAL, nullable=False, index=True)
+    date = Column(Date, default=date.today, nullable=False, index=True)
+    category = Column(SQLEnum(TransactionCategoryEnum), nullable=False)
+    description = Column(String, nullable=True, index=True)
+    reference_id = Column(Integer, index=True)
+    is_variable = Column(Boolean, default=False)

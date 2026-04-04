@@ -13,3 +13,4 @@ class Contacts(base):
     type = Column(String, nullable=False)  # personal, architect, client, employed...
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
     company = relationship("Company", back_populates="contacts")
+    payments = relationship("Receivable", back_populates="payer")

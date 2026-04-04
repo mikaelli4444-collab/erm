@@ -14,4 +14,4 @@ class Notification(base):
     type = Column(String)
     data = Column(JSONB)
     is_read = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

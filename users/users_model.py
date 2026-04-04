@@ -16,13 +16,14 @@ class User(base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_verified = Column(Integer, default=0, nullable=False)
     verification_code = Column(String, nullable=True)
-    verification_code_expires_at = Column(DateTime, nullable=True)
+    verification_code_expires_at = Column(DateTime(timezone=True), nullable=True)
     inventory_items = relationship("Inventory", back_populates="owner")
     company_id = Column(Integer, ForeignKey("companies.id"))
     company = relationship("Company", foreign_keys=[company_id])
     role = Column(String, index=True, default="pending", nullable=False)#pending, employee, client, architech, admin
     sells = relationship("Sells", foreign_keys="Sells.user_id", back_populates="user") # quien hizo la venta, relacion entre sells y users
     in_charge = relationship("Sells", foreign_keys="Sells.carpenter_id", back_populates="carpenter")
+    to_recebe = relationship("Receivable", foreign_keys="Receivable.receiver_id", back_populates="receiver")
 
 class Company(base):
     __tablename__ = 'companies'
@@ -42,7 +43,9 @@ class Company(base):
     company_sells = relationship("Sells", back_populates="company")
     company_debts = relationship("Debt", back_populates="company")
     company_payments = relationship("Payment", back_populates="company")
-
+    company_receivable = relationship("Receivable", back_populates="company")
+    company_financial_transactions = relationship("FinancialTransaction", back_populates="company")
+    
 class CompanyJoinRequest(base):
     __tablename__ = 'company_join_requests'
 

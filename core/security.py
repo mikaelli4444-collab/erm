@@ -79,24 +79,29 @@ def verify_verification_token(token: str) -> Optional[str]:
         return None
     
 def get_user_from_token(token: str, session: Session):
+    
+    print("TOKEN:", token)
 
     if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        return None
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        
+        print("PAYLOAD:", payload)
 
         if payload.get("sub") is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            return None
 
         id_user = int(payload.get("sub"))
 
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        print("ERROR DECODING JWT:", e)
+        return None
 
     user = session.query(User).filter(User.id == id_user).first()
 
     if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+        return None
 
     return user
