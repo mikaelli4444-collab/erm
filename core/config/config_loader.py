@@ -1,19 +1,32 @@
-
 import yaml
 import os
-
+from dotenv import load_dotenv
 from typing import Callable, Any, TypeAlias
 from types import SimpleNamespace
 from pathlib import Path
 
-CONFIG_PATH = Path(os.path.dirname(__file__)) / '..' / '..' / 'config.yaml'
+load_dotenv()
+
+CONFIG_PATH = Path(__file__).resolve().parents[2] / "config.yaml"
+
+def resolve_env(value):
+    if isinstance(value, str) and value.startswith("${") and value.endswith("}"):
+        env_var = value[2:-1]
+        env_value = os.getenv(env_var)
+
+        if env_value is None:
+            raise ValueError(f"Environment variable '{env_var}' is not set")
+
+        return env_value
+
+    return value
 
 def to_obj(d):
     if isinstance(d, dict):
         return SimpleNamespace(**{
-            k: to_obj(v) for k, v in d.items()
+            k: to_obj(resolve_env(v)) for k, v in d.items()
         })
-    return d
+    return resolve_env(d)
 
 with open(CONFIG_PATH, 'r', encoding='utf8') as config_file:
     config_raw_dict = yaml.safe_load(config_file.read())
