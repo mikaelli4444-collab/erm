@@ -169,13 +169,15 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 Agente de IA (En proceso)
 
+👨🏻‍💻 Projectos (En proceso)
+
 ✔️ Gestión de empresas
 
 ✔️ WebSockets para notificaciones
 
 ❌ Exportación de reportes (pendiente)
 
-❌ Compartir links para dar seguimiento a los proyectos con el cliente final (pendiente)
+👨🏻‍💻 Compartir links para dar seguimiento a los proyectos con el cliente final (En proceso)
 
 ## 🤝 Contribución
 
@@ -456,13 +458,15 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 AI Agent (In progress)
 
+👨🏻‍💻 Projects (In progress)
+
 ✔️ Company Management
 
 ✔️ WebSockets for notifications
 
 ❌ Report Export (Pending)
 
-❌ Share links to track projects with the end client (Pending)
+👨🏻‍💻 Share links to track projects with the end client (In progress)
 
 ## 🤝 Contribution
 
@@ -749,13 +753,15 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 Agente de IA (Em andamento)
 
+👨🏻‍💻 Projetos (Em andamento)
+
 ✔️ Gestão de empresas
 
 ✔️ WebSockets para notificações
 
 ❌ Exportação de relatórios (Pendente)
 
-❌ Compartilhar links para acompanhamento de projetos com o cliente final (Pendente)
+👨🏻‍💻 Compartilhar links para acompanhamento de projetos com o cliente final (Em andamento)
 
 ## 🤝 Contribución
 
