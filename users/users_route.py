@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import RedirectResponse, JSONResponse
-
 from sqlalchemy.orm import Session
 from users.users_model import User, Company, CompanyJoinRequest
 from notification.notification_services import manager, create_notification, notify_company_join
-from core.security import bcrypt_context, verify_token
+from core.security import bcrypt_context
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token, create_refresh_token
 from fastapi.security import OAuth2PasswordRequestForm

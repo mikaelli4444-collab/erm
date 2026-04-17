@@ -24,7 +24,20 @@ class StorageService:
         ext = filename.split(".")[-1] #extrae la extension del archivo
         return f"{uuid.uuid4()}.{ext}" #genera un nombre unico para el archivo usando la extension original
 
-    def upload_file(self, file, folder: str):
+    def upload_file(self, file): #llamar esta funcion para subir los archivos en el projects_services.py
+        
+        if file.content_type.startswith("image/"):
+            folder = "images"
+
+        elif file.content_type == "application/pdf":
+            folder = "documents"
+
+        elif file.content_type.startswith("video/"):
+            folder = "videos"
+
+        else:
+            raise ValueError("Tipo de archivo no permitido")
+                
         filename = self.generate_filename(file.filename)
         path = f"{folder}/{filename}" #construye ruta dentro del bucket, y ESTO es lo que se guarda en la db
 
@@ -37,6 +50,4 @@ class StorageService:
             }
         )
 
-        url = f"{self.base_url}/{path}"
-
-        return path, url
+        return path

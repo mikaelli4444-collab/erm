@@ -1,0 +1,193 @@
+/* =========================================================
+   ADD PROJECT FORM (REEMPLAZA MATERIAL)
+   ========================================================= */
+.add-project-form {
+    position: absolute;
+    top: 100%;
+    right: 0;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+
+    background: var(--bg-main);
+    padding: 18px;
+    border-radius: 10px;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+
+    width: 420px;
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+
+    z-index: 50;
+}
+
+.add-project-form.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* INPUTS */
+.add-project-form input,
+.add-project-form textarea {
+    width: 100%;
+    padding: 8px 2px;
+    font-size: 14px;
+    color: var(--text-main);
+
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+}
+
+.add-project-form textarea {
+    resize: none;
+    height: 60px;
+}
+
+.add-project-form input::placeholder,
+.add-project-form textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.add-project-form input:focus,
+.add-project-form textarea:focus {
+    outline: none;
+    border-bottom-color: var(--blue);
+}
+
+/* BUTTON */
+.add-project-form button {
+    width: 100%;
+    padding: 10px;
+    background: var(--blue);
+    color: white;
+    font-weight: 600;
+
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.add-project-form button:hover {
+    background: var(--blue-hover);
+}
+
+/* =========================================================
+   PROJECT STATUS (NUEVO - IMPORTANTE)
+   ========================================================= */
+.status-badge {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* estados */
+.status-corte {
+    background: #ffe4e4;
+    color: #b91c1c;
+}
+
+.status-armado {
+    background: #fff7cc;
+    color: #b45309;
+}
+
+.status-instalado {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* =========================================================
+   TABLE AJUSTES PARA PROYECTOS
+   ========================================================= */
+table td {
+    vertical-align: middle;
+}
+
+/* Nombre del proyecto más importante */
+td:nth-child(2) {
+    font-weight: 600;
+}
+
+/* Cliente más suave */
+td:nth-child(3) {
+    color: var(--text-muted);
+}
+
+/* Fecha más discreta */
+td:nth-child(7) {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* =========================================================
+   ACTION BUTTONS MEJORADOS
+   ========================================================= */
+.actions button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* botón abrir */
+.actions a button {
+    background: #64748b;
+    color: white;
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.actions a button:hover {
+    background: #475569;
+}
+
+/* =========================================================
+   RESPONSIVE (CRÍTICO)
+   ========================================================= */
+@media (max-width: 768px) {
+
+    .main-content {
+        padding: 20px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .primary-btn {
+        width: 100%;
+    }
+
+    .add-project-form {
+        width: 100%;
+        right: 0;
+        left: 0;
+    }
+
+    table {
+        font-size: 0.85rem;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+
+    /* HIDE MENOS IMPORTANTE EN MOBILE */
+    th:nth-child(1),
+    td:nth-child(1),
+    th:nth-child(7),
+    td:nth-child(7) {
+        display: none;
+    }
+}

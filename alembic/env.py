@@ -12,14 +12,14 @@ from contacts.contacts_models import *
 from production.production_model import *
 from notification.notification_model import *
 from financery.financery_models import *
+from projects.projects_model import *
+from core.config.config_loader import RAW_CONFIG
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 
 def get_url():
-    with open("config.yaml", "r") as f:
-        config_data = yaml.safe_load(f)
-    return config_data['database']['url']
+    return RAW_CONFIG.database.url
 
 config = context.config
 if config.get_main_option("sqlalchemy.url") is None or config.get_main_option("sqlalchemy.url") == "://":

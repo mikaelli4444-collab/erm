@@ -11,3 +11,5 @@ class CreateProject(BaseModel):
     description: str
     address: str
     
+    class Config:
+        from_attributes = True

@@ -2,33 +2,25 @@ from sqlalchemy import Integer, String, Column, ForeignKey, Boolean, Date, Enum 
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import date
-from enum import Enum
+from core.enum.enum import StatusEnum
 
-class StatusEnum(str, Enum):
-    planning = "planning"
-    cutting = "cutting"
-    pre_assembly = "pre_assembly"
-    lamination = "lamination"
-    truck_loading = "truck_loading"
-    installation = "installation"
-    completed = "completed"
-    cancelled = "cancelled"
-    
 class Projects(base):
+    __tablename__ = 'projects'
+    
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
     carpenter_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    carpenter = relationship("Users", back_populates="carpenter_projects")
-    client_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    #carpenter = relationship("User", back_populates="carpenter_projects")
     client_name =  Column(String, nullable=True, index=True)
     delivery = Column(Date, default=date.today, nullable=False, index=True)
     status = Column(SQLEnum(StatusEnum), default=StatusEnum.planning, nullable=False, index=True)
-    photos_url = Column(String, index=True, nullable=True)
+    photo_path = Column(String, index=True, nullable=True)
+    pdf_path = Column(String, index=True, nullable=True)
     created_at = Column(Date, default=date.today, nullable=False)
     pdf_url = Column(String, index=True, nullable=True)
     description = Column(String, nullable=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
-    company = relationship("Company", back_populates="company_projects")
+    #company = relationship("Company", back_populates="company_projects")
     active = Column(Boolean, default=False, nullable=False, index=True) #esto es para decir si el proyecto ya se esta ejecutando en la fabrica o no
     address = Column(String, nullable=True, index=True) #direccion del cliente
     
