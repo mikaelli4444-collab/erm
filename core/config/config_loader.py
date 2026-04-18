@@ -54,3 +54,6 @@ def parse_property(property: str, parser: Callable[[str | None], "ParseConfigRes
         raise ValueError(f"The config {property} is invalid\n{error}")
 
     return result
+
+#I DONT DO THIS, I PROMISE
+#ME, TOULOUSE/FRANKLIN JOSE MOGOLLON MEDINA DONT HAVE NOTHING TO DO WITH THIS, I SWEAR

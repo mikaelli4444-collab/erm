@@ -119,3 +119,28 @@ async def show_notifications(session: Session, user: User):
     notifications = session.query(Notification).filter(Notification.company_id == company_id).all()
 
     return notifications
+
+
+
+async def create_company_notification(user_id: int, message: dict, session: Session):
+
+    user = session.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    notification = Notification(
+        user_id=user_id,
+        type=message["type"],
+        data=message["data"]            #posiblemente este todo mal aqui, pero lo que quiero hacer es que le llegue una notificacion a un usuario 
+    )                                   #que no tenga empresa para avisarle que se tiene que unir a una o crearla el mismo, despues dos botones 
+                                        #que digan que quiere crearla y otro que quiere unirse, se le mostrara hasta que forme parte de una empresa
+    session.add(notification)
+    session.commit()
+    session.refresh(notification)
+
+    await manager.send_to_user(user_id, {
+                                        "id": notification.id,
+                                        "type": message["type"],
+                                        "data": message["data"]
+    })

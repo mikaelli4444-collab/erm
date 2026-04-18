@@ -17,3 +17,6 @@
 14. automatizar la creacion de cuotas para recibir en financery con la creacion de ventas, ya que se dice en cuantas cuotas se paga
 15. no guardar en financeryTransactions las ventas justo despues de crearlas, esperar los pagos realmente efectuarse
 16. hacer metodos de pago con mercadoPago API
+17. agregar un método para eliminar archivos del R2 cuando se borre un registro en la base de datos, para no dejar "archivos huérfanos" en el storage.
+18. Para mayor seguridad, podrías validar la extensión del archivo contra una lista permitida (whitelist) para evitar que suban scripts maliciosos con mimetypes falseados.
+19. rate limite en todo el proyecto

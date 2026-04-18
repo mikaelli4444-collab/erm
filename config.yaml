@@ -1,0 +1,37 @@
+jwt:
+  secret_key: ${SECRET_KEY}
+  algorithm: HS256
+
+  expiration:
+    access_token: 30 # Minutes
+    refresh_token: 1440 # Minutes
+  
+email_verification:
+
+  username: ${MAIL_USERNAME}
+  password: ${MAIL_PASSWORD}
+
+  from_data: 
+    name: ${MAIL_FROM_NAME}
+    mail: ${MAIL_FROM_EMAIL}
+
+  token_expiration: 1330 # Minutes
+  
+  use_credentials: true
+
+  server:
+    port: 587
+    host: ${MAIL_SERVER_HOST}
+    start_tls: true
+    use_ssl: false
+  
+database:
+  url: ${DATABASE_URL}
+
+storage:
+  provider: r2
+  bucket_name: ${STORAGE_BUCKET_NAME}
+  endpoint_url: ${STORAGE_ENDPOINT_URL}
+  access_key: ${STORAGE_ACCESS_KEY}
+  secret_key: ${STORAGE_SECRET_KEY}
+  media_base_url: ${STORAGE_MEDIA_BASE_URL}

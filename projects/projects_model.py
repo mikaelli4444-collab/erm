@@ -10,7 +10,7 @@ class Projects(base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, nullable=False, index=True)
     carpenter_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    #carpenter = relationship("User", back_populates="carpenter_projects")
+    carpenter = relationship("User", back_populates="carpenter_projects")
     client_name =  Column(String, nullable=True, index=True)
     delivery = Column(Date, default=date.today, nullable=False, index=True)
     status = Column(SQLEnum(StatusEnum), default=StatusEnum.planning, nullable=False, index=True)
@@ -20,7 +20,7 @@ class Projects(base):
     pdf_url = Column(String, index=True, nullable=True)
     description = Column(String, nullable=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
-    #company = relationship("Company", back_populates="company_projects")
+    company = relationship("Company", back_populates="company_projects")
     active = Column(Boolean, default=False, nullable=False, index=True) #esto es para decir si el proyecto ya se esta ejecutando en la fabrica o no
     address = Column(String, nullable=True, index=True) #direccion del cliente
     

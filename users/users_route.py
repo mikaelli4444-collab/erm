@@ -7,7 +7,7 @@ from core.security import bcrypt_context
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token, create_refresh_token
 from fastapi.security import OAuth2PasswordRequestForm
-from users.users_service import authuser, generate_and_send_verification_code, verify_user_email
+from users.users_service import authuser, generate_and_send_verification_code, verify_user_email, create_company
 from core.dependencies import templates
 from core.config import SECRET_KEY, ALGORITHM
 from utilities.net.autorouter import use_autorouter
@@ -57,10 +57,12 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
     
 
 @home_router.post("/signup")
-async def create_user(request: Request, session: Session = Depends(CreateSession), company: str = Form(...), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+async def create_user(request: Request, session: Session = Depends(CreateSession), company: str = Form(None), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+    
     user = session.query(User).filter((User.email==email) | (User.username==username)).first()
     
     try:
+        print("ENTRÓ AL SIGNUP NUEVO")
         if user:
             return templates.TemplateResponse("home/signup.html", {
                 "message": "User with this email or username already exists",
@@ -80,12 +82,13 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             email=email,
             password=password,
             fullname=fullname,
-            #company=company_obj.id
         )
 
         session.add(new_user)
         session.flush()
         session.refresh(new_user)
+        
+        session.commit()
 
         verification_jwt = create_verification_token(new_user.email)
 
@@ -103,18 +106,18 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
 
             await create_notification(company_obj.owner_id, company_obj.id, join_request.message, session)
             
-        else:
-            raise HTTPException(status_code=404, detail="Company not found")
-
-        owner_id = company_obj.owner_id
+            owner_id = company_obj.owner_id
             
-        await generate_and_send_verification_code(new_user, session)
+            try:
+                await manager.send_to_user(owner_id, join_request.message)
         
-        try:
-            await manager.send_to_user(owner_id, join_request.message)
-        
-        except:
+            except:
+                pass
+            
+        else:
             pass
+
+        await generate_and_send_verification_code(new_user, session)
 
         user_email = new_user.email
 
@@ -125,9 +128,10 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             "user_email": user_email
         })
     
-    except:
+    except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=401, detail=f"Error creating user, try again later")
+        print("ERROR:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @home_router.post("/verify-email")
@@ -192,6 +196,37 @@ async def resend_verification_email(request: Request, session: Session = Depends
         "message": "A new verification code has been sent to your email."
     })
 
+@home_router.post("/create-company")
+def create_company_router(request: Request, session: Session = Depends(CreateSession), company_name: str = Form(...), legal_name: str = Form(...), tax_id: str = Form(...), email: str = Form(...), plan: str = Form(...)):
+    company = create_company(request, session, company_name, legal_name, tax_id, email, plan)
+    
+    access_token = request.cookies.get("access_token")
+
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    try:
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+    except:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    user_id = int(payload.get("sub"))
+
+    user = session.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.company_id = company.id
+
+    session.commit()
+
+    return templates.TemplateResponse(
+        "home/create_company.html",
+        {
+            "request": request,
+            "message": "Company created successfully"
+        })
 
 #VIEWS
 
@@ -241,3 +276,7 @@ def refresh_token(request: Request, session: Session = Depends(CreateSession)):
     )
      
     return response
+
+@home_router.get("/create-company")
+def create_company_view(request: Request):
+    return templates.TemplateResponse("home/create_company.html", {"request": request})
