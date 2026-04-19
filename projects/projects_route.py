@@ -9,7 +9,22 @@ from utilities.storage.storage_service import StorageService
 
 projects_router = APIRouter(prefix="/projects", tags=["prj"])
 
+@projects_router.post("/")
+def show_projects():
+    pass
+    
+
 @projects_router.post("/add")
 def create_new_project(user: User = Depends(), session: Session = Depends(CreateSession), data: CreateProject = Depends()):
     new_project = create_project(user, session, data)
-    return RedirectResponse(url=f"/inv/projects/{new_project.id}", status_code=303)
+    return RedirectResponse(url=f"/projects/add/{new_project.id}", status_code=303)
+
+# VIEWS
+
+@projects_router.get("/")
+def show_projects_view(request: Request):
+    return RedirectResponse("projects/projects_dashboard.html", {"request": request})
+
+@projects_router.get("/add")
+def create_project_view(request: Request):
+    return RedirectResponse("projects/projects_create.html", {"request": request})

@@ -48,31 +48,53 @@ Este sistema permite a pequeñas y medianas carpinterias y negocios del sector m
 
 ## ⚙️ Tecnologías usadas
 
-#### Backend & API
-+ FastAPI
-+ Uvicorn
-+ Starlette
+### 🚀 Backend
+- FastAPI
+- Starlette
+- Uvicorn
 
-#### Base de Datos & ORM
-+ SQLAlchemy
-+ Alembic
-+ PostgreSQL (psycopg2)
+### 🗄 Base de Datos y ORM
+- PostgreSQL
+- SQLAlchemy
+- Alembic
 
-#### Seguridad & Autenticación
-+ JWT (python-jose)
-+ Passlib (Bcrypt)
-+ Cryptography
+### 🔐 Autenticación y Seguridad
+- JWT (python-jose)
+- Passlib
+- Bcrypt
+- Cryptography
 
-#### Validación & Configuración
-+ Pydantic
-+ Pydantic-Settings
-+ Python-dotenv
+### 📧 Servicio de Email
+- FastAPI-Mail
+- aiosmtplib
+- email-validator
 
-#### Comunicación & Utilidades
-+ FastAPI-Mail (aiosmtplib)
-+ Jinja2
-+ AnyIO
-+ Websockes
+### ☁️ Almacenamiento y Servicios Externos
+- AWS S3 / Cloudflare R2 (boto3, botocore, s3transfer)
+
+### ⚙️ Configuración y Entorno
+- python-dotenv
+- PyYAML
+- pydantic-settings
+
+### 📦 Validación y Serialización de Datos
+- Pydantic
+
+### 🌐 HTTP y Networking
+- Requests
+- urllib3
+- websockets
+
+### 🧰 Utilidades
+- Jinja2 (templating)
+- python-dateutil
+- regex
+- uuid
+
+### 🧪 Otros
+- anyio
+- attrs
+- click
 ---
 
 ## 🏗️ Estructura del proyecto
@@ -337,31 +359,53 @@ This system allows small and medium-sized carpenter shops and furniture business
 
 ## ⚙️ Technologies Used
 
-#### Backend & API
-+ FastAPI
-+ Uvicorn
-+ Starlette
+### 🚀 Backend
+- FastAPI
+- Starlette
+- Uvicorn
 
-#### Database & ORM
-+ SQLAlchemy
-+ Alembic
-+ PostgreSQL (psycopg2)
+### 🗄 Database & ORM
+- PostgreSQL
+- SQLAlchemy
+- Alembic
 
-#### Security & Authentication
-+ JWT (python-jose)
-+ Passlib (Bcrypt)
-+ Cryptography
+### 🔐 Authentication & Security
+- JWT (python-jose)
+- Passlib
+- Bcrypt
+- Cryptography
 
-#### Validation & Configuration
-+ Pydantic
-+ Pydantic-Settings
-+ Python-dotenv
+### 📧 Email Service
+- FastAPI-Mail
+- aiosmtplib
+- email-validator
 
-#### Communication & Utilities
-+ FastAPI-Mail (aiosmtplib)
-+ Jinja2
-+ AnyIO
-+ Websockes
+### ☁️ Storage & External Services
+- AWS S3 / Cloudflare R2 (boto3, botocore, s3transfer)
+
+### ⚙️ Configuration & Environment
+- python-dotenv
+- PyYAML
+- pydantic-settings
+
+### 📦 Data Validation & Serialization
+- Pydantic
+
+### 🌐 HTTP & Networking
+- Requests
+- urllib3
+- websockets
+
+### 🧰 Utilities
+- Jinja2 (templating)
+- python-dateutil
+- regex
+- uuid
+
+### 🧪 Others
+- anyio
+- attrs
+- click
 ---
 
 ## 🏗️ Project Structure
@@ -632,31 +676,53 @@ Este sistema permite que pequenas e médias marcenarias e negócios do setor mov
 
 ## ⚙️ Tecnologias Usadas
 
-#### Backend & API
-+ FastAPI
-+ Uvicorn
-+ Starlette
+### 🚀 Backend
+- FastAPI
+- Starlette
+- Uvicorn
 
-#### Banco de Dados & ORM
-+ SQLAlchemy
-+ Alembic
-+ PostgreSQL (psycopg2)
+### 🗄 Banco de Dados e ORM
+- PostgreSQL
+- SQLAlchemy
+- Alembic
 
-#### Segurança & Autenticação
-+ JWT (python-jose)
-+ Passlib (Bcrypt)
-+ Cryptography
+### 🔐 Autenticação e Segurança
+- JWT (python-jose)
+- Passlib
+- Bcrypt
+- Cryptography
 
-#### Validação & Configuração
-+ Pydantic
-+ Pydantic-Settings
-+ Python-dotenv
+### 📧 Serviço de Email
+- FastAPI-Mail
+- aiosmtplib
+- email-validator
 
-#### Comunicação & Utilidades
-+ FastAPI-Mail (aiosmtplib)
-+ Jinja2
-+ AnyIO
-+ Websockes
+### ☁️ Armazenamento e Serviços Externos
+- AWS S3 / Cloudflare R2 (boto3, botocore, s3transfer)
+
+### ⚙️ Configuração e Ambiente
+- python-dotenv
+- PyYAML
+- pydantic-settings
+
+### 📦 Validação e Serialização de Dados
+- Pydantic
+
+### 🌐 HTTP e Networking
+- Requests
+- urllib3
+- websockets
+
+### 🧰 Utilidades
+- Jinja2 (templating)
+- python-dateutil
+- regex
+- uuid
+
+### 🧪 Outros
+- anyio
+- attrs
+- click
 ---
 
 ## 🏗️ Estrutura do Projeto

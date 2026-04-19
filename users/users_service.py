@@ -79,5 +79,6 @@ def create_company(request, session, company_name, legal_name, tax_id, email, pl
         owner_id=user_id,
     )
     
+    
     session.add(company_data)
     session.commit()

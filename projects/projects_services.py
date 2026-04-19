@@ -9,7 +9,6 @@ from projects.projects_model import Projects
 from core.config.config_loader import RAW_CONFIG
 from utilities.storage.storage_service import StorageService
 
-
 def map_user(user):
     return {
     "id": user.id,

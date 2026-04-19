@@ -4,20 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects Dashboard</title>
+    <title>Inventory Dashboard</title>
 
-    <link rel="stylesheet" href="/static/projects/projects_dashboard.css">
+    <link rel="stylesheet" href="../../static/projects/projects_dashboard.css">
+    <script type="module" src="/static/js/refresh_token.js"></script>
 </head>
 
 <body>
 
 <main class="main-content">
 
-    <!-- HEADER -->
     <header class="header-top">
         <div class="page-title">
-            <h1>Projects</h1>
-            <p>Manage your projects and track progress</p>
+            <h1>Inventory</h1>
+            <p>Manage your materials and stock levels</p>
         </div>
 
         <div class="top-bar">
@@ -27,111 +27,86 @@
         </div>
     </header>
 
-    <!-- CONTROLES -->
     <section class="controls">
 
-        <!-- SEARCH -->
-        <form class="search-form" method="get" action="/projects/dashboard">
-            <input type="text" name="search" placeholder="Search projects..."
+        <form class="search-form" method="get" action="/inv/dashboard">
+            <input type="text" name="search" placeholder="Search materials..."
                 value="{{ request.query_params.get('search', '') }}">
             <button type="submit">🔍</button>
         </form>
 
-        <!-- BOTÓN CREAR -->
-        <button class="primary-btn" id="add-project-btn">➕ Add Project</button>
+        <a href="..." class="primary-btn" id="add-material-btn">➕ Add Material</a>
 
-        <!-- FORMULARIO OCULTO -->
-        <form method="post" action="/projects/add" class="add-project-form">
-
-            <input type="text" name="name" placeholder="Project name" required>
-            <input type="text" name="client" placeholder="Client" required>
-            <input type="text" name="address" placeholder="Address">
-            <input type="date" name="delivery_date">
-
-            <input type="text" name="responsible" placeholder="Responsible">
-            <input type="text" name="materials" placeholder="Materials">
-
-            <textarea name="description" placeholder="Description"></textarea>
-
-            <button type="submit">Guardar</button>
-        </form>
+        
 
     </section>
 
-    <!-- TABLA -->
-    <table>
-        <thead>
-            <tr>
-                <th>Owner</th>
-                <th>Project</th>
-                <th>Client</th>
-                <th>Status</th>
-                <th>Delivery</th>
-                <th>Actions</th>
-                <th>Updated</th>
-            </tr>
-        </thead>
+    <!-- ===================== CARDS ===================== -->
+    <section class="cards-container">
 
-        <tbody>
-            {% for project in projects %}
-            <tr data-project-id="{{ project.id }}">
+        {% for item in items %}
+        <div class="card" data-item-id="{{ item.id }}">
 
-                <td>{{ project.owner.username }}</td>
-                <td>{{ project.name }}</td>
-                <td>{{ project.client }}</td>
-                <td>{{ project.status }}</td>
+            <!-- IMAGE -->
+            <div class="card-image-container">
+                {% if item.images and item.images|length > 0 %}
+                    <img src="{{ item.images[0].url }}" class="card-image">
+                {% else %}
+                    <div class="card-image-placeholder">No image</div>
+                {% endif %}
+            </div>
 
-                <td>
-                    {{ project.delivery_date.strftime('%d/%m/%Y') if project.delivery_date else '' }}
-                </td>
+            <!-- HEADER -->
+            <div class="card-header">
+                <h3 class="card-title">{{ item.item_name }}</h3>
+                <span class="card-owner">{{ item.owner.username }}</span>
+            </div>
 
-                <td class="actions">
-                    <a href="/projects/{{ project.id }}">
-                        <button type="button">📂 Open</button>
-                    </a>
+            <!-- DESCRIPTION -->
+            <p class="card-desc">{{ item.description }}</p>
 
-                    <button class="edit-btn" data-project-id="{{ project.id }}">✏️ Edit</button>
-                    <button class="delete-btn" data-project-id="{{ project.id }}">🗑️ Delete</button>
-                </td>
+            <!-- INFO -->
+            <div class="card-info">
+                <div class="stock">
+                    Stock: <strong>{{ item.quantity }}</strong>
+                </div>
 
-                <td>
-                    {{ project.updated_at.strftime('%d/%m/%Y') if project.updated_at else '' }}
-                </td>
+                <div class="date">
+                    {{ item.updated_at.strftime('%d/%m/%Y') if item.updated_at else '' }}
+                </div>
+            </div>
 
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            <!-- ACTIONS -->
+            <div class="card-actions">
+                <button class="edit-btn" data-item-id="{{ item.id }}">✏️ Edit</button>
+                <button class="delete-btn" data-item-id="{{ item.id }}">🗑️ Delete</button>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </section>
 
 </main>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    const addBtn = document.getElementById("add-project-btn");
-    const form = document.querySelector(".add-project-form");
-
-    if (addBtn && form) {
-        addBtn.addEventListener("click", () => {
-            form.classList.toggle("active");
-        });
-    }
-
     // DELETE
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
 
-            const row = btn.closest('tr');
-            const projectName = row.children[1].innerText.trim();
+            const card = btn.closest('.card');
+            const itemName = card.querySelector('.card-title').innerText.trim();
 
-            if (!confirm(`Delete "${projectName}"?`)) return;
+            if (!confirm(`¿Eliminar "${itemName}"?`)) return;
 
-            const response = await fetch(`/projects/delete/${encodeURIComponent(projectName)}`, {
+            const response = await fetch(`/inv/delete/${encodeURIComponent(itemName)}`, {
                 method: 'POST'
             });
 
             if (response.ok) location.reload();
-            else alert("Error deleting project");
+            else alert("Error al eliminar");
         });
     });
 
@@ -139,48 +114,47 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', () => {
 
-            const row = btn.closest('tr');
+            const card = btn.closest('.card');
 
-            const owner = row.children[0].innerText.trim();
-            const name = row.children[1].innerText.trim();
-            const client = row.children[2].innerText.trim();
-            const status = row.children[3].innerText.trim();
-            const delivery = row.children[4].innerText.trim();
-            const updated = row.children[6].innerText.trim();
+            const originalName = card.querySelector('.card-title').innerText.trim();
+            const originalDesc = card.querySelector('.card-desc').innerText.trim();
+            const originalQty = card.querySelector('.stock strong').innerText.trim();
+            const originalDate = card.querySelector('.date').innerText.trim();
 
-            row.innerHTML = `
-                <td>${owner}</td>
-                <td><input type="text" id="edit-name" value="${name}"></td>
-                <td><input type="text" id="edit-client" value="${client}"></td>
-                <td><input type="text" id="edit-status" value="${status}"></td>
-                <td><input type="date" id="edit-delivery"></td>
-                <td class="actions">
-                    <button type="button" class="save-btn">💾 Save</button>
-                    <button type="button" class="cancel-edit">❌ Cancel</button>
-                </td>
-                <td>${updated}</td>
+            card.innerHTML = `
+                <div class="card-header">
+                    <input type="text" id="edit-name" value="${originalName}">
+                </div>
+
+                <input type="text" id="edit-desc" value="${originalDesc}">
+                <input type="number" id="edit-qty" value="${originalQty}">
+
+                <div class="card-actions">
+                    <button class="save-btn">💾 Save</button>
+                    <button class="cancel-edit">❌ Cancel</button>
+                </div>
+
+                <div class="date">${originalDate}</div>
             `;
 
-            row.querySelector('.save-btn').addEventListener('click', async () => {
+            card.querySelector('.save-btn').addEventListener('click', async () => {
 
                 const params = new URLSearchParams();
-                params.append('name', document.getElementById('edit-name').value);
-                params.append('client', document.getElementById('edit-client').value);
-                params.append('status', document.getElementById('edit-status').value);
-                params.append('delivery_date', document.getElementById('edit-delivery').value);
+                params.append('item_name_new', document.getElementById('edit-name').value);
+                params.append('description', document.getElementById('edit-desc').value);
+                params.append('quantity', document.getElementById('edit-qty').value);
 
-                const response = await fetch(`/projects/edit/${encodeURIComponent(name)}`, {
+                const response = await fetch(`/inv/edit/${encodeURIComponent(originalName)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: params
                 });
 
                 if (response.ok) location.reload();
-                else alert("Update failed");
+                else alert("No se pudo actualizar");
             });
 
-            row.querySelector('.cancel-edit')
-                .addEventListener('click', () => location.reload());
+            card.querySelector('.cancel-edit').addEventListener('click', () => location.reload());
         });
     });
 

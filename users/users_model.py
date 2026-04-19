@@ -24,7 +24,7 @@ class User(base):
     sells = relationship("Sells", foreign_keys="Sells.user_id", back_populates="user") # quien hizo la venta, relacion entre sells y users
     in_charge = relationship("Sells", foreign_keys="Sells.carpenter_id", back_populates="carpenter")
     to_recebe = relationship("Receivable", foreign_keys="Receivable.receiver_id", back_populates="receiver")
-    carpenter_projects = relationship("Projects", foreign_keys="Projects.carpenter_id", back_populates="carpenter")
+    carpenter_projects = relationship("Projects",back_populates="carpenter")
 
 class Company(base):
     __tablename__ = 'companies'

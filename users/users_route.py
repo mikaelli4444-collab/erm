@@ -221,12 +221,7 @@ def create_company_router(request: Request, session: Session = Depends(CreateSes
 
     session.commit()
 
-    return templates.TemplateResponse(
-        "home/create_company.html",
-        {
-            "request": request,
-            "message": "Company created successfully"
-        })
+    return RedirectResponse(url="/home/create_company", status_code=303)
 
 #VIEWS
 
@@ -235,7 +230,6 @@ use_autorouter(
     templates, 
     '/home'
 )
-
 
 @home_router.post("/refresh")
 def refresh_token(request: Request, session: Session = Depends(CreateSession)):
@@ -276,7 +270,3 @@ def refresh_token(request: Request, session: Session = Depends(CreateSession)):
     )
      
     return response
-
-@home_router.get("/create-company")
-def create_company_view(request: Request):
-    return templates.TemplateResponse("home/create_company.html", {"request": request})

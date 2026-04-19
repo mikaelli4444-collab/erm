@@ -10,6 +10,7 @@ from notification.ws_route import ws_route
 from financery.financery_route import financery_router
 from core.database import base, engine
 from core.dependencies import templates
+from projects.projects_model import Projects
 
 app = FastAPI()
 
