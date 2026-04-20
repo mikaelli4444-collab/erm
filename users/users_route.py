@@ -197,8 +197,8 @@ async def resend_verification_email(request: Request, session: Session = Depends
     })
 
 @home_router.post("/create-company")
-def create_company_router(request: Request, session: Session = Depends(CreateSession), company_name: str = Form(...), legal_name: str = Form(...), tax_id: str = Form(...), email: str = Form(...), plan: str = Form(...)):
-    company = create_company(request, session, company_name, legal_name, tax_id, email, plan)
+def create_company_router(request: Request, session: Session = Depends(CreateSession), company_name: str = Form(...), legal_name: str = Form(...), tax_id: str = Form(...), email: str = Form(...)):
+    company = create_company(request, session, company_name, legal_name, tax_id, email)
     
     access_token = request.cookies.get("access_token")
 
@@ -221,7 +221,7 @@ def create_company_router(request: Request, session: Session = Depends(CreateSes
 
     session.commit()
 
-    return RedirectResponse(url="/home/create_company", status_code=303)
+    return RedirectResponse(url="/home/plans", status_code=303)
 
 #VIEWS
 

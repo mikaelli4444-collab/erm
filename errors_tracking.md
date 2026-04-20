@@ -33,10 +33,10 @@ The solution is to **ensure the `Projects` model is imported before any database
 In practice, this means importing it during application startup (for example, in `main.py` or a central models file), so SQLAlchemy registers it in memory before it tries to resolve relationships.
 
 
-## 📈 Future Improvement (optional but pro)
+## 📈 Future Improvement
 Import the model in another file and delete from main
 
-## 📎 Relevant Code (optional)
+## 📎 Relevant Code
 ...
 
 
@@ -88,5 +88,5 @@ Alternatively, if migrations should be applied normally:
 - Maintain a consistent migration history
 - Use reset strategies (stamp or full rebuild) when the migration chain is broken
 
-## 📎 Relevant Code (optional)
+## 📎 Relevant Code
 ...

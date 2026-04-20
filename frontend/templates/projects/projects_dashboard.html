@@ -16,8 +16,8 @@
 
     <header class="header-top">
         <div class="page-title">
-            <h1>Inventory</h1>
-            <p>Manage your materials and stock levels</p>
+            <h1>Projects</h1>
+            <p>Control your projects and share</p>
         </div>
 
         <div class="top-bar">
@@ -29,13 +29,13 @@
 
     <section class="controls">
 
-        <form class="search-form" method="get" action="/inv/dashboard">
-            <input type="text" name="search" placeholder="Search materials..."
+        <form class="search-form" method="get" action="/projects/dashboard">
+            <input type="text" name="search" placeholder="Search projects"
                 value="{{ request.query_params.get('search', '') }}">
             <button type="submit">🔍</button>
         </form>
 
-        <a href="..." class="primary-btn" id="add-material-btn">➕ Add Material</a>
+        <a href="/projects/add" class="primary-btn" id="add-material-btn">➕ Add Project</a>
 
         
 

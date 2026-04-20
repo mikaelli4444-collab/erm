@@ -21,7 +21,6 @@ class CompanySchema(BaseModel):
     legal_name: str
     tax_id: str #CNPJ
     email: EmailStr
-    plan: Literal['basic', 'premium', 'enterprise'] = 'basic'
     
     class Config:
         from_attributes = True

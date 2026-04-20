@@ -81,3 +81,7 @@ def add_pdf(project_id: int, file, session: Session, storage: StorageService):
             pass
 
     return project
+
+def show_projects(session: Session, user: User):
+    projects = session.query(Projects).filter(Projects.company_id == user.company_id).all()
+    return projects
