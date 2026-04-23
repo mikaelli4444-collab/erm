@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from users.users_model import User, Company, CompanyJoinRequest
-from notification.notification_services import manager, create_notification, notify_company_join
+from notification.notification_services import manager, create_notification, notify_company_join, ensure_company_assignment_reminder
 from core.security import bcrypt_context
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token, create_refresh_token
@@ -12,11 +12,12 @@ from core.dependencies import templates
 from core.config import SECRET_KEY, ALGORITHM
 from utilities.net.autorouter import use_autorouter
 from jose import jwt
+from core.security import verify_token
 
 home_router = APIRouter(prefix="/home", tags=["home"])
 
 @home_router.post("/login")
-def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(CreateSession)):
+async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(CreateSession)):
     user = authuser(form_data.username, form_data.password, session)
 
     if not user:
@@ -31,6 +32,8 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
             "email": user.email, 
             "message": "Please verify your email address before logging in."
         })
+
+    await ensure_company_assignment_reminder(user, session)
 
     access_token = create_token(user.id)
     refresh_token = create_refresh_token(user.id)
@@ -198,7 +201,6 @@ async def resend_verification_email(request: Request, session: Session = Depends
 
 @home_router.post("/create-company")
 def create_company_router(request: Request, session: Session = Depends(CreateSession), company_name: str = Form(...), legal_name: str = Form(...), tax_id: str = Form(...), email: str = Form(...)):
-    company = create_company(request, session, company_name, legal_name, tax_id, email)
     
     access_token = request.cookies.get("access_token")
 
@@ -216,12 +218,20 @@ def create_company_router(request: Request, session: Session = Depends(CreateSes
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
+    
+    company = create_company(session, company_name, legal_name, tax_id, email)
+    
+    company.owner_id = user.id
+    
     user.company_id = company.id
 
     session.commit()
 
     return RedirectResponse(url="/home/plans", status_code=303)
+
+@home_router.get("/create_company")
+def create_company_alias():
+    return RedirectResponse(url="/home/create-company", status_code=303)
 
 #VIEWS
 
