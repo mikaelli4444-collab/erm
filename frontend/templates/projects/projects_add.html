@@ -213,11 +213,41 @@
         .btn-submit:hover {
             background: var(--primary-dark);
         }
+
+#carpenterResults {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.grid > div {
+    position: relative;
+}
+
+#carpenterResults div {
+    padding: 8px;
+    cursor: pointer;
+}
+
+#carpenterResults div:hover {
+    background: #eee;
+}
+
+#carpenterResults:empty {
+    display: none;
+}
     </style>
 </head>
 
 <body>
 
+<form action="/projects/add" method="post" enctype="multipart/form-data">
     <div class="container">
         <h1>Project Builder</h1>
 
@@ -225,15 +255,15 @@
             <h3>Imágenes del proyecto</h3>
             <div class="dropzone" id="dropzone">
                 <p>Arrastra imágenes aquí o haz click</p>
-                <input type="file" id="imagesInput" multiple accept="image/*" hidden>
+                <input type="file" id="imagesInput" name="photo" multiple accept="image/*" hidden>
             </div>
             <div class="image-grid" id="imageGrid"></div>
         </div>
 
         <div class="card">
             <h3>Documentos PDF</h3>
-            <button class="file-button" id="pdfButton">Seleccionar PDFs</button>
-            <input type="file" id="pdfInput" multiple accept="application/pdf" hidden>
+            <button type="button" class="file-button" id="pdfButton">Seleccionar PDFs</button>
+            <input type="file" id="pdfInput" name="pdf" multiple accept="application/pdf" hidden>
             <div id="pdfList"></div>
         </div>
 
@@ -243,121 +273,173 @@
             <div class="grid">
                 <div>
                     <label>Nombre</label>
-                    <input type="text">
+                    <input type="text" name="name">
                 </div>
 
                 <div>
                     <label>Marceneiro</label>
-                    <input type="text">
+                    <input type="text" name="carpenter" id="carpenterInput">
+                    <input type="hidden" name="carpenter_id" id="carpenterId">
+                    <div id="carpenterResults"></div>
+                </div>
+
+                <div>
+                    <label>Cliente</label>
+                    <input type="text" name="client_name">
                 </div>
 
                 <div>
                     <label>Arquitecto</label>
-                    <input type="text">
+                    <input type="text" name="architect">
                 </div>
 
                 <div>
                     <label>Fecha entrega</label>
-                    <input type="date">
+                    <input type="date" name="delivery">
                 </div>
 
                 <div style="grid-column: span 2;">
                     <label>Dirección</label>
-                    <input type="text">
+                    <input type="text" name="address">
                 </div>
             </div>
 
             <label>Materiales</label>
-            <textarea></textarea>
+            <textarea name="materials"></textarea>
 
             <label>Descripción</label>
-            <textarea></textarea>
+            <textarea name="description"></textarea>
 
             <button class="btn-submit">Guardar proyecto</button>
         </div>
     </div>
+</form>
 
-    <script>
-        const dropzone = document.getElementById("dropzone");
-        const imageInput = document.getElementById("imagesInput");
-        const imageGrid = document.getElementById("imageGrid");
-        const pdfInput = document.getElementById("pdfInput");
-        const pdfList = document.getElementById("pdfList");
-        const pdfButton = document.getElementById("pdfButton");
+<script>
+const dropzone = document.getElementById("dropzone");
+const imageInput = document.getElementById("imagesInput");
+const imageGrid = document.getElementById("imageGrid");
+const pdfInput = document.getElementById("pdfInput");
+const pdfList = document.getElementById("pdfList");
+const pdfButton = document.getElementById("pdfButton");
 
-        let images = [];
-        let pdfs = [];
+let images = [];
+let pdfs = [];
 
-        pdfButton.addEventListener("click", () => pdfInput.click());
-        dropzone.addEventListener("click", () => imageInput.click());
+pdfButton.addEventListener("click", () => pdfInput.click());
+dropzone.addEventListener("click", () => imageInput.click());
 
-        dropzone.addEventListener("dragover", e => e.preventDefault());
+dropzone.addEventListener("dragover", e => e.preventDefault());
 
-        dropzone.addEventListener("drop", e => {
-            e.preventDefault();
-            handleFiles(e.dataTransfer.files);
-        });
+dropzone.addEventListener("drop", e => {
+    e.preventDefault();
+    handleFiles(e.dataTransfer.files);
+});
 
-        imageInput.addEventListener("change", e => {
-            handleFiles(e.target.files);
-        });
+imageInput.addEventListener("change", e => {
+    handleFiles(e.target.files);
+});
 
-        function handleFiles(files) {
-            [...files].forEach(file => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    images.push(e.target.result);
-                    renderImages();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
+function handleFiles(files) {
+    [...files].forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            images.push(e.target.result);
+            renderImages();
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
-        function renderImages() {
-            imageGrid.innerHTML = "";
-            images.forEach((img, index) => {
-                const wrapper = document.createElement("div");
-                wrapper.className = "image-wrapper";
-                const image = document.createElement("img");
-                image.src = img;
-                const btn = document.createElement("button");
-                btn.className = "remove-img";
-                btn.innerHTML = "×";
-                btn.onclick = () => {
-                    images.splice(index, 1);
-                    renderImages();
-                };
-                wrapper.appendChild(image);
-                wrapper.appendChild(btn);
-                imageGrid.appendChild(wrapper);
-            });
-        }
+function renderImages() {
+    imageGrid.innerHTML = "";
+    images.forEach((img, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "image-wrapper";
+        const image = document.createElement("img");
+        image.src = img;
+        const btn = document.createElement("button");
+        btn.className = "remove-img";
+        btn.innerHTML = "×";
+        btn.onclick = () => {
+            images.splice(index, 1);
+            renderImages();
+        };
+        wrapper.appendChild(image);
+        wrapper.appendChild(btn);
+        imageGrid.appendChild(wrapper);
+    });
+}
 
-        pdfInput.addEventListener("change", e => {
-            const files = [...e.target.files];
-            files.forEach(file => pdfs.push(file.name));
+pdfInput.addEventListener("change", e => {
+    const files = [...e.target.files];
+    files.forEach(file => pdfs.push(file.name));
+    renderPDFs();
+});
+
+function renderPDFs() {
+    pdfList.innerHTML = "";
+    pdfs.forEach((pdf, index) => {
+        const div = document.createElement("div");
+        div.className = "pdf-item";
+        const name = document.createElement("span");
+        name.textContent = pdf;
+        const btn = document.createElement("button");
+        btn.innerHTML = "×";
+        btn.onclick = () => {
+            pdfs.splice(index, 1);
             renderPDFs();
-        });
+        };
+        div.appendChild(name);
+        div.appendChild(btn);
+        pdfList.appendChild(div);
+    });
+}
 
-        function renderPDFs() {
-            pdfList.innerHTML = "";
-            pdfs.forEach((pdf, index) => {
+const carpenterInput = document.getElementById("carpenterInput");
+const carpenterIdInput = document.getElementById("carpenterId");
+const carpenterResults = document.getElementById("carpenterResults");
+
+let timeout = null;
+
+carpenterInput.addEventListener("input", () => {
+    const query = carpenterInput.value.trim();
+
+    carpenterIdInput.value = "";
+
+    if (query.length < 2) {
+        carpenterResults.innerHTML = "";
+        return;
+    }
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(async () => {
+        try {
+            const res = await fetch(`/projects/users/search?username=${query}`);
+            const data = await res.json();
+
+            carpenterResults.innerHTML = "";
+
+            data.forEach(user => {
                 const div = document.createElement("div");
-                div.className = "pdf-item";
-                const name = document.createElement("span");
-                name.textContent = pdf;
-                const btn = document.createElement("button");
-                btn.innerHTML = "×";
-                btn.onclick = () => {
-                    pdfs.splice(index, 1);
-                    renderPDFs();
+                div.textContent = user.name;
+
+                div.onclick = () => {
+                    carpenterInput.value = user.name;
+                    carpenterIdInput.value = user.id;
+                    carpenterResults.innerHTML = "";
                 };
-                div.appendChild(name);
-                div.appendChild(btn);
-                pdfList.appendChild(div);
+
+                carpenterResults.appendChild(div);
             });
+
+        } catch (err) {
+            console.error(err);
         }
-    </script>
+    }, 300);
+});
+</script>
 
 </body>
 </html>

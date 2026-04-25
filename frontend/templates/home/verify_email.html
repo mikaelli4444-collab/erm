@@ -34,7 +34,7 @@
         <form action="/home/verify-email" method="post">
             <div class="form-group">
                 <label for="code">Código de Verificación:</label>
-                <input type="text" id="code" name="code" placeholder="Ingresa el código de 6 dígitos" required
+                <input type="text" id="code" name="code" placeholder="Ingresa el código" required
                     maxlength="6" pattern="[0-9]{6}" autocomplete="off">
             </div>
             {% if verification_jwt %}

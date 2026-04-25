@@ -6,6 +6,7 @@ from users.users_model import User, CompanyJoinRequest
 from notification.notification_model import Notification
 from notification.notification_services import create_notification, notify_company_join, show_notifications
 from users.users_model import Company
+from notification.notification_schema import JoinRequestNotificationData
 
 notification_router = APIRouter(prefix="/notification",tags=["notification"])
 
@@ -19,11 +20,11 @@ async def join_request(request_id: int, session: Session = Depends(CreateSession
     await notify_company_join(request_id, session, user)
 
 @notification_router.post("/notifications/join-company")
-async def join_company(company_name: str, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+async def join_company(data: JoinRequestNotificationData, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     if user.company_id is not None:
         raise HTTPException(status_code=409, detail="Ya perteneces a una empresa")
 
-    company = session.query(Company).filter(Company.name.ilike(company_name.strip())).first()
+    company = session.query(Company).filter(Company.name.ilike(f"%{data.company_name.strip()}%")).first()
     
     if not company:
         raise HTTPException(status_code=404, detail="Empresa no encontrada")
@@ -37,21 +38,24 @@ async def join_company(company_name: str, session: Session = Depends(CreateSessi
     if existing_request:
         raise HTTPException(status_code=409, detail="Ya has enviado una solicitud a esta empresa")
 
+    join_request = CompanyJoinRequest(
+        user_id=user.id,
+        company_id=company.id,
+    )
+    session.add(join_request)
+    session.flush()
+    
     message = {
         "type": "company_join_request",
         "data": {
             "username": user.username,
             "user_id": user.id,
-            "company_id": company.id
+            "company_id": company.id,
+            "join_request_id": join_request.id
         }
     }
-
-    join_request = CompanyJoinRequest(
-        user_id=user.id,
-        company_id=company.id,
-        message=message
-    )
-    session.add(join_request)
+    
+    join_request.message = message
     session.commit()
     session.refresh(join_request)
 

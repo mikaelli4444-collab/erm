@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, Request, WebSocket
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session
 from users.users_model import User
 from core.dependencies import CreateSession
 from fastapi.security import OAuth2PasswordBearer

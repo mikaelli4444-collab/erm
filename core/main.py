@@ -11,7 +11,7 @@ from financery.financery_route import financery_router
 from projects.projects_route import projects_router
 from core.database import base, engine
 from core.dependencies import templates
-from projects.projects_model import Projects
+
 
 app = FastAPI()
 

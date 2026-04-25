@@ -5,11 +5,11 @@ from botocore.client import Config
 
 class StorageService:
     def __init__(self, config):
-        self.bucket = config.bucket_name
-        self.endpoint = config.endpoint_url
-        self.access_key = config.access_key
-        self.secret_key = config.secret_key
-        self.base_url = config.media_base_url
+        self.bucket = config.storage.bucket_name
+        self.endpoint = config.storage.endpoint_url
+        self.access_key = config.storage.access_key
+        self.secret_key = config.storage.secret_key
+        self.base_url = config.storage.media_base_url
 
         self.client = boto3.client(
             "s3",

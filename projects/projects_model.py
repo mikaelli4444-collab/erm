@@ -17,12 +17,26 @@ class Projects(base):
     photo_path = Column(String, index=True, nullable=True)
     pdf_path = Column(String, index=True, nullable=True)
     created_at = Column(Date, default=date.today, nullable=False)
-    pdf_url = Column(String, index=True, nullable=True)
     description = Column(String, nullable=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_projects")
     active = Column(Boolean, default=False, nullable=False, index=True) #esto es para decir si el proyecto ya se esta ejecutando en la fabrica o no
     address = Column(String, nullable=True, index=True) #direccion del cliente
+    photos = relationship("ProjectsPhotos", back_populates="project", cascade="all, delete-orphan")
+    pdfs = relationship("ProjectsPDFs", back_populates="project", cascade="all, delete-orphan")
     
-    #guardar fotos y pdfs en un bucket de s3 y guardar las urls en la base de datos, para no sobrecargar la base de datos con archivos grandes
-    #usar cloudflare r2 para guardar los archivos, es mas barato que s3
+class ProjectsPhotos(base):
+    __tablename__ = 'projects_photos'
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    project_id = Column(Integer, ForeignKey('projects.id'), nullable=False, index=True)
+    photo_path = Column(String, index=True, nullable=False)
+    project = relationship("Projects", back_populates="photos")
+    
+class ProjectsPDFs(base):
+    __tablename__ = 'projects_pdfs'
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    project_id = Column(Integer, ForeignKey('projects.id'), nullable=False, index=True)
+    pdf_path = Column(String, index=True, nullable=False)
+    project = relationship("Projects", back_populates="pdfs")

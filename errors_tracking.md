@@ -90,3 +90,92 @@ Alternatively, if migrations should be applied normally:
 
 ## 📎 Relevant Code
 ...
+
+
+# Error #3: "POST /notification/notifications/join-request/accept?request_id=undefined HTTP/1.1" 422 Unprocessable Entity
+
+**Date:** 23/04/2026  
+**Module:** Notifications  
+**Type:** Frontend / Data Consistency  
+
+---
+
+## 🔍 Description
+This error occurs when the frontend sends a request to accept a company join request without a valid `request_id`.
+
+Instead of sending a numeric identifier, the request is made with:
+
+```request_id=undefined```
+
+Since the backend expects `request_id` as an integer, FastAPI is unable to parse the value and returns a **422 Unprocessable Entity** response.
+
+---
+
+## 🧠 Root Cause
+The root cause is a **data inconsistency between the backend and frontend**.
+
+Specifically:
+- Some notifications were created **without `join_request_id`**
+- The frontend assumes that all `company_join_request` notifications include this field
+- When rendering, `data.join_request_id` becomes `undefined`
+- The frontend then sends this invalid value in the request
+
+This mismatch leads to invalid API calls and the resulting 422 error.
+
+---
+
+## 🧪 How to Reproduce
+Exact steps:
+1. Create a notification of type `company_join_request` **without** `join_request_id`
+2. Load notifications in the frontend
+3. Click “Accept” on that notification
+4. The request is sent as:
+
+    /join-request/accept?request_id=undefined
+
+Result: FastAPI returns **422 Unprocessable Entity**
+
+---
+
+## 🛠 Applied Solution
+The issue was resolved by ensuring that every join request notification includes a valid `join_request_id`.
+
+Fix applied in backend:
+- Create the `CompanyJoinRequest` first
+- Use `session.flush()` to generate the ID
+- Inject `join_request_id` into the notification payload before saving
+
+Example flow:
+1. Create join request
+2. Generate ID
+3. Build message with `join_request_id`
+4. Store notification
+
+Additionally:
+- Old invalid notifications were removed or ignored
+- Frontend validation was added to prevent sending undefined values
+
+---
+
+## 📈 Future Improvement
+- Enforce a strict schema per notification type
+- Validate notification payloads before rendering
+- Avoid relying on optional fields for critical actions
+- Implement defensive checks in the frontend
+- Consider centralizing notification creation logic
+
+---
+
+## 📎 Relevant Code
+- Notification rendering (frontend)
+- Join request creation endpoint
+- Accept/reject request endpoints
+
+---
+
+## 🎯 Final Note
+The issue was not just technical, but architectural:
+
+> Notifications were allowed to exist without required data for critical actions.
+
+Ensuring data consistency between database state and runtime events is essential to prevent 

@@ -20,3 +20,5 @@
 17. agregar un método para eliminar archivos del R2 cuando se borre un registro en la base de datos, para no dejar "archivos huérfanos" en el storage.
 18. Para mayor seguridad, podrías validar la extensión del archivo contra una lista permitida (whitelist) para evitar que suban scripts maliciosos con mimetypes falseados.
 19. rate limite en todo el proyecto
+
+errores para arreglar: el boton de aceptar un usuario en la empresa no sirve, problema en verify token
