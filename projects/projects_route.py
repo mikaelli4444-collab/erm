@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates
 from core.security import verify_token
 from users.users_model import User
-from projects.projects_services import create_project, add_photo, add_pdf, show_projects
+from projects.projects_services import create_project, add_photo, add_pdf, show_projects, tranform_content
 from utilities.storage.storage_service import StorageService
 from datetime import date
 from core.config.config_loader import RAW_CONFIG
@@ -35,12 +35,13 @@ def create_new_project(user: User = Depends(verify_token), session: Session = De
 # VIEWS
 
 @projects_router.get("/dashboard")
-def show_projects_view(request: Request, user: User = Depends(verify_token)):
+def show_projects_view(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     return templates.TemplateResponse(
         "projects/projects_dashboard.html",
         {
             "request": request,
             "user": user,
+            "items": show_projects(session, user)
         }
     )
 
