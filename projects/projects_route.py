@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, HTTPException
-from projects.projects_model import Projects, ProjectsPhotos, ProjectsPDFs
+from projects.projects_model import Projects
 from typing import List
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates
 from core.security import verify_token
 from users.users_model import User
-from projects.projects_services import create_project, add_photo, add_pdf, show_projects, tranform_content
+from projects.projects_services import create_project, add_photo, add_pdf, show_projects
 from utilities.storage.storage_service import StorageService
 from datetime import date
 from core.config.config_loader import RAW_CONFIG
@@ -31,7 +31,7 @@ def create_new_project(user: User = Depends(verify_token), session: Session = De
     for file in pdf:
         add_pdf(project_id=new_project.id, file=file, session=session, storage=storage)
         
-    return RedirectResponse(url=f"/projects/add/", status_code=303)
+    return RedirectResponse(url=f"/projects/dashboard", status_code=303)
 
 # VIEWS
 
@@ -66,7 +66,7 @@ def search_users_route(username: str, session: Session = Depends(CreateSession))
         for u in users
     ]
     
-@projects_router.get("/project/{project_id}")
+@projects_router.get("/{project_id}")
 def show_projects_details(request: Request, project_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     project = session.get(Projects, project_id)
     
@@ -79,9 +79,10 @@ def show_projects_details(request: Request, project_id: int, session: Session = 
     return templates.TemplateResponse(
         "projects/projects_details.html",
         {
+            "request": request,
+            
             "project": {
-                "id": project.id,
-                "request": request,
+                "id": project.id,        
                 "user": user,
                 "description": project.description,
                 "name": project.name,
@@ -93,7 +94,7 @@ def show_projects_details(request: Request, project_id: int, session: Session = 
                 "photos": [RAW_CONFIG.storage.media_base_url + "/" + photo.photo_path for photo in project.photos],
                 "pdfs": [RAW_CONFIG.storage.media_base_url + "/" + pdf.pdf_path for pdf in project.pdfs],
                 "company_name": project.company.name,
-                "company_logo": RAW_CONFIG.storage.media_base_url + "/" + project.company.logo_path if project.company.logo_path else None,
+                #"company_logo": RAW_CONFIG.storage.media_base_url + "/" + project.company.logo_path if project.company.logo_path else None,
                 "created_at": project.created_at,
                 "comments": [
                     {
