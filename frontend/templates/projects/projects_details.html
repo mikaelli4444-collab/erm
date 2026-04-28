@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Project Detail</title>
+
+<style>
+:root {
+    --bg-page: #f2f4f7;
+    --bg-main: #ffffff;
+    --border: #d0d7de;
+    --text-main: #1f2328;
+    --text-muted: #6e7781;
+    --blue: #1e40af;
+    --blue-hover: #1e3a8a;
+}
+
+body {
+    margin: 0;
+    background: var(--bg-page);
+    font-family: system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* CAROUSEL */
+.carousel {
+    position: relative;
+    height: 260px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #ccc;
+}
+
+.carousel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.3);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.arrow.left { left: 10px; }
+.arrow.right { right: 10px; }
+
+/* TITLE */
+.title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.share-btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.share-btn:hover {
+    background: var(--blue-hover);
+}
+
+/* DESCRIPTION */
+.description {
+    margin-top: 15px;
+    position: relative;
+    max-height: 120px;
+    overflow: hidden;
+}
+
+.description.fade::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(transparent, var(--bg-page));
+}
+
+.read-more {
+    color: var(--blue);
+    cursor: pointer;
+}
+
+/* PDF */
+.pdfs {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pdf-card {
+    width: 120px;
+    height: 150px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* RIGHT PANEL */
+.info-box {
+    background: var(--blue); /* 🔥 mismo color */
+    padding: 20px;
+    border-radius: 15px;
+    color: white;
+}
+
+/* LOGO */
+.company-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.company-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #ccc;
+    overflow: hidden;
+}
+
+.company-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* COMMENTS */
+.comments {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+}
+
+.comment {
+    margin-bottom: 12px;
+}
+
+.comment small {
+    color: var(--text-muted);
+    display: block;
+}
+
+textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+button {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--blue-hover);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- LEFT -->
+    <div>
+
+        <!-- CAROUSEL -->
+        <div class="carousel">
+            <img id="carousel-img" src="{{ project.photos[0] if project.photos }}">
+            <button class="arrow left" onclick="prevImage()">←</button>
+            <button class="arrow right" onclick="nextImage()">→</button>
+        </div>
+
+        <!-- TITLE -->
+        <div class="title-row">
+            <h2>{{ project.name }}</h2>
+            <button class="share-btn" onclick="shareProject()">Compartir</button>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div id="desc" class="description fade">
+            {{ project.description }}
+        </div>
+        <div class="read-more" onclick="toggleDesc()">Ver más</div>
+
+        <!-- PDFS -->
+        <div class="pdfs">
+            {% for pdf in project.pdfs %}
+                <div class="pdf-card" onclick="openPDF('{{ pdf }}')">
+                    PDF
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+
+        <div class="info-box">
+
+            <!-- LOGO + NAME -->
+            <div class="company-header">
+                <div class="company-logo">
+                    {% if project.company_logo %}
+                        <img src="{{ project.company_logo }}">
+                    {% endif %}
+                </div>
+
+                <div>
+                    <strong>{{ project.company_name }}</strong>
+                    <div style="font-size: 12px;">
+                        Creado el {{ project.created_at }}
+                    </div>
+                </div>
+            </div>
+
+            <p><strong>Entrega:</strong> {{ project.delivery }}</p>
+            <p><strong>Carpintero:</strong> {{ project.carpenter.fullname }}</p>
+            <p><strong>Dirección:</strong> {{ project.address }}</p>
+            <p><strong>Cliente:</strong> {{ project.client_name }}</p>
+            <p><strong>Status:</strong> {{ project.status }}</p>
+
+        </div>
+
+        <!-- COMMENTS -->
+        <div class="comments">
+
+            <h4>Comentarios</h4>
+
+            <div id="comment-list">
+                {% for comment in project.comments %}
+                    <div class="comment">
+                        <strong>{{ comment.author }}</strong>
+                        <small>{{ comment.date }}</small>
+                        <p>{{ comment.text }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
+            <button onclick="addComment()">Publicar</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+let images = {{ project.photos | tojson | safe }} || [];
+let index = 0;
+
+function nextImage() {
+    if (!images.length) return;
+    index = (index + 1) % images.length;
+    document.getElementById("carousel-img").src = images[index];
+}
+
+function prevImage() {
+    if (!images.length) return;
+    index = (index - 1 + images.length) % images.length;
+    document.getElementById("carousel-img").src = images[index];
+}
+
+function toggleDesc() {
+    const desc = document.getElementById("desc");
+    desc.classList.toggle("fade");
+    desc.style.maxHeight = desc.style.maxHeight ? null : "none";
+}
+
+function openPDF(url) {
+    window.open(url, "_blank");
+}
+
+function shareProject() {
+    const url = window.location.href;
+
+    if (navigator.share) {
+        navigator.share({ title: document.title, url });
+    } else {
+        navigator.clipboard.writeText(url);
+        alert("Link copiado");
+    }
+}
+
+function addComment() {
+    const text = document.getElementById("new-comment").value;
+    if (!text) return;
+
+    alert("Aquí conectas el backend");
+}
+</script>
+
+</body>
+</html>

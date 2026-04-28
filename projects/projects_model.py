@@ -24,6 +24,7 @@ class Projects(base):
     address = Column(String, nullable=True, index=True) #direccion del cliente
     photos = relationship("ProjectsPhotos", back_populates="project", cascade="all, delete-orphan")
     pdfs = relationship("ProjectsPDFs", back_populates="project", cascade="all, delete-orphan")
+    comments = relationship("Comments", back_populates="project", cascade="all, delete-orphan")
     
 class ProjectsPhotos(base):
     __tablename__ = 'projects_photos'
@@ -40,3 +41,18 @@ class ProjectsPDFs(base):
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False, index=True)
     pdf_path = Column(String, index=True, nullable=False)
     project = relationship("Projects", back_populates="pdfs")
+    
+class Comments(base):
+    __tablename__ = 'comments'
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    project_id = Column(Integer, ForeignKey('projects.id'), nullable=False, index=True)
+    author_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    text = Column(String, nullable=False)
+    created_at = Column(Date, default=date.today, nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    
+    
+    project = relationship("Projects", back_populates="comments")
+    author = relationship("User", back_populates="user_comments")
+    company = relationship("Company", back_populates="company_comments")

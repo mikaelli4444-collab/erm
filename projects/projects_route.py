@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Request, Form, UploadFile, File
+from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, HTTPException
+from projects.projects_model import Projects, ProjectsPhotos, ProjectsPDFs
 from typing import List
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -64,3 +65,44 @@ def search_users_route(username: str, session: Session = Depends(CreateSession))
         {"id": u.id, "name": u.username}
         for u in users
     ]
+    
+@projects_router.get("/project/{project_id}")
+def show_projects_details(request: Request, project_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    project = session.get(Projects, project_id)
+    
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if project.company_id != user.company_id:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this project")
+    
+    return templates.TemplateResponse(
+        "projects/projects_details.html",
+        {
+            "project": {
+                "id": project.id,
+                "request": request,
+                "user": user,
+                "description": project.description,
+                "name": project.name,
+                "client_name": project.client_name,
+                "delivery": project.delivery,
+                "status": project.status.value,
+                "address": project.address,
+                "carpenter": project.carpenter.fullname,
+                "photos": [RAW_CONFIG.storage.media_base_url + "/" + photo.photo_path for photo in project.photos],
+                "pdfs": [RAW_CONFIG.storage.media_base_url + "/" + pdf.pdf_path for pdf in project.pdfs],
+                "company_name": project.company.name,
+                "company_logo": RAW_CONFIG.storage.media_base_url + "/" + project.company.logo_path if project.company.logo_path else None,
+                "created_at": project.created_at,
+                "comments": [
+                    {
+                        "author": comment.author.fullname,
+                        "date": comment.created_at,
+                        "text": comment.text
+                    }
+                    for comment in project.comments]
+            }
+        }
+    )
+            

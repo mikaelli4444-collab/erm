@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Dashboard</title>
+    <title>Projects</title>
 
     <link rel="stylesheet" href="../../static/projects/projects_dashboard.css">
-    <script type="module" src="/static/js/refresh_token.js"></script>
 </head>
 
 <body>
@@ -45,26 +44,33 @@
         <section class="cards-container">
 
             {% for project in items %}
-            <div class="card">
-
-                <div class="card-header">
-                    <h3>{{ project.name }}</h3>
-                    <span>{{ project.carpenter.fullname }}</span>
-                </div>
-
-                <p>{{ project.description }}</p>
-
-                <div>
-                    Entrega: {{ project.delivery }}
-                </div>
+            <a href="/project/{{ project.id }}" class="card">
 
                 {% if project.photos and project.photos|length > 0 %}
+
                 <img src="{{ project.photos[0] }}">
+
                 {% else %}
+
                 <div>No image</div>
+
                 {% endif %}
 
-            </div>
+                <div class="card-header">
+
+                    <h3>{{ project.name }}</h3>
+
+                    <p>{{ project.client_name }}</p>
+
+                </div>
+                
+                <span>Carpenter: {{ project.carpenter.fullname }}</span>
+
+                <div>
+                    Delivery: {{ project.delivery }}
+                </div>
+
+            </a>
             {% endfor %}
 
         </section>
