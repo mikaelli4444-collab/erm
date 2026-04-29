@@ -1,0 +1,420 @@
+:root {
+    --primary-color: #0073ff; /* Azul característico de VivaReal */
+    --secondary-color: #4b5563;
+    --bg-page: #f7f9fa;
+    --bg-card: #ffffff;
+    --border-color: #e1e5eb;
+    --text-main: #1a1d23;
+    --text-muted: #697281;
+    --success-color: #25a15d;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --radius-lg: 12px;
+    --radius-md: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg-page);
+    font-family: "Open Sans", system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    padding: 40px 20px;
+}
+
+@media (max-width: 900px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* CAROUSEL - Inspirado en el visor de imágenes de VivaReal */
+.carousel {
+    position: relative;
+    height: 450px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: #000;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+}
+
+.carousel img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Para no recortar fotos de proyectos */
+    background: #1a1d23;
+}
+
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-main);
+    border: none;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.arrow:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.arrow.left { left: 20px; }
+.arrow.right { right: 20px; }
+
+/* TITLE & HEADER */
+.title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+}
+
+.title-row h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.share-btn {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.share-btn:hover {
+    background: rgba(0, 115, 255, 0.05);
+}
+
+/* DESCRIPTION */
+.description {
+    margin-top: 20px;
+    position: relative;
+    max-height: 100px;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+    transition: max-height 0.3s ease;
+}
+
+.description.fade::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(transparent, var(--bg-page));
+}
+
+.read-more {
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 8px;
+    display: inline-block;
+    font-size: 14px;
+}
+
+/* PDF CARDS */
+.pdfs {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+.pdf-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.pdf-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.pdf-card::before {
+    content: "📄";
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+/* RIGHT PANEL - INFO BOX */
+.info-box {
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    color: var(--text-main);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    position: sticky;
+    top: 20px;
+}
+
+.company-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.company-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f0f2f5;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.company-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.company-info strong {
+    display: block;
+    font-size: 16px;
+    color: var(--text-main);
+}
+
+.company-info .date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.info-box p {
+    margin: 12px 0;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-box p strong {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.info-box p span {
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: right;
+}
+
+/* COMMENTS SECTION */
+.comments {
+    margin-top: 24px;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.comments h4 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.comment {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+
+.comment strong {
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.comment small {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.comment p {
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+textarea {
+    width: 100%;
+    min-height: 80px;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+button[onclick="addComment()"] {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    transition: background 0.2s;
+}
+
+button[onclick="addComment()"]:hover {
+    background: #0062db;
+}
+
+/* Ajuste para los datos del info-box para que se vean como en el diseño */
+.info-data-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+/* RESPONSIVE DESIGN FOR MOBILE */
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 15px;
+        gap: 20px;
+    }
+
+    .carousel {
+        height: 300px;
+        margin-bottom: 15px;
+    }
+
+    .arrow {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .arrow.left { left: 10px; }
+    .arrow.right { right: 10px; }
+
+    .title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .title-row h2 {
+        font-size: 22px;
+    }
+
+    .share-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pdfs {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .info-box {
+        position: static;
+        padding: 20px;
+    }
+
+    .company-header {
+        margin-bottom: 15px;
+    }
+
+    .info-box p {
+        flex-direction: column;
+        gap: 4px;
+        margin: 15px 0;
+    }
+
+    .info-box p span {
+        text-align: left;
+    }
+
+    .comments {
+        padding: 20px;
+    }
+
+    .comment small {
+        display: block;
+        margin-left: 0;
+        margin-top: 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel {
+        height: 200px;
+    }
+
+    .pdfs {
+        grid-template-columns: 1fr;
+    }
+}
