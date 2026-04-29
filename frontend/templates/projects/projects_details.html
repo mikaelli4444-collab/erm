@@ -2,146 +2,228 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Project Detail</title>
 
 <style>
 :root {
-    --bg-page: #f2f4f7;
-    --bg-main: #ffffff;
-    --border: #d0d7de;
-    --text-main: #1f2328;
-    --text-muted: #6e7781;
-    --blue: #1e40af;
-    --blue-hover: #1e3a8a;
+    --primary-color: #0073ff; /* Azul característico de VivaReal */
+    --secondary-color: #4b5563;
+    --bg-page: #f7f9fa;
+    --bg-card: #ffffff;
+    --border-color: #e1e5eb;
+    --text-main: #1a1d23;
+    --text-muted: #697281;
+    --success-color: #25a15d;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --radius-lg: 12px;
+    --radius-md: 8px;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
     background: var(--bg-page);
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: "Open Sans", system-ui, -apple-system, sans-serif;
     color: var(--text-main);
+    line-height: 1.5;
 }
 
 .container {
+    max-width: 1140px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    padding: 20px;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    padding: 40px 20px;
 }
 
-/* CAROUSEL */
+@media (max-width: 900px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* CAROUSEL - Inspirado en el visor de imágenes de VivaReal */
 .carousel {
     position: relative;
-    height: 260px;
+    height: 450px;
     overflow: hidden;
-    border-radius: 20px;
-    background: #ccc;
+    border-radius: var(--radius-lg);
+    background: #000;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
 }
 
 .carousel img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Para no recortar fotos de proyectos */
+    background: #1a1d23;
 }
 
 .arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0,0,0,0.3);
-    color: white;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-main);
     border: none;
-    padding: 10px;
+    width: 44px;
+    height: 44px;
     cursor: pointer;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    z-index: 10;
 }
 
-.arrow.left { left: 10px; }
-.arrow.right { right: 10px; }
+.arrow:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.1);
+}
 
-/* TITLE */
+.arrow.left { left: 20px; }
+.arrow.right { right: 20px; }
+
+/* TITLE & HEADER */
 .title-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+}
+
+.title-row h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-main);
 }
 
 .share-btn {
-    background: var(--blue);
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
     cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .share-btn:hover {
-    background: var(--blue-hover);
+    background: rgba(0, 115, 255, 0.05);
 }
 
 /* DESCRIPTION */
 .description {
-    margin-top: 15px;
+    margin-top: 20px;
     position: relative;
-    max-height: 120px;
+    max-height: 100px;
     overflow: hidden;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+    transition: max-height 0.3s ease;
 }
 
 .description.fade::after {
     content: "";
     position: absolute;
     bottom: 0;
+    left: 0;
     width: 100%;
-    height: 50px;
+    height: 40px;
     background: linear-gradient(transparent, var(--bg-page));
 }
 
 .read-more {
-    color: var(--blue);
+    color: var(--primary-color);
     cursor: pointer;
+    font-weight: 600;
+    margin-top: 8px;
+    display: inline-block;
+    font-size: 14px;
 }
 
-/* PDF */
+/* PDF CARDS */
 .pdfs {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
 }
 
 .pdf-card {
-    width: 120px;
-    height: 150px;
-    background: #e0e0e0;
-    border-radius: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-weight: 600;
+    color: var(--secondary-color);
 }
 
-/* RIGHT PANEL */
+.pdf-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.pdf-card::before {
+    content: "📄";
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+/* RIGHT PANEL - INFO BOX */
 .info-box {
-    background: var(--blue); /* 🔥 mismo color */
-    padding: 20px;
-    border-radius: 15px;
-    color: white;
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    color: var(--text-main);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    position: sticky;
+    top: 20px;
 }
 
-/* LOGO */
 .company-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .company-logo {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    background: #ccc;
+    background: #f0f2f5;
     overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
 .company-logo img {
@@ -150,44 +232,118 @@ body {
     object-fit: cover;
 }
 
-/* COMMENTS */
+.company-info strong {
+    display: block;
+    font-size: 16px;
+    color: var(--text-main);
+}
+
+.company-info .date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.info-box p {
+    margin: 12px 0;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-box p strong {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.info-box p span {
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: right;
+}
+
+/* COMMENTS SECTION */
 .comments {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: transparent;
+    margin-top: 24px;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.comments h4 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 700;
 }
 
 .comment {
-    margin-bottom: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+
+.comment strong {
+    font-size: 14px;
+    color: var(--text-main);
 }
 
 .comment small {
     color: var(--text-muted);
-    display: block;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.comment p {
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    color: var(--secondary-color);
 }
 
 textarea {
     width: 100%;
-    margin-top: 10px;
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
+    min-height: 80px;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
 }
 
-button {
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: var(--blue);
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+button[onclick="addComment()"] {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    transition: background 0.2s;
 }
 
-button:hover {
-    background: var(--blue-hover);
+button[onclick="addComment()"]:hover {
+    background: #0062db;
+}
+
+/* Ajuste para los datos del info-box para que se vean como en el diseño */
+.info-data-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 </style>
 </head>
@@ -202,14 +358,16 @@ button:hover {
         <!-- CAROUSEL -->
         <div class="carousel">
             <img id="carousel-img" src="{{ project.photos[0] if project.photos }}">
-            <button class="arrow left" onclick="prevImage()">←</button>
-            <button class="arrow right" onclick="nextImage()">→</button>
+            <button class="arrow left" onclick="prevImage()">‹</button>
+            <button class="arrow right" onclick="nextImage()">›</button>
         </div>
 
         <!-- TITLE -->
         <div class="title-row">
             <h2>{{ project.name }}</h2>
-            <button class="share-btn" onclick="shareProject()">Compartir</button>
+            <button class="share-btn" onclick="shareProject()">
+                <span>🔗</span> Compartir
+            </button>
         </div>
 
         <!-- DESCRIPTION -->
@@ -222,7 +380,7 @@ button:hover {
         <div class="pdfs">
             {% for pdf in project.pdfs %}
                 <div class="pdf-card" onclick="openPDF('{{ pdf }}')">
-                    PDF
+                    {{ project.pdf_names[loop.index0] if project.pdf_names and loop.index0 < project.pdf_names|length else 'PDF' }}
                 </div>
             {% endfor %}
         </div>
@@ -235,30 +393,34 @@ button:hover {
         <div class="info-box">
 
             <!-- LOGO + NAME -->
-            <!-- <div class="company-header"> -->
-                <!-- <div class="company-logo"> -->
-                    <!-- {% if project.company_logo %} -->
-                        <!-- <img src="{{ project.company_logo }}"> -->
-                    <!-- {% endif %} -->
-                <!-- </div> -->
+            <div class="company-header">
+                <div class="company-logo">
+                    {% if project.company_logo %}
+                        <img src="{{ project.company_logo }}">
+                    {% else %}
+                        <div style="width:100%; height:100%; background:#eee; display:flex; align-items:center; justify-content:center; color:#999;">Logo</div>
+                    {% endif %}
+                </div>
 
-                <div>
+                <div class="company-info">
                     <strong>{{ project.company_name }}</strong>
-                    <div style="font-size: 12px;">
+                    <div class="date">
                         Creado el {{ project.created_at }}
                     </div>
                 </div>
             </div>
 
-            <p><strong>Entrega:</strong> {{ project.delivery }}</p>
-            <p><strong>Carpintero:</strong> {{ project.carpenter.fullname }}</p>
-            <p><strong>Dirección:</strong> {{ project.address }}</p>
-            <p><strong>Cliente:</strong> {{ project.client_name }}</p>
-            <p><strong>Status:</strong> {{ project.status }}</p>
+            <div class="info-data-row">
+                <p><strong>Entrega:</strong> <span>{{ project.delivery }}</span></p>
+                <p><strong>Carpintero:</strong> <span>{{ project.carpenter.fullname }}</span></p>
+                <p><strong>Dirección:</strong> <span>{{ project.address }}</span></p>
+                <p><strong>Cliente:</strong> <span>{{ project.client_name }}</span></p>
+                <p><strong>Status:</strong> <span style="color: var(--success-color);">{{ project.status }}</span></p>
+            </div>
 
+            <!-- COMMENTS (Movidos dentro o debajo del info box si se prefiere, pero mantengo estructura original) -->
         </div>
 
-        <!-- COMMENTS -->
         <div class="comments">
 
             <h4>Comentarios</h4>
@@ -274,7 +436,7 @@ button:hover {
             </div>
 
             <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
-            <button onclick="addComment()">Publicar</button>
+            <button onclick="addComment()">Publicar Comentario</button>
 
         </div>
 
@@ -300,8 +462,15 @@ function prevImage() {
 
 function toggleDesc() {
     const desc = document.getElementById("desc");
+    const readMore = document.querySelector(".read-more");
     desc.classList.toggle("fade");
-    desc.style.maxHeight = desc.style.maxHeight ? null : "none";
+    if (desc.style.maxHeight === "none") {
+        desc.style.maxHeight = "100px";
+        readMore.innerText = "Ver más";
+    } else {
+        desc.style.maxHeight = "none";
+        readMore.innerText = "Ver menos";
+    }
 }
 
 function openPDF(url) {
@@ -315,7 +484,7 @@ function shareProject() {
         navigator.share({ title: document.title, url });
     } else {
         navigator.clipboard.writeText(url);
-        alert("Link copiado");
+        alert("Link copiado al portapapeles");
     }
 }
 
