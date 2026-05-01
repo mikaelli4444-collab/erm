@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
+from core.enum.enum import UserRoleEnum
 
 class User(base):
     __tablename__ = 'users'
@@ -20,12 +21,13 @@ class User(base):
     inventory_items = relationship("Inventory", back_populates="owner")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True, index=True)
     company = relationship("Company", foreign_keys=[company_id])
-    role = Column(String, index=True, default="pending", nullable=False)#pending, employee, client, architech, admin
+    role = Column(String, default=UserRoleEnum.auxiliary.value, nullable=False) #admin, carpenter, auxiliary
     sells = relationship("Sells", foreign_keys="Sells.user_id", back_populates="user") # quien hizo la venta, relacion entre sells y users
     in_charge = relationship("Sells", foreign_keys="Sells.carpenter_id", back_populates="carpenter")
     to_recebe = relationship("Receivable", foreign_keys="Receivable.receiver_id", back_populates="receiver")
     carpenter_projects = relationship("Projects",back_populates="carpenter")
     user_comments = relationship("Comments", back_populates="author")
+    subscription = relationship("Subscription", back_populates="user", uselist=False)
 
 class Company(base):
     __tablename__ = 'companies'
@@ -49,6 +51,7 @@ class Company(base):
     company_financial_transactions = relationship("FinancialTransaction", back_populates="company")
     company_projects = relationship("Projects", back_populates="company")
     company_comments = relationship("Comments", back_populates="company")
+    company_subscription = relationship("Subscription", back_populates="company", uselist=False)
     
 class CompanyJoinRequest(base):
     __tablename__ = 'company_join_requests'

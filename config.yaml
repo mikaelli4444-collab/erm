@@ -35,3 +35,6 @@ storage:
   access_key: ${STORAGE_ACCESS_KEY}
   secret_key: ${STORAGE_SECRET_KEY}
   media_base_url: ${STORAGE_MEDIA_BASE_URL}
+
+mercado_pago:
+  access_token: ${MERCADO_PAGO_ACCESS_TOKEN}

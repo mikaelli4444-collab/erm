@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Request, WebSocket
+from fastapi import Depends, HTTPException, Request
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from passlib.context import CryptContext

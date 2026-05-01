@@ -45,5 +45,10 @@ STORAGE_SECRET_KEY = string_parse("storage.secret_key")
 STORAGE_BUCKET_NAME = string_parse("storage.bucket_name")
 MEDIA_BASE_URL = string_parse("storage.media_base_url")
 #endregion
+
+#region Mercado Pago config
+MERCADO_PAGO_ACCESS_TOKEN = string_parse("mercado_pago.access_token")
+#endregion
+
 if __name__ == "__main__":
     print(globals())

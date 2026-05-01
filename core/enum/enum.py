@@ -36,3 +36,13 @@ class ReceivablesStatusEnum(str, Enum):
     paid = "paid"
     cancelled = "cancelled"
     overdue = "overdue"
+    
+class UserRoleEnum(str, Enum):
+    admin = "admin"
+    carpenter = "carpenter"
+    auxiliary = "auxiliary"
+
+class plansEnum(str, Enum):
+    basic = "basic"
+    premium = "premium"
+    enterprise = "enterprise"
