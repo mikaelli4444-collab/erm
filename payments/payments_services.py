@@ -26,6 +26,16 @@ def create_plan(name: str, amount: float, frequency: int):
 
 def save_plan(mp_plan_id, name, amount, frequency, session):
     
+    plan = session.query(Plans).filter(Plans.name == name, Plans.frequency == frequency, Plans.amount == amount).first()
+    
+    if plan:
+        return {
+                "id": plan.mp_plan_id,
+                "name": plan.name,
+                "amount": plan.amount,
+                "frequency": plan.frequency,
+            }
+            
     plans = Plans(
         mp_plan_id = mp_plan_id,
         name = name,
@@ -38,6 +48,6 @@ def save_plan(mp_plan_id, name, amount, frequency, session):
         session.commit()
         return plans
     
-    except:
+    except Exception as e:
         session.rollback()
-        raise ValueError("Error al subir plan a la DB")
+        raise ValueError(f"Error al subir plan a la DB: {e}")

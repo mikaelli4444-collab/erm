@@ -24,7 +24,7 @@ class Plans(base):
     __tablename__ = 'plans'
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    mp_plan_id = Column(Integer, nullable=False, index=True)
+    mp_plan_id = Column(String, nullable=False, index=True)
     name = Column(SQLEnum(plansEnum), nullable=False, index=True)
     amount = Column(Integer, nullable=False, index=True)
     frequency = Column(String, nullable=False, index=True)

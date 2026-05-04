@@ -28,9 +28,9 @@ def create_plan_post( name: str, amount: float, frequency: int, user: User = Dep
             
             return {
                 "id": planes.mp_plan_id,
-                "name": name,
-                "amount": amount,
-                "frequency": frequency,
+                "name": planes.name,
+                "amount": planes.amount,
+                "frequency": planes.frequency,
             }
     
     else:

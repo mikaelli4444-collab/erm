@@ -13,6 +13,7 @@ from production.production_model import *
 from notification.notification_model import *
 from financery.financery_models import *
 from projects.projects_model import *
+from payments.payments_models import *
 from core.config.config_loader import RAW_CONFIG
 
 # this is the Alembic Config object, which provides

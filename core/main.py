@@ -9,6 +9,7 @@ from notification.notification_route import notification_router
 from notification.ws_route import ws_route
 from financery.financery_route import financery_router
 from projects.projects_route import projects_router
+from payments.payments_router import payments_router
 from core.database import base, engine
 from core.dependencies import templates
 
@@ -35,3 +36,4 @@ app.include_router(notification_router)
 app.include_router(ws_route)
 app.include_router(financery_router)
 app.include_router(projects_router)
+app.include_router(payments_router)
