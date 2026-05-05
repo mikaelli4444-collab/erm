@@ -38,3 +38,4 @@ storage:
 
 mercado_pago:
   access_token: ${MERCADO_PAGO_ACCESS_TOKEN}
+  back_url: ${BACK_URL}

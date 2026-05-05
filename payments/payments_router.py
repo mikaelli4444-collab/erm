@@ -10,7 +10,7 @@ from payments.payments_models import Plans
 payments_router = APIRouter(prefix="/payment", tags=["payment"])
 
 @payments_router.post("/create_plan")
-def create_plan_post( name: str, amount: float, frequency: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):    
+def create_plan_post(name: str, amount: float, frequency: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):    
     if user.role == "admin":
         
         plan = session.query(Plans).filter(Plans.name == name, Plans.frequency == frequency, Plans.amount == amount).first()
@@ -35,5 +35,8 @@ def create_plan_post( name: str, amount: float, frequency: int, user: User = Dep
     
     else:
         raise HTTPException(status_code=403, detail="No autorizado")
-
+    
+@payments_router.post("/preapproval")
+def a():
+    a
 #VIEWS

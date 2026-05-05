@@ -2,7 +2,7 @@ from sqlalchemy import Integer, String, Column, ForeignKey, Boolean, Date, Enum 
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import date
-from core.enum.enum import plansEnum
+from core.enum.enum import plansEnum, subscriptionStatusEnum
 
 class Subscription(base):
     __tablename__ = 'subscription'
@@ -17,6 +17,7 @@ class Subscription(base):
     active = Column(Boolean, default=False, nullable=False)
     amount = Column(Integer, nullable=False)
     mp_payment_id = Column(String, nullable=True)
+    status = Column(SQLEnum(subscriptionStatusEnum), default=subscriptionStatusEnum.pending.value, nullable=False) #pending, active, cancelled, expired
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True, index=True)
     company = relationship("Company", back_populates="company_subscription")
     
@@ -27,6 +28,6 @@ class Plans(base):
     mp_plan_id = Column(String, nullable=False, index=True)
     name = Column(SQLEnum(plansEnum), nullable=False, index=True)
     amount = Column(Integer, nullable=False, index=True)
-    frequency = Column(String, nullable=False, index=True)
+    frequency = Column(Integer, nullable=False, index=True)
     currency = Column(String, nullable=False, default="BRL", index=True) #siempre va a ser BRL no jodas
-    plan_subscription = relationship("Subscription", back_populates="plan")
+    plan_subscription = relationship("Subscription", back_populates="plan") 

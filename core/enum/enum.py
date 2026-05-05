@@ -46,3 +46,9 @@ class plansEnum(str, Enum):
     basic = "basic"
     premium = "premium"
     enterprise = "enterprise"
+    
+class subscriptionStatusEnum(str, Enum):
+    pending = "pending"
+    active = "active"
+    cancelled = "cancelled"
+    expired = "expired"
