@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plans | ERM System</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="../../static/plans.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="login-header">
+            <h1>Choose Your Plan</h1>
+            <p>Select the best plan for your company</p>
+        </div>
+
+        <div class="plans-container">
+
+            <!-- BASIC -->
+            <div class="plan-card" data-plan-id="1">
+
+                <div class="plan-title">Basic</div>
+
+                <div class="plan-price">
+                    $49.99 <span>/month</span>
+                </div>
+
+                <ul class="plan-features">
+                    <li>✔ Up to 3 users</li>
+                    <li>✖ No financial summary</li>
+                    <li>✖ No public links</li>
+                    <li>✔ Limited inventory space</li>
+                </ul>
+
+                <form action="/payment/create_checkout" method="POST">
+
+                    <input type="hidden" name="plan_id" value="1">
+
+                    <button class="btn-login" type="submit">
+                        Choose Plan
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- PRO -->
+            <div class="plan-card highlight" data-plan-id="2">
+
+                <div class="badge">Most Popular</div>
+
+                <div class="plan-title">Premium</div>
+
+                <div class="plan-price">
+                    $89.99 <span>/month</span>
+                </div>
+
+                <ul class="plan-features">
+                    <li>✔ Up to 10 users</li>
+                    <li>✔ Monthly financial summary</li>
+                    <li>✔ 2 public links / month</li>
+                    <li>✔ Increased inventory space</li>
+                </ul>
+
+                <form action="/payment/create_checkout" method="POST">
+
+                    <input type="hidden" name="plan_id" value="2">
+
+                    <button class="btn-login" type="submit">
+                        Choose Plan
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- ENTERPRISE -->
+            <div class="plan-card" data-plan-id="3">
+
+                <div class="plan-title">Enterprise</div>
+
+                <div class="plan-price">
+                    $129.99 <span>/month</span>
+                </div>
+
+                <ul class="plan-features">
+                    <li>✔ Up to 20 users</li>
+                    <li>✔ Monthly financial summary (PDF)</li>
+                    <li>✔ 5 public links / month</li>
+                    <li>✔ Unlimited inventory space</li>
+                    <li>✔ Priority support</li>
+                </ul>
+
+                <form action="/payment/create_checkout" method="POST">
+
+                    <input type="hidden" name="plan_id" value="3">
+
+                    <button class="btn-login" type="submit">
+                        Choose Plan
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- ANNUAL -->
+            <div class="plan-card highlight" data-plan-id="4">
+
+                <div class="badge">Best Value</div>
+
+                <div class="plan-title">
+                    Enterprise (Annual)
+                </div>
+
+                <div class="plan-price">
+                    $1325.89 <span>/year</span>
+                </div>
+
+                <p class="discount">
+                    2 Months Free! Save 15% compared to monthly billing
+                </p>
+
+                <ul class="plan-features">
+                    <li>✔ Everything in Enterprise</li>
+                    <li>✔ Save $233.99 per year</li>
+                    <li>✔ Pay once, forget monthly billing</li>
+                </ul>
+
+                <form action="/payment/create_checkout" method="POST">
+
+                    <input type="hidden" name="plan_id" value="4">
+
+                    <button class="btn-login" type="submit">
+                        Choose Plan
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <p class="footer-links">
+            <a href="/home">
+                Back to Home
+            </a>
+        </p>
+
+    </div>
+
+</body>
+
+</html>

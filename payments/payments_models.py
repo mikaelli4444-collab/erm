@@ -16,7 +16,7 @@ class Subscription(base):
     end_date = Column(Date, nullable=True)
     active = Column(Boolean, default=False, nullable=False)
     amount = Column(Integer, nullable=False)
-    mp_payment_id = Column(String, nullable=True)
+    mp_subscription_id = Column(String, nullable=True)
     status = Column(SQLEnum(subscriptionStatusEnum), default=subscriptionStatusEnum.pending.value, nullable=False) #pending, active, cancelled, expired
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True, index=True)
     company = relationship("Company", back_populates="company_subscription")

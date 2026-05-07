@@ -227,7 +227,7 @@ def create_company_router(request: Request, session: Session = Depends(CreateSes
 
     session.commit()
 
-    return RedirectResponse(url="/home/plans", status_code=303)
+    return RedirectResponse(url="/payment/plans", status_code=303)
 
 @home_router.get("/create_company")
 def create_company_alias():

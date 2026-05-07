@@ -2,7 +2,7 @@ import mercadopago
 import requests
 from core.config import MERCADO_PAGO_ACCESS_TOKEN, BACK_URL
 from payments.payments_models import Plans, Subscription
-from users.users_model import User
+from users.users_model import User, Company
 
 def create_plan(name: str, amount: float, frequency: int):
     url = "https://api.mercadopago.com/preapproval_plan"
@@ -70,88 +70,153 @@ def select_plan(plan_id, session):
 
     return plan
 
-def create_subscription(user, plan, card_token, session):
-    
+def create_subscription(user, plan, session):
+
     if not user:
         raise ValueError("Usuario no encontrado en la base de datos")
-    
-    company = user.company
-    
-    #quiero que solo el owner pueda crear la subscripcion, entonces los empleados heredan las subscripcion del owner
-    
-    subscription = session.query(Subscription).filter(Subscription.company_id == company.id, Subscription.status == "active").first()
 
-    if subscription:
-        raise ValueError("Ya existe una suscripción activa para esta empresa")
-    
+    company = user.company
+
+    if user.id != company.owner_id: #solo el owner debe pagar y heredar la subscripcion a los empleados
+        raise ValueError(
+            "No eres digno de pagar esto, ahora vuelve a tu lugar, esclavo"
+        )
+
     if not plan:
         raise ValueError("Plan no encontrado en la base de datos")
-    
-    if not isinstance(card_token, str):
-        raise ValueError("Token de tarjeta debe ser una cadena de texto")
-    
-    if card_token is None or card_token.strip() == "":
-        raise ValueError("Token de tarjeta no válido")
-    
-    url = "https://api.mercadopago.com/preapproval"
-    
+
+    subscription = session.query(Subscription).filter(Subscription.company_id == company.id,Subscription.status == "authorized").first()
+
+    if subscription:
+        raise ValueError(
+            "Ya existe una suscripción activa para esta empresa"
+        )
+
+    url = "https://api.mercadopago.com/checkout/preferences"
+
     data = {
-        "preapproval_plan_id": plan.mp_plan_id,
-        "payer_email": user.email,
-        "card_token_id": card_token,
-        "back_url": BACK_URL,
-        "status": "authorized"
+        "items": [
+            {
+                "title": str(plan.name),
+                "quantity": 1,
+                "currency_id": "BRL",
+                "unit_price": float(plan.amount)
+            }
+        ],
+        "payer": {
+            "email": user.email
+        },
+
+        "back_urls": {
+            "success": "https://tuapp.com/payment/success",
+            "failure": "https://tuapp.com/payment/failure",
+            "pending": "https://tuapp.com/payment/pending"
+        },
+
+        "notification_url":
+        "https://ooze-crave-yam.ngrok-free.dev/payment/webhook/mercadopago"
+
     }
-    
+
     headers = {
         "Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
-    
-    response = requests.post(url, json=data, headers=headers, timeout=10)
-    
-    if response.status_code not in [200, 201]:  
+
+    response = requests.post(
+        url,
+        json=data,
+        headers=headers,
+        timeout=10
+    )
+
+    if response.status_code not in [200, 201]:
         print("STATUS:", response.status_code)
-        print("RESPONSE:", response.json())
-        raise ValueError("Error creando suscripción en Mercado Pago")
-    
+        print("HEADERS:", headers)
+        print("RESPONSE:", response.text)
+
+        raise ValueError(
+            "Error creando checkout en Mercado Pago"
+        )
+
     response_data = response.json()
     
-    status = response_data.get("status")
+    checkout_url = response_data.get("init_point")
 
-    if status not in ["authorized", "pending"]:
-        raise ValueError(f"Estado inesperado: {status}")
-    
-    if "id" not in response_data:
-        raise ValueError("MP no devolvió subscription_id")
+    if not checkout_url:
+        raise ValueError(
+            "MercadoPago no devolvió init_point"
+        )
 
-    return {
-    "id": response_data["id"],
-    "status": response_data["status"]
-}
+    subscription = Subscription(
+        user_id=user.id,
+        company_id=company.id,
+        plan_id=plan.id,
+        status="pending",
+        amount=plan.amount
+    )
+
+    session.add(subscription)
+    session.commit()
+
+    return checkout_url
     
 def save_subscription(user, plan, mp_subscription, session):
     subscription = Subscription(
         user_id=user.id,
         plan_id=plan.id,
         mp_subscription_id=mp_subscription["id"],
-        status=mp_subscription["status"]
+        status=mp_subscription["status"],
+        company_id=user.company_id
     )
-    session.add(subscription)
-    #falta hacer el commit que lo hare en el router
-    
-def update_subscription(mp_subscription_id, status, session):
-    subscription = Subscription(
-        status=status
-    )
-    
     session.add(subscription)
     session.commit()
     
-def webhook_handler(data):
-    mp_subscription_id = data["id"]
+def update_subscription(mp_subscription_id, status, session):
+    
+    subscription = session.query(Subscription).filter(Subscription.mp_subscription_id == mp_subscription_id).first()
+    
+    if subscription:
+        subscription.status = status
+        session.commit()
+        return subscription
+    
+    else:
+        raise ValueError("Suscripción no encontrada para actualizar")
+    
+def get_subscription(mp_subscription_id): #esta funcion es para el futuro, quiero hacer yo mismo el formulario para obtener tarjetas y poder cobrar directamente en mi app
+    url = f"https://api.mercadopago.com/preapproval/{mp_subscription_id}"
 
-    # consultas a Mercado Pago o usas data directa
-    status = data["status"]
+    headers = {
+        "Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}"
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    return response.json()
 
-    update_subscription(mp_subscription_id, status)
+def update_company_status(company_id, new_status, session):
+    company = session.query(Company).filter(Company.id == company_id).first()
+    
+    if company:
+        company.plan = new_status
+        session.commit()
+        
+        return company_id
+    
+    else:
+        raise ValueError("Empresa no encontrada para actualizar estado de suscripción")
+    
+def get_payment(payment_id):
+    url = f"https://api.mercadopago.com/v1/payments/{payment_id}"
+
+    headers = {
+        "Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        return None
+
+    return response.json()
