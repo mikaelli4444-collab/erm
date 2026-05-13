@@ -38,4 +38,6 @@ storage:
 
 mercado_pago:
   access_token: ${MERCADO_PAGO_ACCESS_TOKEN}
+  public_key: ${PUBLIC_KEY}
   back_url: ${BACK_URL}
+  assinatura_mp: ${ASSINATURA_MP}

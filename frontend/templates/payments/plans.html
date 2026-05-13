@@ -2,14 +2,20 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Plans | ERM System</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="../../static/plans.css">
+
+    <!-- SDK Mercado Pago -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+
 </head>
 
 <body>
@@ -17,19 +23,22 @@
     <div class="login-container">
 
         <div class="login-header">
+
             <h1>Choose Your Plan</h1>
+
             <p>Select the best plan for your company</p>
+
         </div>
 
         <div class="plans-container">
 
             <!-- BASIC -->
-            <div class="plan-card" data-plan-id="1">
+            <div class="plan-card" data-plan-id="{{ plan_basic_id }}">
 
                 <div class="plan-title">Basic</div>
 
                 <div class="plan-price">
-                    $49.99 <span>/month</span>
+                    {{ plan_basic_price }} <span>/month</span>
                 </div>
 
                 <ul class="plan-features">
@@ -39,27 +48,21 @@
                     <li>✔ Limited inventory space</li>
                 </ul>
 
-                <form action="/payment/create_checkout" method="POST">
-
-                    <input type="hidden" name="plan_id" value="1">
-
-                    <button class="btn-login" type="submit">
-                        Choose Plan
-                    </button>
-
-                </form>
+                <button type="button" class="btn-login">
+                    Choose Plan
+                </button>
 
             </div>
 
-            <!-- PRO -->
-            <div class="plan-card highlight" data-plan-id="2">
+            <!-- PREMIUM -->
+            <div class="plan-card highlight" data-plan-id='{{ plan_premium_id }}'>
 
                 <div class="badge">Most Popular</div>
 
                 <div class="plan-title">Premium</div>
 
                 <div class="plan-price">
-                    $89.99 <span>/month</span>
+                    {{ plan_premium_price }} <span>/month</span>
                 </div>
 
                 <ul class="plan-features">
@@ -69,25 +72,19 @@
                     <li>✔ Increased inventory space</li>
                 </ul>
 
-                <form action="/payment/create_checkout" method="POST">
-
-                    <input type="hidden" name="plan_id" value="2">
-
-                    <button class="btn-login" type="submit">
-                        Choose Plan
-                    </button>
-
-                </form>
+                <button type="button" class="btn-login">
+                    Choose Plan
+                </button>
 
             </div>
 
             <!-- ENTERPRISE -->
-            <div class="plan-card" data-plan-id="3">
+            <div class="plan-card" data-plan-id="{{ plan_enterprise_id }}">
 
                 <div class="plan-title">Enterprise</div>
 
                 <div class="plan-price">
-                    $129.99 <span>/month</span>
+                    {{ plan_enterprise_price }} <span>/month</span>
                 </div>
 
                 <ul class="plan-features">
@@ -98,29 +95,21 @@
                     <li>✔ Priority support</li>
                 </ul>
 
-                <form action="/payment/create_checkout" method="POST">
-
-                    <input type="hidden" name="plan_id" value="3">
-
-                    <button class="btn-login" type="submit">
-                        Choose Plan
-                    </button>
-
-                </form>
+                <button type="button" class="btn-login">
+                    Choose Plan
+                </button>
 
             </div>
 
             <!-- ANNUAL -->
-            <div class="plan-card highlight" data-plan-id="4">
+            <div class="plan-card highlight" data-plan-id="{{ plan_annual_id }}">
 
                 <div class="badge">Best Value</div>
 
-                <div class="plan-title">
-                    Enterprise (Annual)
-                </div>
+                <div class="plan-title">Enterprise (Annual)</div>
 
                 <div class="plan-price">
-                    $1325.89 <span>/year</span>
+                    {{ plan_annual_price }} <span>/year</span>
                 </div>
 
                 <p class="discount">
@@ -129,17 +118,111 @@
 
                 <ul class="plan-features">
                     <li>✔ Everything in Enterprise</li>
-                    <li>✔ Save $233.99 per year</li>
+                    <li>✔ Save ${{ plan_annual_price * 0.15 | round(2) }} per year</li>
                     <li>✔ Pay once, forget monthly billing</li>
                 </ul>
 
-                <form action="/payment/create_checkout" method="POST">
+                <button type="button" class="btn-login">
+                    Choose Plan
+                </button>
 
-                    <input type="hidden" name="plan_id" value="4">
+            </div>
 
-                    <button class="btn-login" type="submit">
-                        Choose Plan
+        </div>
+
+        <!-- PAYMENT MODAL -->
+        <div class="payment-overlay" id="paymentOverlay">
+
+            <div class="payment-modal">
+
+                <div class="close-btn" onclick="closeModal()">
+                    ✕
+                </div>
+
+                <h3>Complete Payment</h3>
+
+                <form id="form-checkout" action="/payment/create_checkout" method="POST">
+
+                    <!-- PLAN -->
+                    <input type="hidden" name="plan_id" id="modal_plan_id">
+
+                    <!-- TOKEN -->
+                    <input type="hidden" name="card_token_id" id="card_token_id">
+
+                    <!-- CARD NUMBER -->
+                    <label>Card Number</label>
+
+                    <div id="form-checkout__cardNumber" class="mp-input"></div>
+
+                    <div class="row">
+
+                        <!-- EXPIRY -->
+                        <div>
+
+                            <label>Expiry</label>
+
+                            <div id="form-checkout__expirationDate" class="mp-input"></div>
+
+                        </div>
+
+                        <!-- CVV -->
+                        <div>
+
+                            <label>CVV</label>
+
+                            <div id="form-checkout__securityCode" class="mp-input"></div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Nuevos campos obligatorios para evitar el bloqueo -->
+                    <div class="form-group form-group-issuer">
+                        <label>Banco Emisor</label>
+                        <select id="form-checkout__issuer" name="issuer"></select>
+                    </div>
+
+                    <div class="form-group form-group-installments">
+                        <label>Cuotas</label>
+                        <select id="form-checkout__installments" name="installments"></select>
+                    </div>
+
+
+                    <!-- NAME -->
+                    <label>Name</label>
+
+                    <input type="text" id="form-checkout__cardholderName" name="cardholderName"
+                        placeholder="Name on card">
+
+                    <!-- EMAIL -->
+                    <label>Email</label>
+
+                    <input type="email" id="form-checkout__cardholderEmail" name="cardholderEmail"
+                        value="{{ userEmail }}" placeholder="Email@domain.com">
+
+                    <!-- DOCUMENT TYPE -->
+                    <label>Document Type</label>
+
+                    <select id="form-checkout__identificationType" name="identificationType"></select>
+
+                    <!-- CPF -->
+                    <label>CPF</label>
+
+                    <input type="text" id="form-checkout__identificationNumber" name="identificationNumber"
+                        placeholder="CPF">
+
+                    <!-- SUBMIT -->
+                    <button type="submit" class="pay-btn" id="form-checkout__submit">
+                        Pay Now
                     </button>
+
+                    <input type="hidden" name="cpf" id="cpf_hidden">
+
+                    <input type="hidden" name="payment_method_id" id="payment_method_id">
+
+                    <input type="hidden" name="issuer_id" id="issuer_id_hidden">
+
+                    <input type="hidden" name="installments" id="installments_hidden">
 
                 </form>
 
@@ -148,13 +231,220 @@
         </div>
 
         <p class="footer-links">
-            <a href="/home">
-                Back to Home
-            </a>
+            <a href="/">Back to Home</a>
         </p>
 
     </div>
 
+    <script>
+        const overlay = document.getElementById("paymentOverlay");
+        const planInput = document.getElementById("modal_plan_id");
+
+        let cardFormInstance = null;
+
+        function openModal(planId) {
+
+            planInput.value = planId;
+
+            overlay.classList.add("active");
+
+            if (!cardFormInstance) {
+
+                setTimeout(() => {
+
+                    initMercadoPago();
+
+                }, 300);
+
+            }
+
+        }
+
+        function closeModal() {
+
+            overlay.classList.remove("active");
+
+        }
+
+        document.querySelectorAll(".btn-login").forEach(btn => {
+
+            btn.addEventListener("click", (e) => {
+
+                e.preventDefault();
+
+                const card = btn.closest(".plan-card");
+
+                openModal(card.dataset.planId);
+
+            });
+
+        });
+
+        function initMercadoPago() {
+
+            if (cardFormInstance) return;
+
+            try {
+
+                const mp = new MercadoPago("{{ public_key }}", {
+                    locale: "pt-BR"
+                });
+
+                cardFormInstance = mp.cardForm({
+
+                    amount: "{{ amount }}",
+
+                    iframe: true,
+
+                    form: {
+
+                        id: "form-checkout",
+
+                        cardNumber: {
+                            id: "form-checkout__cardNumber",
+                            placeholder: "Número do cartão"
+                        },
+
+                        expirationDate: {
+                            id: "form-checkout__expirationDate",
+                            placeholder: "MM/YY"
+                        },
+
+                        securityCode: {
+                            id: "form-checkout__securityCode",
+                            placeholder: "CVV"
+                        },
+
+                        cardholderName: {
+                            id: "form-checkout__cardholderName"
+                        },
+
+                        cardholderEmail: {
+                            id: "form-checkout__cardholderEmail"
+                        },
+
+                        identificationType: {
+                            id: "form-checkout__identificationType"
+                        },
+
+                        identificationNumber: {
+                            id: "form-checkout__identificationNumber"
+                        },
+
+                        issuer: {
+                            id: "form-checkout__issuer"
+                        },
+
+                        installments: {
+                            id: "form-checkout__installments"
+                        }
+
+                    },
+
+                    callbacks: {
+
+                        onFormMounted: error => {
+
+                            if (error) {
+
+                                console.error("MOUNT ERROR:", error);
+
+                                return;
+
+                            }
+
+                            console.log("MP READY");
+
+                        },
+
+                        onSubmit: event => {
+
+                            event.preventDefault();
+
+                            const formData =
+                                cardFormInstance.getCardFormData();
+
+                            console.log("FORM DATA:", formData);
+
+                            if (!formData.token) {
+
+                                alert("Token no generado");
+
+                                return;
+
+                            }
+
+                            // TOKEN
+                            document.getElementById(
+                                "card_token_id"
+                            ).value = formData.token;
+
+                            // CPF
+                            document.getElementById(
+                                "cpf_hidden"
+                            ).value =
+                                formData.identificationNumber;
+
+                            // PAYMENT METHOD
+                            document.getElementById(
+                                "payment_method_id"
+                            ).value =
+                                formData.paymentMethodId;
+
+                            // ISSUER
+                            document.getElementById(
+                                "issuer_id_hidden"
+                            ).value =
+                                formData.issuerId;
+
+                            // INSTALLMENTS
+                            document.getElementById(
+                                "installments_hidden"
+                            ).value =
+                                formData.installments;
+
+                            console.log({
+                                plan_id: planInput.value,
+                                token: formData.token,
+                                cpf: formData.identificationNumber,
+                                payment_method:
+                                    formData.paymentMethodId,
+                                issuer:
+                                    formData.issuerId,
+                                installments:
+                                    formData.installments
+                            });
+
+                            document.getElementById(
+                                "form-checkout"
+                            ).submit();
+
+                        },
+
+                        onError: error => {
+
+                            console.error(
+                                "SDK ERROR:",
+                                error
+                            );
+
+                        }
+
+                    }
+
+                });
+
+            } catch (e) {
+
+                console.error(
+                    "MP INIT ERROR:",
+                    e
+                );
+
+            }
+
+        }
+    </script>
 </body>
 
 </html>

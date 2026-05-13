@@ -48,7 +48,9 @@ MEDIA_BASE_URL = string_parse("storage.media_base_url")
 
 #region Mercado Pago config
 MERCADO_PAGO_ACCESS_TOKEN = string_parse("mercado_pago.access_token")
+PUBLIC_KEY = string_parse("mercado_pago.public_key")
 BACK_URL = string_parse("mercado_pago.back_url")
+ASSINATURA_MP = string_parse("mercado_pago.assinatura_mp")
 #endregion
 
 if __name__ == "__main__":
