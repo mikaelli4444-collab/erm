@@ -7,6 +7,7 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128.3-000000?style=for-the-badge&logo=fastapi )
 ![Python](https://img.shields.io/badge/python-3.11.9-000000?style=for-the-badge&logo=Python&logoColor=)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-000000?style=for-the-badge&logo=pydantic)
+![MercadoPago](https://img.shields.io/badge/MercadoPago-2.14.0-000000?style=for-the-badge&logo=mercadopago)
 ![Jinja](https://img.shields.io/badge/Jinja2-3.1.6-000000?style=for-the-badge&logo=jinja)
 ![Posgresql](https://img.shields.io/badge/Postgresql-9.9-000000?style=for-the-badge&logo=postgresql&logoColor=white)
 ![js](https://img.shields.io/badge/javascript-ES6+-000000?style=for-the-badge&logo=javascript)
@@ -15,6 +16,8 @@
 ![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
 ![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
 ![Google Gemini](https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=googlecloud)
+![MercadoPago](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
+
 
 # ProntoERP
 
