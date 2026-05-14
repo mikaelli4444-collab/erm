@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, HTTPException
 from projects.projects_model import Projects
+from sqlalchemy import or_
 from typing import List
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -55,15 +56,12 @@ def create_project_view(request: Request):
         })
     
 @projects_router.get("/users/search") #esta funcion es para el autocomplete del input de carpintero en el html
-def search_users_route(username: str, session: Session = Depends(CreateSession)):
-    users = session.query(User)\
-        .filter(User.username.ilike(f"%{username}%"))\
-        .limit(10)\
-        .all()
+def search_users_route(username: str, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+    users = session.query(User).filter((User.company_id == user.company_id), User.username.ilike(f"%{username}%") | (User.fullname.ilike(f"%{username}%"))).all()
 
     return [
-        {"id": u.id, "name": u.username}
-        for u in users
+        {"id": user.id, "name": user.username}
+        for user in users
     ]
     
 @projects_router.get("/{project_id}")

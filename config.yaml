@@ -41,3 +41,7 @@ mercado_pago:
   public_key: ${PUBLIC_KEY}
   back_url: ${BACK_URL}
   assinatura_mp: ${ASSINATURA_MP}
+
+url:
+  expiration_minutes: ${URL_EXPIRATION_MINUTES}
+  base_url: ${BASE_URL}

@@ -177,7 +177,8 @@ def plans_view(request: Request, user: User = Depends(verify_token), session: Se
         "plan_basic_price": plans[0].amount if len(plans) > 0 else 0,
         "plan_premium_price": plans[1].amount if len(plans) > 1 else 0,
         "plan_enterprise_price": plans[2].amount if len(plans) > 2 else 0,
-        "plan_annual_price": plans[3].amount if len(plans) > 3 else 0
+        "plan_annual_price": plans[3].amount if len(plans) > 3 else 0,
+        "descuento": round((plans[2].amount * 12) - plans[3].amount, 2) if len(plans) > 3 else 0
         })
     
 @payments_router.get("/success")

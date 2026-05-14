@@ -1,10 +1,13 @@
 from fastapi import HTTPException
+from datetime import datetime, timedelta, timezone
+from core.config import URL_EXPIRATION_MINUTES, BASE_URL
 from sqlalchemy.orm import Session, selectinload, joinedload
 from users.users_model import User
-from projects.projects_model import Projects, ProjectsPhotos, ProjectsPDFs
+from projects.projects_model import Projects, ProjectsPhotos, ProjectsPDFs, Comments, SharedProjects
 from core.config.config_loader import RAW_CONFIG
 from utilities.storage.storage_service import StorageService
 from datetime import date
+import secrets
 
 def map_user(user): #esta funcion es para transformar los datos de un objeto ORM a un dict y que toda la app lo entienda
     return {
@@ -125,7 +128,7 @@ def add_pdf(project_id: int, file, session: Session, storage: StorageService):
         
         raise HTTPException(status_code=500, detail="Error saving pdf to database")
     
-def tranform_content(projects):
+def tranform_contents(projects):
     return [
         {
             "id": project.id,
@@ -145,9 +148,84 @@ def tranform_content(projects):
 def show_projects(session: Session, user: User):
     projects = session.query(Projects).filter(Projects.company_id == user.company_id).options(selectinload(Projects.photos), selectinload(Projects.pdfs), joinedload(Projects.carpenter)).all()
     
-    transformed_projects = tranform_content(projects)
+    transformed_projects = tranform_contents(projects)
         
     return transformed_projects
 
-def search_users(name: str, user: User, session: Session):
-    return session.query(User).filter((User.company_id == user.company_id), User.username.ilike(f"%{name}%") | (User.fullname.ilike(f"%{name}%"))).all()
+def generate_project_share_link(project_id: int, session: Session):
+    project = session.get(Projects, project_id)
+    
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    try:
+        token = secrets.token_urlsafe(36) 
+        
+        session.add(SharedProjects(
+            project_id=project_id, 
+            token=token, 
+            expired_at=datetime.now(timezone.utc) + timedelta(minutes=int(URL_EXPIRATION_MINUTES))
+            ))
+        
+        try:
+            session.commit()
+            
+        except Exception as e:
+            session.rollback()
+            print("Error saving token to database:", str(e))
+            raise HTTPException(status_code=500, detail="Error generating share link")
+        
+        link = f'{BASE_URL}/shared/projects/client?token={token}' #generando link para compartir proyecto usando token para mas seguridad
+        
+        return {"link": link}
+    
+    except Exception as e:
+        print("Error generating share link:", str(e))
+        
+        raise HTTPException(
+            status_code=500,
+            detail="Error generating share link"
+        )
+        
+def get_shared_project_by_token(token: str, session: Session):
+    shared_project = session.query(SharedProjects).filter(SharedProjects.token == token).first()
+    
+    if not shared_project:
+        raise HTTPException(status_code=404, detail="Shared project not found")
+    
+    if shared_project.expired_at and shared_project.expired_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=410, detail="Link has expired")
+    
+    project = (
+        session.query(Projects).options(
+            selectinload(Projects.photos),
+            selectinload(Projects.pdfs),
+            joinedload(Projects.carpenter)
+        ).filter(Projects.id == shared_project.project_id).first())  
+    
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    transformed_project = tranform_contents([project])[0]
+    
+    return transformed_project
+
+def delete_link(token: str, session: Session):
+    shared_project = session.query(SharedProjects).filter(SharedProjects.token == token).first()
+    
+    if not shared_project:
+        raise HTTPException(status_code=404, detail="Shared project not found")
+    
+    try:
+        session.delete(shared_project)
+        session.commit()
+        
+        return {"detail": "Link deleted successfully"}
+    
+    except Exception as e:
+        print("Error deleting share link:", str(e))
+        
+        raise HTTPException(
+            status_code=500,
+            detail="Error deleting share link"
+        )

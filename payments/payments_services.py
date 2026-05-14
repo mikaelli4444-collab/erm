@@ -105,7 +105,7 @@ def create_subscription(user,plan,card_token_id,cpf,payment_method_id,issuer_id,
     url = "https://api.mercadopago.com/preapproval"
 
     data = {
-        #"preapproval_plan_id": plan.mp_plan_id,
+        #"preapproval_plan_id": plan.mp_plan_id, #esta linea me estaba dando problema
         "card_token_id": card_token_id,
         "payment_method_id": payment_method_id,
         "issuer_id": issuer_id,

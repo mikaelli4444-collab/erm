@@ -53,5 +53,9 @@ BACK_URL = string_parse("mercado_pago.back_url")
 ASSINATURA_MP = string_parse("mercado_pago.assinatura_mp")
 #endregion
 
+#region URL config
+URL_EXPIRATION_MINUTES = integer_parse("url.expiration_minutes")
+BASE_URL = string_parse("url.base_url")
+#endregion
 if __name__ == "__main__":
     print(globals())

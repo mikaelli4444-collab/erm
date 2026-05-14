@@ -21,7 +21,7 @@ class User(base):
     inventory_items = relationship("Inventory", back_populates="owner")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True, index=True)
     company = relationship("Company", foreign_keys=[company_id])
-    role = Column(String, default=UserRoleEnum.auxiliary.value, nullable=False) #admin, carpenter, auxiliary
+    role = Column(String, default=UserRoleEnum.auxiliary.value, nullable=False) #admin, carpenter, auxiliary, owner
     sells = relationship("Sells", foreign_keys="Sells.user_id", back_populates="user") # quien hizo la venta, relacion entre sells y users
     in_charge = relationship("Sells", foreign_keys="Sells.carpenter_id", back_populates="carpenter")
     to_recebe = relationship("Receivable", foreign_keys="Receivable.receiver_id", back_populates="receiver")
