@@ -13,6 +13,7 @@ class User(base):
     email = Column(String, unique=True, index=True, nullable=False)
     fullname = Column(String, nullable=False)
     password = Column(String, nullable=False)
+    temp_password = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_verified = Column(Integer, default=0, nullable=False)

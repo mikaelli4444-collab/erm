@@ -43,5 +43,5 @@ mercado_pago:
   assinatura_mp: ${ASSINATURA_MP}
 
 url:
-  expiration_minutes: ${URL_EXPIRATION_MINUTES}
+  expiration_minutes: 43200
   base_url: ${BASE_URL}

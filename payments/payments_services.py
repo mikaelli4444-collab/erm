@@ -28,8 +28,6 @@ def create_plan(name: str, amount: float, frequency: int):
         response = requests.post(url, json=data, headers=headers)
 
         if response.status_code != 201:
-            print("STATUS:", response.status_code)
-            print("RESPONSE:", response.json())
             raise ValueError("Error creando plan en Mercado Pago")
 
         return response.json()["id"]
@@ -76,8 +74,6 @@ def create_subscription(user,plan,card_token_id,cpf,payment_method_id,issuer_id,
     if not user:
         raise ValueError("Usuario no encontrado")
 
-    print("1")
-
     company = user.company
 
     if user.id != company.owner_id:
@@ -85,8 +81,6 @@ def create_subscription(user,plan,card_token_id,cpf,payment_method_id,issuer_id,
 
     if not plan:
         raise ValueError("Plan no encontrado")
-
-    print("2")
 
     existing_subscription = session.query(
         Subscription
@@ -99,8 +93,6 @@ def create_subscription(user,plan,card_token_id,cpf,payment_method_id,issuer_id,
         raise ValueError(
             "La empresa ya tiene suscripción"
         )
-
-    print("3")
 
     url = "https://api.mercadopago.com/preapproval"
 
@@ -144,18 +136,13 @@ def create_subscription(user,plan,card_token_id,cpf,payment_method_id,issuer_id,
         "Content-Type":
             "application/json"
     }
-
-    print("4")
-
+    
     response = requests.post(
         url,
         json=data,
         headers=headers,
         timeout=15
     )
-
-    print("STATUS:", response.status_code)
-    print("RESPONSE:", response.text)
 
     if response.status_code not in [200, 201]:
         raise ValueError(

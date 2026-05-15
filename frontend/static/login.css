@@ -413,3 +413,24 @@ button:focus-visible {
     border: 1px solid var(--border-color);
   }
 }
+
+.verification-box {
+            margin-top: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }

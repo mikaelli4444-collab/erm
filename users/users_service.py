@@ -30,17 +30,32 @@ async def generate_and_send_verification_code(user: User, session: Session):
     await send_verification_email(user.email, code)
     return user
 
-def verify_user_email(user: User, code: str, session: Session):
+def verify_user_email(user: User, code: str, session: Session, data: dict):
+    
     if not user.verification_code or user.verification_code != code:
         return False
     if user.verification_code_expires_at < datetime.now(timezone.utc):
         return False
-    user.is_verified = 1
-    user.verification_code = None
-    user.verification_code_expires_at = None
-    session.add(user)
-    session.commit()
-    session.refresh(user)
+    
+    purpose = data.get("purpose")
+    
+    if purpose == "password_reset":
+        user.password = user.temp_password
+        user.verification_code = None
+        user.verification_code_expires_at = None
+        user.temp_password = None
+        session.commit()
+        session.refresh(user)
+
+    
+    if purpose == "email_verification":
+        user.is_verified = 1
+        user.verification_code = None
+        user.verification_code_expires_at = None
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+    
     return True
 
 def create_company(session, company_name, legal_name, tax_id, email):

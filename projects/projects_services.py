@@ -164,7 +164,7 @@ def generate_project_share_link(project_id: int, session: Session):
         session.add(SharedProjects(
             project_id=project_id, 
             token=token, 
-            expired_at=datetime.now(timezone.utc) + timedelta(minutes=int(URL_EXPIRATION_MINUTES))
+            expired_at=datetime.now(timezone.utc) + timedelta(minutes=URL_EXPIRATION_MINUTES)
             ))
         
         try:

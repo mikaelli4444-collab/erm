@@ -8,15 +8,12 @@ from users.users_model import User
 from core.security import verify_token
 from inventory.inventory_service import edit_inventory_item, delete_inventory_item, create_inventory_item
 from core.dependencies import templates
-from core.config.config_loader import RAW_CONFIG
 
 inventory_router = APIRouter(prefix="/inv", tags=["inv"])
 
 @inventory_router.post("/add")
 def create_inventory_item_route(item_name: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     create_inventory_item(item_name, description, quantity, session, user)
-    
-    print (RAW_CONFIG)
     return RedirectResponse(url="/inv/dashboard", status_code=303)
 
 

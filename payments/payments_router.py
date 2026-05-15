@@ -71,13 +71,6 @@ def create_checkout_router(plan_id: int = Form(...),cpf: str = Form(...),card_to
                 detail="Plan no encontrado"
             )
 
-        print("PLAN:", plan.name)
-        print("CPF:", cpf)
-        print("TOKEN:", card_token_id)
-        print("PAYMENT METHOD:", payment_method_id)
-        print("ISSUER:", issuer_id)
-        print("INSTALLMENTS:", installments)
-
         checkout_url = create_subscription(
             user=user,
             plan=plan,
@@ -120,16 +113,12 @@ async def mp_webhook(request: Request, session: Session = Depends(CreateSession)
         data = payload.get("data")
         
         type_event = payload.get("type")
-        
-        print(type_event)
 
         if type_event != "subscription_preapproval":
             return {"message": "ignored"}
         
         if not data: 
             return {"error": "no data"} 
-        
-        print(payload) 
         
         subscription_id = data.get("id") 
         

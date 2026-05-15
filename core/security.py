@@ -69,8 +69,8 @@ def verify_token(request: Request, session: Session = Depends(CreateSession)) ->
 
     return user
 
-def create_verification_token(email: str) -> str:
-    to_encode = {"sub": email}
+def create_verification_token(email: str, purpose: str) -> str:
+    to_encode = {"sub": email, "purpose": purpose}
     expires_delta = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -84,23 +84,19 @@ def verify_verification_token(token: str) -> Optional[str]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
+        purpose: str = payload.get("purpose")
         if email is None:
             return None
-        return email
+        return {"email": email, "purpose": purpose}
     except JWTError:
         return None
     
 def get_user_from_token(token: str, session: Session):
-    
-    print("TOKEN:", token)
-
     if not token:
         return None
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        
-        print("PAYLOAD:", payload)
 
         if payload.get("sub") is None:
             return None

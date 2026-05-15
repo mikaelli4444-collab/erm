@@ -12,7 +12,6 @@ from core.dependencies import templates
 from core.config import SECRET_KEY, ALGORITHM
 from utilities.net.autorouter import use_autorouter
 from jose import jwt
-from core.security import verify_token
 
 home_router = APIRouter(prefix="/home", tags=["home"])
 
@@ -65,7 +64,6 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
     user = session.query(User).filter((User.email==email) | (User.username==username)).first()
     
     try:
-        print("ENTRÓ AL SIGNUP NUEVO")
         if user:
             return templates.TemplateResponse("home/signup.html", {
                 "message": "User with this email or username already exists",
@@ -93,7 +91,7 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
         
         session.commit()
 
-        verification_jwt = create_verification_token(new_user.email)
+        verification_jwt = create_verification_token(new_user.email, "email_verification")
 
         if company_obj:
             join_request = CompanyJoinRequest(
@@ -140,37 +138,45 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
 @home_router.post("/verify-email")
 async def verify_email(request: Request,session: Session = Depends(CreateSession), code: str = Form(...), verification_jwt: str = Form(...)):
 
-    email = verify_verification_token(verification_jwt)
+    data = verify_verification_token(verification_jwt)
 
-    if not email:
+    if not data:
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request, 
-            "message": "Token inválido o expirado.",
+            "message": "No data found.",
             "verification_jwt": verification_jwt 
         })
 
+    email = data.get("email")
+    
+    purpose = data.get("purpose")
     user = session.query(User).filter(User.email == email).first()
     if not user:
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request, 
-            "message": "Usuario no encontrado.",
+            "message": "User not found.",
             "verification_jwt": verification_jwt
         })
     
-    if verify_user_email(user, code, session):
+    if verify_user_email(user, code, session, {"email": email, "purpose": purpose}):
         return RedirectResponse(url="/home/login", status_code=status.HTTP_303_SEE_OTHER)
+    
     else:
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request, 
             "email": email, 
             "verification_jwt": verification_jwt,
-            "message": "Código inválido o expirado."
+            "message": "Invalid verification code."
         })
 
 
 @home_router.post("/resend-verification-email")
 async def resend_verification_email(request: Request, session: Session = Depends(CreateSession), verification_jwt: str = Form(...)):
-    email = verify_verification_token(verification_jwt)
+    data = verify_verification_token(verification_jwt)
+    
+    purpose = data.get("purpose")
+    
+    email = data.get("email")
     if not email:
         return templates.TemplateResponse("home/login_email.html", {
             "request": request, 
@@ -190,7 +196,7 @@ async def resend_verification_email(request: Request, session: Session = Depends
 
     await generate_and_send_verification_code(user, session)
     
-    new_verification_jwt = create_verification_token(user.email)
+    new_verification_jwt = create_verification_token(user.email, "email_verification")
 
     return templates.TemplateResponse("home/verify_email.html", {
         "request": request, 
@@ -229,11 +235,92 @@ def create_company_router(request: Request, session: Session = Depends(CreateSes
 
     return RedirectResponse(url="/payment/plans", status_code=303)
 
+@home_router.post("/forgot-password")
+async def forgot_password(request: Request, password: str = Form(...), confirm_password: str = Form(...), session: Session = Depends(CreateSession), username: str = Form(...)):
+    user = session.query(User).filter((User.email==username) | (User.username==username) | (User.fullname==username)).first()
+
+    if not user:
+        return templates.TemplateResponse("home/forgot_password.html", {
+            "request": request,
+            "message": "User not found."
+        })
+    
+    if password != confirm_password:
+        return templates.TemplateResponse("home/forgot_password.html", {
+            "request": request,
+            "message": "Passwords do not match."
+        })
+        
+    if len(password) < 8:
+        return templates.TemplateResponse("home/forgot_password.html", {
+            "request": request,
+            "message": "Password must be at least 8 characters long."
+        })  
+        
+    user.temp_password = bcrypt_context.hash(password)
+    session.commit()
+        
+    verification_code = await generate_and_send_verification_code(user, session)
+    
+    if verification_code:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request,
+            "verification_jwt": create_verification_token(user.email, "password_reset"),
+            "message": "A verification code has been sent to your email. Please verify to reset your password."
+        })
+
+@home_router.post("/verify-email-password")
+async def verify_email_password(request: Request, code: str = Form(...), verification_jwt: str = Form(...), session: Session = Depends(CreateSession)):
+    data = verify_verification_token(verification_jwt)
+
+    if not data:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request, 
+            "message": "No email found.",
+            "verification_jwt": verification_jwt 
+        })
+
+    email = data.get("email")
+    
+    purpose = data.get("purpose")
+
+    user = session.query(User).filter(User.email == email).first()
+    
+    if not user:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request, 
+            "message": "User not found.",
+            "verification_jwt": verification_jwt
+        })
+    
+    if verify_user_email(user, code, session, {"email": email, "purpose": purpose}):
+        return RedirectResponse(url="/home/login", status_code=status.HTTP_303_SEE_OTHER)
+    
+    else:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request, 
+            "email": email, 
+            "verification_jwt": verification_jwt,
+            "message": "Invalid verification code."
+        })
+#VIEWS
+@home_router.get("/verify-email-password")
+def verify_email_password_view(request: Request, verification_jwt: str):
+    return templates.TemplateResponse("home/verify_email.html", {
+        "request": request,
+        "verification_jwt": verification_jwt
+    })
+
+@home_router.get("/forgot-password")
+def forgot_password_view(request: Request):
+    return templates.TemplateResponse("home/forgot_password.html", {
+        "request": request
+    })
+
 @home_router.get("/create_company")
 def create_company_alias():
     return RedirectResponse(url="/home/create-company", status_code=303)
 
-#VIEWS
 
 use_autorouter(
     home_router, 
