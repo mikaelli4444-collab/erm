@@ -41,6 +41,7 @@ mercado_pago:
   public_key: ${PUBLIC_KEY}
   back_url: ${BACK_URL}
   assinatura_mp: ${ASSINATURA_MP}
+  notify_url: ${NOTIFY_URL}
 
 url:
   expiration_minutes: 43200

@@ -1,9 +1,7 @@
-import mercadopago
-from datetime import datetime
 import requests
-from core.config import MERCADO_PAGO_ACCESS_TOKEN, BACK_URL
+from core.config import MERCADO_PAGO_ACCESS_TOKEN, BACK_URL, NOTIFY_URL
 from payments.payments_models import Plans, Subscription
-from users.users_model import User, Company
+from users.users_model import Company
 
 def create_plan(name: str, amount: float, frequency: int):
     url = "https://api.mercadopago.com/preapproval_plan"
@@ -127,7 +125,7 @@ def create_subscription(user,plan,card_token_id,cpf,payment_method_id,issuer_id,
         "back_url": BACK_URL,
         "status": "authorized",
         "notification_url":
-            "https://ooze-crave-yam.ngrok-free.dev/payment/webhook/mercadopago"
+            NOTIFY_URL
     }
 
     headers = {

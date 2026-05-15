@@ -51,6 +51,7 @@ MERCADO_PAGO_ACCESS_TOKEN = string_parse("mercado_pago.access_token")
 PUBLIC_KEY = string_parse("mercado_pago.public_key")
 BACK_URL = string_parse("mercado_pago.back_url")
 ASSINATURA_MP = string_parse("mercado_pago.assinatura_mp")
+NOTIFY_URL = string_parse("mercado_pago.notify_url")
 #endregion
 
 #region URL config
