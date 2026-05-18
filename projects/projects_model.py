@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from core.config import URL_EXPIRATION_MINUTES
 from core.database import base
 from datetime import date, datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from core.enum.enum import StatusEnum
 
 class Projects(base):
@@ -17,7 +18,7 @@ class Projects(base):
     status = Column(SQLEnum(StatusEnum), default=StatusEnum.planning, nullable=False, index=True)
     photo_path = Column(String, index=True, nullable=True)
     pdf_path = Column(String, index=True, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")), nullable=False)
     description = Column(String, nullable=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_projects")
