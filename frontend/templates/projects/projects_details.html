@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Detail</title>
+</head>
+<link rel="stylesheet" href="../../static/projects/projects_detail.css"">
+<body>
+
+<div class=" container">
+
+<!-- LEFT -->
+<div>
+
+    <!-- CAROUSEL -->
+    <div class="carousel">
+        <img id="carousel-img" src="{{ project.photos[0] if project.photos }}">
+        <button class="arrow left" onclick="prevImage()">‹</button>
+        <button class="arrow right" onclick="nextImage()">›</button>
+    </div>
+
+    <!-- TITLE -->
+    <div class="title-row">
+
+    <h2>{{ project.name }}</h2>
+
+    {% if project.id %}
+    <button class="share-btn" onclick="shareProject()">
+        <span>🔗</span> Compartir
+    </button>
+    {% endif %}
+
+</div>
+
+    <!-- DESCRIPTION -->
+    <div id="desc" class="description fade">
+        {{ project.description }}
+    </div>
+    <div class="read-more" onclick="toggleDesc()">Ver más</div>
+
+    <!-- PDFS -->
+    <div class="pdfs">
+        {% for pdf in project.pdfs %}
+        <div class="pdf-card" onclick="openPDF('{{ pdf }}')">
+            {{ project.pdf_names[loop.index0] if project.pdf_names and loop.index0 < project.pdf_names|length else 'PDF'
+                }} </div>
+                {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+
+        <div class="info-box">
+
+            <!-- LOGO + NAME -->
+            <div class="company-header">
+                <div class="company-logo">
+                    {% if project.company_logo %}
+                    <img src="{{ project.company_logo }}">
+                    {% else %}
+                    <div
+                        style="width:100%; height:100%; background:#eee; display:flex; align-items:center; justify-content:center; color:#999;">
+                        Logo</div>
+                    {% endif %}
+                </div>
+
+                <div class="company-info">
+                    <strong>{{ project.company_name }}</strong>
+                    <div class="date">
+                        Creado el {{ project.created_at }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-data-row">
+                <p><strong>Entrega:</strong> <span>{{ project.delivery }}</span></p>
+                <p><strong>Carpintero:</strong> <span>{{ project.carpenter.fullname }}</span></p>
+                <p><strong>Dirección:</strong> <span>{{ project.address }}</span></p>
+                <p><strong>Cliente:</strong> <span>{{ project.client_name }}</span></p>
+                <p><strong>Status:</strong> <span style="color: var(--success-color);">{{ project.status }}</span></p>
+            </div>
+
+            <!-- COMMENTS (Movidos dentro o debajo del info box si se prefiere, pero mantengo estructura original) -->
+        </div>
+
+        <div class="comments">
+
+            <h4>Comentarios</h4>
+
+            <div id="comment-list">
+                {% for comment in project.comments %}
+                <div class="comment">
+                    <strong>{{ comment.author }}</strong>
+                    <small>{{ comment.date }}</small>
+                    <p>{{ comment.text }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
+            <button onclick="addComment()">Publicar Comentario</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    let images = {{ project.photos | tojson | safe }} || [];
+    let index = 0;
+
+    function nextImage() {
+        if (!images.length) return;
+
+        index = (index + 1) % images.length;
+
+        document.getElementById("carousel-img").src = images[index];
+    }
+
+    function prevImage() {
+        if (!images.length) return;
+
+        index = (index - 1 + images.length) % images.length;
+
+        document.getElementById("carousel-img").src = images[index];
+    }
+
+    function toggleDesc() {
+
+        const desc = document.getElementById("desc");
+        const readMore = document.querySelector(".read-more");
+
+        desc.classList.toggle("fade");
+
+        if (desc.style.maxHeight === "none") {
+
+            desc.style.maxHeight = "100px";
+            readMore.innerText = "Ver más";
+
+        } else {
+
+            desc.style.maxHeight = "none";
+            readMore.innerText = "Ver menos";
+        }
+    }
+
+    function openPDF(url) {
+        window.open(url, "_blank");
+    }
+
+    async function shareProject() {
+
+        const button = document.querySelector(".share-btn");
+
+        try {
+
+            button.disabled = true;
+            button.innerHTML = "<span>⏳</span> Generando...";
+
+            const projectId = "{{ project.id }}";
+
+            const response = await fetch(`/projects/create_link/${projectId}`, {
+                method: "POST"
+            });
+
+            if (!response.ok) {
+                throw new Error("Error generating share link");
+            }
+
+            const data = await response.json();
+
+            const shareUrl = data.share_link.link;
+
+            if (navigator.share) {
+
+                await navigator.share({
+                    title: document.title,
+                    url: shareUrl
+                });
+
+            } else {
+
+                await navigator.clipboard.writeText(shareUrl);
+
+                alert("Link copiado al portapapeles");
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Error compartiendo proyecto");
+
+        } finally {
+
+            button.disabled = false;
+            button.innerHTML = "<span>🔗</span> Compartir";
+        }
+    }
+
+    function addComment() {
+
+        const text = document.getElementById("new-comment").value;
+
+        if (!text) return;
+
+        alert("Aquí conectas el backend");
+    }
+</script>
+
+</body>
+
+</html>

@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
+from core.enum.enum import UserRoleEnum
 
 class User(base):
     __tablename__ = 'users'
@@ -12,18 +13,22 @@ class User(base):
     email = Column(String, unique=True, index=True, nullable=False)
     fullname = Column(String, nullable=False)
     password = Column(String, nullable=False)
+    temp_password = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     is_verified = Column(Integer, default=0, nullable=False)
     verification_code = Column(String, nullable=True)
     verification_code_expires_at = Column(DateTime(timezone=True), nullable=True)
     inventory_items = relationship("Inventory", back_populates="owner")
-    company_id = Column(Integer, ForeignKey("companies.id"))
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=True, index=True)
     company = relationship("Company", foreign_keys=[company_id])
-    role = Column(String, index=True, default="pending", nullable=False)#pending, employee, client, architech, admin
+    role = Column(String, default=UserRoleEnum.auxiliary.value, nullable=False) #admin, carpenter, auxiliary, owner
     sells = relationship("Sells", foreign_keys="Sells.user_id", back_populates="user") # quien hizo la venta, relacion entre sells y users
     in_charge = relationship("Sells", foreign_keys="Sells.carpenter_id", back_populates="carpenter")
     to_recebe = relationship("Receivable", foreign_keys="Receivable.receiver_id", back_populates="receiver")
+    carpenter_projects = relationship("Projects",back_populates="carpenter")
+    user_comments = relationship("Comments", back_populates="author")
+    subscription = relationship("Subscription", back_populates="user", uselist=False)
 
 class Company(base):
     __tablename__ = 'companies'
@@ -33,7 +38,7 @@ class Company(base):
     legal_name = Column(String, index=True, nullable=False)
     tax_id = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    plan = Column(String, default='basic', nullable=False)
+    plan = Column(String, default='free', nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", foreign_keys=[owner_id])
     company_items = relationship("Inventory", back_populates="company")
@@ -45,6 +50,9 @@ class Company(base):
     company_payments = relationship("Payment", back_populates="company")
     company_receivable = relationship("Receivable", back_populates="company")
     company_financial_transactions = relationship("FinancialTransaction", back_populates="company")
+    company_projects = relationship("Projects", back_populates="company")
+    company_comments = relationship("Comments", back_populates="company")
+    company_subscription = relationship("Subscription", back_populates="company", uselist=False)
     
 class CompanyJoinRequest(base):
     __tablename__ = 'company_join_requests'

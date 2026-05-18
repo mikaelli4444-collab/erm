@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import RedirectResponse, JSONResponse
-
 from sqlalchemy.orm import Session
 from users.users_model import User, Company, CompanyJoinRequest
-from notification.notification_services import manager, create_notification, notify_company_join
-from core.security import bcrypt_context, verify_token
+from notification.notification_services import manager, create_notification, notify_company_join, ensure_company_assignment_reminder
+from core.security import bcrypt_context
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token, create_refresh_token
 from fastapi.security import OAuth2PasswordRequestForm
-from users.users_service import authuser, generate_and_send_verification_code, verify_user_email
+from users.users_service import authuser, generate_and_send_verification_code, verify_user_email, create_company
 from core.dependencies import templates
 from core.config import SECRET_KEY, ALGORITHM
 from utilities.net.autorouter import use_autorouter
@@ -17,7 +16,7 @@ from jose import jwt
 home_router = APIRouter(prefix="/home", tags=["home"])
 
 @home_router.post("/login")
-def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(CreateSession)):
+async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(CreateSession)):
     user = authuser(form_data.username, form_data.password, session)
 
     if not user:
@@ -32,6 +31,8 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
             "email": user.email, 
             "message": "Please verify your email address before logging in."
         })
+
+    await ensure_company_assignment_reminder(user, session)
 
     access_token = create_token(user.id)
     refresh_token = create_refresh_token(user.id)
@@ -58,7 +59,8 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), se
     
 
 @home_router.post("/signup")
-async def create_user(request: Request, session: Session = Depends(CreateSession), company: str = Form(...), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+async def create_user(request: Request, session: Session = Depends(CreateSession), company: str = Form(None), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+    
     user = session.query(User).filter((User.email==email) | (User.username==username)).first()
     
     try:
@@ -81,14 +83,15 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             email=email,
             password=password,
             fullname=fullname,
-            #company=company_obj.id
         )
 
         session.add(new_user)
         session.flush()
         session.refresh(new_user)
+        
+        session.commit()
 
-        verification_jwt = create_verification_token(new_user.email)
+        verification_jwt = create_verification_token(new_user.email, "email_verification")
 
         if company_obj:
             join_request = CompanyJoinRequest(
@@ -104,18 +107,18 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
 
             await create_notification(company_obj.owner_id, company_obj.id, join_request.message, session)
             
-        else:
-            raise HTTPException(status_code=404, detail="Company not found")
-
-        owner_id = company_obj.owner_id
+            owner_id = company_obj.owner_id
             
-        await generate_and_send_verification_code(new_user, session)
+            try:
+                await manager.send_to_user(owner_id, join_request.message)
         
-        try:
-            await manager.send_to_user(owner_id, join_request.message)
-        
-        except:
+            except:
+                pass
+            
+        else:
             pass
+
+        await generate_and_send_verification_code(new_user, session)
 
         user_email = new_user.email
 
@@ -126,45 +129,54 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
             "user_email": user_email
         })
     
-    except:
+    except Exception as e:
         session.rollback()
-        raise HTTPException(status_code=401, detail=f"Error creating user, try again later")
+        print("ERROR:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @home_router.post("/verify-email")
 async def verify_email(request: Request,session: Session = Depends(CreateSession), code: str = Form(...), verification_jwt: str = Form(...)):
 
-    email = verify_verification_token(verification_jwt)
+    data = verify_verification_token(verification_jwt)
 
-    if not email:
+    if not data:
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request, 
-            "message": "Token inválido o expirado.",
+            "message": "No data found.",
             "verification_jwt": verification_jwt 
         })
 
+    email = data.get("email")
+    
+    purpose = data.get("purpose")
     user = session.query(User).filter(User.email == email).first()
     if not user:
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request, 
-            "message": "Usuario no encontrado.",
+            "message": "User not found.",
             "verification_jwt": verification_jwt
         })
     
-    if verify_user_email(user, code, session):
+    if verify_user_email(user, code, session, {"email": email, "purpose": purpose}):
         return RedirectResponse(url="/home/login", status_code=status.HTTP_303_SEE_OTHER)
+    
     else:
         return templates.TemplateResponse("home/verify_email.html", {
             "request": request, 
             "email": email, 
             "verification_jwt": verification_jwt,
-            "message": "Código inválido o expirado."
+            "message": "Invalid verification code."
         })
 
 
 @home_router.post("/resend-verification-email")
 async def resend_verification_email(request: Request, session: Session = Depends(CreateSession), verification_jwt: str = Form(...)):
-    email = verify_verification_token(verification_jwt)
+    data = verify_verification_token(verification_jwt)
+    
+    purpose = data.get("purpose")
+    
+    email = data.get("email")
     if not email:
         return templates.TemplateResponse("home/login_email.html", {
             "request": request, 
@@ -184,7 +196,7 @@ async def resend_verification_email(request: Request, session: Session = Depends
 
     await generate_and_send_verification_code(user, session)
     
-    new_verification_jwt = create_verification_token(user.email)
+    new_verification_jwt = create_verification_token(user.email, "email_verification")
 
     return templates.TemplateResponse("home/verify_email.html", {
         "request": request, 
@@ -193,15 +205,128 @@ async def resend_verification_email(request: Request, session: Session = Depends
         "message": "A new verification code has been sent to your email."
     })
 
+@home_router.post("/create-company")
+def create_company_router(request: Request, session: Session = Depends(CreateSession), company_name: str = Form(...), legal_name: str = Form(...), tax_id: str = Form(...), email: str = Form(...)):
+    
+    access_token = request.cookies.get("access_token")
 
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    try:
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+    except:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    user_id = int(payload.get("sub"))
+
+    user = session.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    company = create_company(session, company_name, legal_name, tax_id, email)
+    
+    company.owner_id = user.id
+    
+    user.company_id = company.id
+
+    session.commit()
+
+    return RedirectResponse(url="/payment/plans", status_code=303)
+
+@home_router.post("/forgot-password")
+async def forgot_password(request: Request, password: str = Form(...), confirm_password: str = Form(...), session: Session = Depends(CreateSession), username: str = Form(...)):
+    user = session.query(User).filter((User.email==username) | (User.username==username) | (User.fullname==username)).first()
+
+    if not user:
+        return templates.TemplateResponse("home/forgot_password.html", {
+            "request": request,
+            "message": "User not found."
+        })
+    
+    if password != confirm_password:
+        return templates.TemplateResponse("home/forgot_password.html", {
+            "request": request,
+            "message": "Passwords do not match."
+        })
+        
+    if len(password) < 8:
+        return templates.TemplateResponse("home/forgot_password.html", {
+            "request": request,
+            "message": "Password must be at least 8 characters long."
+        })  
+        
+    user.temp_password = bcrypt_context.hash(password)
+    session.commit()
+        
+    verification_code = await generate_and_send_verification_code(user, session)
+    
+    if verification_code:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request,
+            "verification_jwt": create_verification_token(user.email, "password_reset"),
+            "message": "A verification code has been sent to your email. Please verify to reset your password."
+        })
+
+@home_router.post("/verify-email-password")
+async def verify_email_password(request: Request, code: str = Form(...), verification_jwt: str = Form(...), session: Session = Depends(CreateSession)):
+    data = verify_verification_token(verification_jwt)
+
+    if not data:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request, 
+            "message": "No email found.",
+            "verification_jwt": verification_jwt 
+        })
+
+    email = data.get("email")
+    
+    purpose = data.get("purpose")
+
+    user = session.query(User).filter(User.email == email).first()
+    
+    if not user:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request, 
+            "message": "User not found.",
+            "verification_jwt": verification_jwt
+        })
+    
+    if verify_user_email(user, code, session, {"email": email, "purpose": purpose}):
+        return RedirectResponse(url="/home/login", status_code=status.HTTP_303_SEE_OTHER)
+    
+    else:
+        return templates.TemplateResponse("home/verify_email.html", {
+            "request": request, 
+            "email": email, 
+            "verification_jwt": verification_jwt,
+            "message": "Invalid verification code."
+        })
 #VIEWS
+@home_router.get("/verify-email-password")
+def verify_email_password_view(request: Request, verification_jwt: str):
+    return templates.TemplateResponse("home/verify_email.html", {
+        "request": request,
+        "verification_jwt": verification_jwt
+    })
+
+@home_router.get("/forgot-password")
+def forgot_password_view(request: Request):
+    return templates.TemplateResponse("home/forgot_password.html", {
+        "request": request
+    })
+
+@home_router.get("/create_company")
+def create_company_alias():
+    return RedirectResponse(url="/home/create-company", status_code=303)
+
 
 use_autorouter(
     home_router, 
     templates, 
     '/home'
 )
-
 
 @home_router.post("/refresh")
 def refresh_token(request: Request, session: Session = Depends(CreateSession)):

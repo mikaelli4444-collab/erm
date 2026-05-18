@@ -19,6 +19,8 @@ class UserLoginSchema(BaseModel):
 class CompanySchema(BaseModel):
     name: str
     legal_name: str
-    tax_id: str
+    tax_id: str #CNPJ
     email: EmailStr
-    plan: Literal["basico", "pro", "enterprise"]
+    
+    class Config:
+        from_attributes = True

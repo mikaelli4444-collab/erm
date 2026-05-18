@@ -65,9 +65,36 @@ display:flex;
 gap:10px;
 }
 
+.notification-action-group{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.notification-input{
+width:100%;
+padding:8px 10px;
+margin-top:10px;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:14px;
+}
+
+.notification-submit{
+margin-top:10px;
+width:100%;
+padding:10px;
+border:none;
+border-radius:8px;
+background:#2563eb;
+color:white;
+cursor:pointer;
+font-size:14px;
+}
+
 .btn{
 flex:1;
-padding:6px;
+padding:8px 10px;
 border:none;
 border-radius:6px;
 cursor:pointer;
@@ -173,20 +200,46 @@ function render(){
             </div>
             `
 
-        }else{
+        } else if (n.type === "company_assignment_reminder" || n.type === "create_company_notification") {
+            div.innerHTML = `
+            <div><strong>${data.title || "Crea o únete a una empresa"}</strong></div>
+            <div>${data.message || "Elige una opción para continuar."}</div>
+            <div class="notification-action-group">
+                <button class="btn btn-accept" data-action="create-company" data-noti="${n.id}">Crear empresa</button>
+                <button class="btn btn-reject" data-action="join-company" data-noti="${n.id}">Unirme a una empresa</button>
+            </div>
+            <div class="notification-join-form" style="display:none; margin-top:10px;" data-noti="${n.id}">
+                <input class="notification-input" type="text" placeholder="Nombre de la empresa" data-input="${n.id}">
+                <button class="notification-submit" data-send="${n.id}">Enviar solicitud</button>
+                <div class="notification-result" data-result="${n.id}" style="margin-top:8px;font-size:13px;color:#334155;"></div>
+            </div>
+            `
+
+        } else {
             div.innerText = n.type + ": " + JSON.stringify(data)
         }
 
         menu.appendChild(div)
     })
 
-    // ACCEPT
+    // ACCEPT / CREATE COMPANY
     document.querySelectorAll(".btn-accept").forEach(btn=>{
         btn.onclick = async (e)=>{
             e.stopPropagation()
 
-            const requestId = btn.dataset.request
+            const action = btn.dataset.action
             const notiId = btn.dataset.noti
+
+            if(action === "create-company"){
+                await fetch(`/notification/notifications/${notiId}`,{
+                    method:"PATCH",
+                    headers:{ "Authorization":`Bearer ${token}` }
+                }).catch(()=>{})
+                window.location.href = "/home/create_company"
+                return
+            }
+
+            const requestId = btn.dataset.request
 
             try{
                 const res = await fetch(`/notification/notifications/join-request/accept?request_id=${requestId}`,{
@@ -198,11 +251,8 @@ function render(){
                     throw new Error("Error aceptando")
                 }
 
-                // eliminar de UI
                 notifications = notifications.filter(n => n.id != notiId)
-
                 render()
-
                 console.log("✅ Solicitud aceptada")
 
             }catch(err){
@@ -211,13 +261,23 @@ function render(){
         }
     })
 
-    // REJECT
+    // REJECT / JOIN COMPANY
     document.querySelectorAll(".btn-reject").forEach(btn=>{
         btn.onclick = async (e)=>{
             e.stopPropagation()
 
-            const requestId = btn.dataset.request
+            const action = btn.dataset.action
             const notiId = btn.dataset.noti
+
+            if(action === "join-company"){
+                const form = document.querySelector(`.notification-join-form[data-noti='${notiId}']`)
+                if(!form) return
+                form.style.display = form.style.display === "flex" ? "none" : "flex"
+                form.style.flexDirection = "column"
+                return
+            }
+
+            const requestId = btn.dataset.request
 
             try{
                 const res = await fetch(`/notification/notifications/join-request/reject?request_id=${requestId}`,{
@@ -230,12 +290,62 @@ function render(){
                 }
 
                 notifications = notifications.filter(n => n.id != notiId)
-
                 render()
-
                 console.log("❌ Solicitud rechazada")
 
             }catch(err){
+                console.log("❌", err)
+            }
+        }
+    })
+
+    document.querySelectorAll(".notification-submit").forEach(btn=>{
+        btn.onclick = async (e)=>{
+            e.stopPropagation()
+
+            const notiId = btn.dataset.send
+            const input = document.querySelector(`.notification-input[data-input='${notiId}']`)
+            const result = document.querySelector(`.notification-result[data-result='${notiId}']`)
+            if(!input || !result) return
+
+            const companyName = input.value.trim()
+            if(!companyName){
+                result.innerText = "Ingresa el nombre de la empresa"
+                result.style.color = "#b91c1c"
+                return
+            }
+
+            try{
+                const res = await fetch(`/notification/notifications/join-company`,{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json",
+                        "Authorization":`Bearer ${token}`
+                    },
+                    body: JSON.stringify({ company_name: companyName })
+                })
+
+                if(!res.ok){
+                    const error = await res.json().catch(()=>({detail:'Error al enviar solicitud'}))
+                    result.innerText = error.detail || "No se pudo enviar la solicitud"
+                    result.style.color = "#b91c1c"
+                    return
+                }
+
+                await fetch(`/notification/notifications/${notiId}`,{
+                    method:"PATCH",
+                    headers:{ "Authorization":`Bearer ${token}` }
+                }).catch(()=>{})
+
+                result.innerText = "Solicitud enviada. El dueño recibirá la notificación."
+                result.style.color = "#16a34a"
+                input.disabled = true
+                btn.disabled = true
+
+                console.log("✅ Solicitud de unión enviada")
+            }catch(err){
+                result.innerText = "Error al enviar solicitud"
+                result.style.color = "#b91c1c"
                 console.log("❌", err)
             }
         }

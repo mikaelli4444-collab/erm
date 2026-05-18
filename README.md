@@ -7,6 +7,7 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128.3-000000?style=for-the-badge&logo=fastapi )
 ![Python](https://img.shields.io/badge/python-3.11.9-000000?style=for-the-badge&logo=Python&logoColor=)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-000000?style=for-the-badge&logo=pydantic)
+![MercadoPago](https://img.shields.io/badge/MercadoPago-2.4.0-000000?style=for-the-badge&logo=mercadopago)
 ![Jinja](https://img.shields.io/badge/Jinja2-3.1.6-000000?style=for-the-badge&logo=jinja)
 ![Posgresql](https://img.shields.io/badge/Postgresql-9.9-000000?style=for-the-badge&logo=postgresql&logoColor=white)
 ![js](https://img.shields.io/badge/javascript-ES6+-000000?style=for-the-badge&logo=javascript)
@@ -15,6 +16,8 @@
 ![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
 ![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
 ![Google Gemini](https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=googlecloud)
+![MercadoPago](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
+
 
 # ProntoERP
 
@@ -48,31 +51,53 @@ Este sistema permite a pequeñas y medianas carpinterias y negocios del sector m
 
 ## ⚙️ Tecnologías usadas
 
-#### Backend & API
-+ FastAPI
-+ Uvicorn
-+ Starlette
+### 🚀 Backend
+- FastAPI
+- Starlette
+- Uvicorn
 
-#### Base de Datos & ORM
-+ SQLAlchemy
-+ Alembic
-+ PostgreSQL (psycopg2)
+### 🗄 Base de Datos y ORM
+- PostgreSQL
+- SQLAlchemy
+- Alembic
 
-#### Seguridad & Autenticación
-+ JWT (python-jose)
-+ Passlib (Bcrypt)
-+ Cryptography
+### 🔐 Autenticación y Seguridad
+- JWT (python-jose)
+- Passlib
+- Bcrypt
+- Cryptography
 
-#### Validación & Configuración
-+ Pydantic
-+ Pydantic-Settings
-+ Python-dotenv
+### 📧 Servicio de Email
+- FastAPI-Mail
+- aiosmtplib
+- email-validator
 
-#### Comunicación & Utilidades
-+ FastAPI-Mail (aiosmtplib)
-+ Jinja2
-+ AnyIO
-+ Websockes
+### ☁️ Almacenamiento y Servicios Externos
+- AWS S3 / Cloudflare R2 (boto3, botocore, s3transfer)
+
+### ⚙️ Configuración y Entorno
+- python-dotenv
+- PyYAML
+- pydantic-settings
+
+### 📦 Validación y Serialización de Datos
+- Pydantic
+
+### 🌐 HTTP y Networking
+- Requests
+- urllib3
+- websockets
+
+### 🧰 Utilidades
+- Jinja2 (templating)
+- python-dateutil
+- regex
+- uuid
+
+### 🧪 Otros
+- anyio
+- attrs
+- click
 ---
 
 ## 🏗️ Estructura del proyecto
@@ -169,13 +194,15 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 Agente de IA (En proceso)
 
+👨🏻‍💻 Projectos (En proceso)
+
 ✔️ Gestión de empresas
 
 ✔️ WebSockets para notificaciones
 
 ❌ Exportación de reportes (pendiente)
 
-❌ Compartir links para dar seguimiento a los proyectos con el cliente final (pendiente)
+👨🏻‍💻 Compartir links para dar seguimiento a los proyectos con el cliente final (En proceso)
 
 ## 🤝 Contribución
 
@@ -335,31 +362,53 @@ This system allows small and medium-sized carpenter shops and furniture business
 
 ## ⚙️ Technologies Used
 
-#### Backend & API
-+ FastAPI
-+ Uvicorn
-+ Starlette
+### 🚀 Backend
+- FastAPI
+- Starlette
+- Uvicorn
 
-#### Database & ORM
-+ SQLAlchemy
-+ Alembic
-+ PostgreSQL (psycopg2)
+### 🗄 Database & ORM
+- PostgreSQL
+- SQLAlchemy
+- Alembic
 
-#### Security & Authentication
-+ JWT (python-jose)
-+ Passlib (Bcrypt)
-+ Cryptography
+### 🔐 Authentication & Security
+- JWT (python-jose)
+- Passlib
+- Bcrypt
+- Cryptography
 
-#### Validation & Configuration
-+ Pydantic
-+ Pydantic-Settings
-+ Python-dotenv
+### 📧 Email Service
+- FastAPI-Mail
+- aiosmtplib
+- email-validator
 
-#### Communication & Utilities
-+ FastAPI-Mail (aiosmtplib)
-+ Jinja2
-+ AnyIO
-+ Websockes
+### ☁️ Storage & External Services
+- AWS S3 / Cloudflare R2 (boto3, botocore, s3transfer)
+
+### ⚙️ Configuration & Environment
+- python-dotenv
+- PyYAML
+- pydantic-settings
+
+### 📦 Data Validation & Serialization
+- Pydantic
+
+### 🌐 HTTP & Networking
+- Requests
+- urllib3
+- websockets
+
+### 🧰 Utilities
+- Jinja2 (templating)
+- python-dateutil
+- regex
+- uuid
+
+### 🧪 Others
+- anyio
+- attrs
+- click
 ---
 
 ## 🏗️ Project Structure
@@ -456,13 +505,15 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 AI Agent (In progress)
 
+👨🏻‍💻 Projects (In progress)
+
 ✔️ Company Management
 
 ✔️ WebSockets for notifications
 
 ❌ Report Export (Pending)
 
-❌ Share links to track projects with the end client (Pending)
+👨🏻‍💻 Share links to track projects with the end client (In progress)
 
 ## 🤝 Contribution
 
@@ -628,31 +679,53 @@ Este sistema permite que pequenas e médias marcenarias e negócios do setor mov
 
 ## ⚙️ Tecnologias Usadas
 
-#### Backend & API
-+ FastAPI
-+ Uvicorn
-+ Starlette
+### 🚀 Backend
+- FastAPI
+- Starlette
+- Uvicorn
 
-#### Banco de Dados & ORM
-+ SQLAlchemy
-+ Alembic
-+ PostgreSQL (psycopg2)
+### 🗄 Banco de Dados e ORM
+- PostgreSQL
+- SQLAlchemy
+- Alembic
 
-#### Segurança & Autenticação
-+ JWT (python-jose)
-+ Passlib (Bcrypt)
-+ Cryptography
+### 🔐 Autenticação e Segurança
+- JWT (python-jose)
+- Passlib
+- Bcrypt
+- Cryptography
 
-#### Validação & Configuração
-+ Pydantic
-+ Pydantic-Settings
-+ Python-dotenv
+### 📧 Serviço de Email
+- FastAPI-Mail
+- aiosmtplib
+- email-validator
 
-#### Comunicação & Utilidades
-+ FastAPI-Mail (aiosmtplib)
-+ Jinja2
-+ AnyIO
-+ Websockes
+### ☁️ Armazenamento e Serviços Externos
+- AWS S3 / Cloudflare R2 (boto3, botocore, s3transfer)
+
+### ⚙️ Configuração e Ambiente
+- python-dotenv
+- PyYAML
+- pydantic-settings
+
+### 📦 Validação e Serialização de Dados
+- Pydantic
+
+### 🌐 HTTP e Networking
+- Requests
+- urllib3
+- websockets
+
+### 🧰 Utilidades
+- Jinja2 (templating)
+- python-dateutil
+- regex
+- uuid
+
+### 🧪 Outros
+- anyio
+- attrs
+- click
 ---
 
 ## 🏗️ Estrutura do Projeto
@@ -749,13 +822,15 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 Agente de IA (Em andamento)
 
+👨🏻‍💻 Projetos (Em andamento)
+
 ✔️ Gestão de empresas
 
 ✔️ WebSockets para notificações
 
 ❌ Exportação de relatórios (Pendente)
 
-❌ Compartilhar links para acompanhamento de projetos com o cliente final (Pendente)
+👨🏻‍💻 Compartilhar links para acompanhamento de projetos com o cliente final (Em andamento)
 
 ## 🤝 Contribución
 

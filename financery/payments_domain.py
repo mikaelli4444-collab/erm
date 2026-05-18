@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from datetime import date
 
+#este archivo es solo para convertir el status de las deudas y cuentas por cobrar, para evitar errores al cambiar el status, por ejemplo, no se puede cambiar una deuda pagada a pendiente, o una cuenta por cobrar cancelada a pendiente, etc.
+
 ALLOWED_PAYMENT_TRANSITIONS = {
     "pending": ["paid", "overdue", "cancelled"],
     "overdue": ["paid", "cancelled"],

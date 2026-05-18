@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects</title>
+
+    <link rel="stylesheet" href="../../static/projects/projects_dashboard.css">
+</head>
+
+<body>
+
+    <main class="main-content">
+
+        <header class="header-top">
+            <div class="page-title">
+                <h1>Projects</h1>
+                <p>Control your projects and share</p>
+            </div>
+
+            <div class="top-bar">
+                <div class="username">
+                    {{ user.username }}
+                </div>
+            </div>
+        </header>
+
+        <section class="controls">
+
+            <form class="search-form" method="get" action="/projects/dashboard">
+                <input type="text" name="search" placeholder="Search projects"
+                    value="{{ request.query_params.get('search', '') }}">
+                <button type="submit">🔍</button>
+            </form>
+
+            <a href="/projects/add" class="primary-btn" id="add-material-btn">➕ Add Project</a>
+
+
+
+        </section>
+
+        <!-- ===================== CARDS ===================== -->
+        <section class="cards-container">
+
+            {% for project in items %}
+            <a href="/projects/{{ project.id }}" class="card">
+
+                {% if project.photos and project.photos|length > 0 %}
+
+                <img src="{{ project.photos[0] }}">
+
+                {% else %}
+
+                <div>No image</div>
+
+                {% endif %}
+
+                <div class="card-header">
+
+                    <h3>{{ project.name }}</h3>
+
+                    <p>{{ project.client_name }}</p>
+
+                </div>
+                
+                <span>Carpenter: {{ project.carpenter.fullname }}</span>
+
+                <div>
+                    Delivery: {{ project.delivery }}
+                </div>
+
+            </a>
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            // DELETE
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+
+                    const card = btn.closest('.card');
+                    const itemName = card.querySelector('.card-title').innerText.trim();
+
+                    if (!confirm(`¿Eliminar "${itemName}"?`)) return;
+
+                    const response = await fetch(`/inv/delete/${encodeURIComponent(itemName)}`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) location.reload();
+                    else alert("Error al eliminar");
+                });
+            });
+
+            // EDIT
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+
+                    const card = btn.closest('.card');
+
+                    const originalName = card.querySelector('.card-title').innerText.trim();
+                    const originalDesc = card.querySelector('.card-desc').innerText.trim();
+                    const originalQty = card.querySelector('.stock strong').innerText.trim();
+                    const originalDate = card.querySelector('.date').innerText.trim();
+
+                    card.innerHTML = `
+                <div class="card-header">
+                    <input type="text" id="edit-name" value="${originalName}">
+                </div>
+
+                <input type="text" id="edit-desc" value="${originalDesc}">
+                <input type="number" id="edit-qty" value="${originalQty}">
+
+                <div class="card-actions">
+                    <button class="save-btn">💾 Save</button>
+                    <button class="cancel-edit">❌ Cancel</button>
+                </div>
+
+                <div class="date">${originalDate}</div>
+            `;
+
+                    card.querySelector('.save-btn').addEventListener('click', async () => {
+
+                        const params = new URLSearchParams();
+                        params.append('item_name_new', document.getElementById('edit-name').value);
+                        params.append('description', document.getElementById('edit-desc').value);
+                        params.append('quantity', document.getElementById('edit-qty').value);
+
+                        const response = await fetch(`/inv/edit/${encodeURIComponent(originalName)}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: params
+                        });
+
+                        if (response.ok) location.reload();
+                        else alert("No se pudo actualizar");
+                    });
+
+                    card.querySelector('.cancel-edit').addEventListener('click', () => location.reload());
+                });
+            });
+
+        });
+    </script>
+
+    {% include 'notification.html' %}
+    {% include 'aside.html' %}
+
+</body>
+
+</html>

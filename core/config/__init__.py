@@ -38,5 +38,25 @@ MAIL_SSL_TLS= bool_parse("email_verification.server.use_ssl")
 VERIFICATION_TOKEN_EXPIRE_MINUTES = integer_parse("email_verification.token_expiration")
 #endregion
 
+#region Storage config
+STORAGE_ENDPOINT_URL = string_parse("storage.endpoint_url")
+STORAGE_ACCESS_KEY = string_parse("storage.access_key")
+STORAGE_SECRET_KEY = string_parse("storage.secret_key")
+STORAGE_BUCKET_NAME = string_parse("storage.bucket_name")
+MEDIA_BASE_URL = string_parse("storage.media_base_url")
+#endregion
+
+#region Mercado Pago config
+MERCADO_PAGO_ACCESS_TOKEN = string_parse("mercado_pago.access_token")
+PUBLIC_KEY = string_parse("mercado_pago.public_key")
+BACK_URL = string_parse("mercado_pago.back_url")
+ASSINATURA_MP = string_parse("mercado_pago.assinatura_mp")
+NOTIFY_URL = string_parse("mercado_pago.notify_url")
+#endregion
+
+#region URL config
+URL_EXPIRATION_MINUTES = integer_parse("url.expiration_minutes")
+BASE_URL = string_parse("url.base_url")
+#endregion
 if __name__ == "__main__":
     print(globals())

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Company | ERM System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../static/signup.css">
+</head>
+
+<body>
+
+    <div class="signup-container">
+        <div class="signup-header">
+            <h1>Create Company</h1>
+            <p>Register your company in the ERM system</p>
+        </div>
+
+        {% if message %}
+        <div
+            class="alert {% if 'error' in message.lower() or 'exists' in message.lower() %}alert-error{% else %}alert-success{% endif %}">
+            {{ message }}
+        </div>
+        {% endif %}
+
+        <form action="/home/create-company" method="POST">
+
+            <div class="form-group">
+                <label for="name">Company Name</label>
+                <input type="text" id="name" name="company_name" placeholder="E.g: Tech Solutions" required>
+            </div>
+
+            <div class="form-group">
+                <label for="legal_name">Legal Name</label>
+                <input type="text" id="legal_name" name="legal_name" placeholder="E.g: Tech Solutions LTDA" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tax_id">CNPJ</label>
+                <input type="text" id="tax_id" name="tax_id" placeholder="00.000.000/0001-00"
+                    pattern="\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}" title="Formato: 00.000.000/0001-00" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Company Email</label>
+                <input type="email" id="email" name="email" placeholder="company@example.com" required>
+            </div>
+
+            <button type="submit" class="btn-signup">Create Company</button>
+
+        </form>
+
+        <div class="footer-links">
+            <p>Already have a company? <a href="/home/login">Login</a></p>
+        </div>
+    </div>
+
+</body>
+
+</html>
