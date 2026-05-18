@@ -1,7 +1,8 @@
 from sqlalchemy import Integer, String, Column, ForeignKey, Boolean, DateTime, Date, Enum as SQLEnum
 from sqlalchemy.orm import relationship
+from core.config import URL_EXPIRATION_MINUTES
 from core.database import base
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from core.enum.enum import StatusEnum
 
 class Projects(base):
@@ -16,7 +17,7 @@ class Projects(base):
     status = Column(SQLEnum(StatusEnum), default=StatusEnum.planning, nullable=False, index=True)
     photo_path = Column(String, index=True, nullable=True)
     pdf_path = Column(String, index=True, nullable=True)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     description = Column(String, nullable=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_projects")
@@ -49,7 +50,7 @@ class Comments(base):
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False, index=True)
     author_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     text = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     
     
@@ -63,5 +64,5 @@ class SharedProjects(base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False, index=True)
     token = Column(String, nullable=False, unique=True, index=True)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    expired_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    expired_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc) + timedelta(minutes=URL_EXPIRATION_MINUTES), nullable=True)

@@ -42,15 +42,15 @@ body {
     gap: 30px;
     align-items: flex-start;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 /* CAROUSEL */
 
 .carousel-wrapper {
     position: relative;
-    width: 100%;
-    max-width: 1100px;
+    flex: 1;
+    min-width: 0;
 }
 
 .carousel {
@@ -143,11 +143,17 @@ body {
 /* INFO CARD */
 
 .info-card {
-    min-width: 280px;
+    width: 360px;
+    min-width: 360px;
+    max-width: 360px;
+
     background: var(--card-background);
     border-radius: 28px;
     padding: 30px;
+
     box-shadow: var(--shadow-md);
+
+    height: fit-content;
 }
 
 .info-card h2 {
@@ -161,10 +167,24 @@ body {
     font-size: 18px;
     line-height: 1.4;
     color: var(--text-primary);
+
+    word-break: break-word;
 }
 
 .info-item strong {
     color: var(--primary-color);
+}
+
+/* COMMENTS SECTION */
+
+.comments-section {
+    margin-top: 40px;
+}
+
+.comments-title h1 {
+    font-size: 48px;
+    margin-bottom: 25px;
+    color: var(--text-primary);
 }
 
 /* COMMENTS LIST */
@@ -295,7 +315,7 @@ body {
 
 /* MOBILE */
 
-@media(max-width: 900px) {
+@media(max-width: 1100px) {
 
     .top-section {
         flex-direction: column;
@@ -311,5 +331,7 @@ body {
 
     .info-card {
         width: 100%;
+        min-width: 100%;
+        max-width: 100%;
     }
 }

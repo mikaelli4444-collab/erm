@@ -153,8 +153,28 @@ def show_projects(session: Session, user: User):
     return transformed_projects
 
 def generate_project_share_link(project_id: int, session: Session):
+    link = session.query(SharedProjects).filter(SharedProjects.project_id == project_id).first()
+            
+    if link:
+        
+        if link.expired_at < datetime.now(timezone.utc):
+            try:
+                session.delete(link)
+                
+            except Exception as e:
+                print("Error deleting expired link:", str(e))
+                raise HTTPException(
+                    status_code=500,
+                    detail="Error deleting expired link"
+                )
+            
+        return {
+            "link": f'{BASE_URL}/projects/public/projects/client?token={link.token}',
+            "token": link.token
+        }
+        
     project = session.get(Projects, project_id)
-    
+            
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
@@ -163,21 +183,17 @@ def generate_project_share_link(project_id: int, session: Session):
         
         session.add(SharedProjects(
             project_id=project_id, 
-            token=token, 
-            expired_at=datetime.now(timezone.utc) + timedelta(minutes=URL_EXPIRATION_MINUTES)
+            token=token
             ))
         
-        try:
-            session.commit()
-            
-        except Exception as e:
-            session.rollback()
-            print("Error saving token to database:", str(e))
-            raise HTTPException(status_code=500, detail="Error generating share link")
+        session.commit()
         
-        link = f'{BASE_URL}/shared/projects/client?token={token}' #generando link para compartir proyecto usando token para mas seguridad
+        link = f'{BASE_URL}/projects/public/projects/client?token={token}' #generando link para compartir proyecto usando token para mas seguridad
         
-        return {"link": link}
+        return {
+            "link": link,
+            "token": token
+            }
     
     except Exception as e:
         print("Error generating share link:", str(e))
@@ -193,7 +209,7 @@ def get_shared_project_by_token(token: str, session: Session):
     if not shared_project:
         raise HTTPException(status_code=404, detail="Shared project not found")
     
-    if shared_project.expired_at and shared_project.expired_at < datetime.now(timezone.utc):
+    if shared_project.expired_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=410, detail="Link has expired")
     
     project = (
@@ -206,9 +222,7 @@ def get_shared_project_by_token(token: str, session: Session):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    transformed_project = tranform_contents([project])[0]
-    
-    return transformed_project
+    return project
 
 def delete_link(token: str, session: Session):
     shared_project = session.query(SharedProjects).filter(SharedProjects.token == token).first()

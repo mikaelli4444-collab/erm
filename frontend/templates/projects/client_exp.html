@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Tracking</title>
+    <title>{{ project.name }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="../../static/projects/client_exp.css">
+    <link rel="stylesheet" href="/static/projects/client_exp.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
@@ -34,38 +34,31 @@
 
                     <div class="slides" id="slides">
 
-                        <!-- FOTO 1 -->
+                        {% if project.photos %}
+
+                        {% for photo in project.photos %}
 
                         <div class="slide">
-                            <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop"
-                                alt="Project image">
+
+                            <img src="{{ photo }}" alt="Project image">
 
                             <button class="heart-btn" onclick="toggleHeart(this)">
                                 ❤
                             </button>
+
                         </div>
 
-                        <!-- FOTO 2 -->
+                        {% endfor %}
+
+                        {% else %}
 
                         <div class="slide">
-                            <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1600&auto=format&fit=crop"
-                                alt="Project image">
 
-                            <button class="heart-btn" onclick="toggleHeart(this)">
-                                ❤
-                            </button>
+                            <img src="/static/default-image.jpg" alt="No image">
+
                         </div>
 
-                        <!-- FOTO 3 -->
-
-                        <div class="slide">
-                            <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1600&auto=format&fit=crop"
-                                alt="Project image">
-
-                            <button class="heart-btn" onclick="toggleHeart(this)">
-                                ❤
-                            </button>
-                        </div>
+                        {% endif %}
 
                     </div>
 
@@ -77,30 +70,41 @@
 
             <div class="info-card">
 
-                <h2>Project Info</h2>
+                <h2>{{ project.name }}</h2>
 
                 <div class="info-item">
-                    <strong>Status:</strong> In Progress
+                    <strong>Cliente:</strong>
+                    {{ project.client_name }}
                 </div>
 
                 <div class="info-item">
-                    <strong>Environment:</strong> Kitchen
+                    <strong>Entrega:</strong>
+                    {{ project.delivery }}
                 </div>
 
                 <div class="info-item">
-                    <strong>Client:</strong> Franklin
+                    <strong>Empresa:</strong>
+                    {{ project.company_name }}
                 </div>
 
                 <div class="info-item">
-                    <strong>Delivery:</strong> 25/05/2026
+                    <strong>Carpintero:</strong>
+                    {{ project.carpenter }}
                 </div>
 
                 <div class="info-item">
-                    <strong>Company:</strong> ERM Furniture
+                    <strong>Dirección:</strong>
+                    {{ project.address }}
                 </div>
 
                 <div class="info-item">
-                    <strong>Carpenter:</strong> Lucas Silva
+                    <strong>Creado:</strong>
+                    {{ project.created_at }}
+                </div>
+
+                <div class="info-item">
+                    <strong>Descripción:</strong>
+                    {{ project.description }}
                 </div>
 
             </div>
@@ -111,8 +115,6 @@
 
         <div class="comments-section">
 
-            <!-- TITULO -->
-
             <div class="comments-title">
                 <h1>Comentarios</h1>
             </div>
@@ -120,6 +122,8 @@
             <!-- LISTA DE COMENTARIOS -->
 
             <div class="comments-list">
+
+                {% if project.comments %}
 
                 {% for comment in project.comments[:10] %}
 
@@ -130,18 +134,30 @@
                     </div>
 
                     <div class="comment-text">
-                        {{ comment.message }}
+                        {{ comment.text }}
                     </div>
 
                 </div>
 
                 {% endfor %}
 
+                {% else %}
+
+                <div class="comment">
+
+                    <div class="comment-text">
+                        No hay comentarios todavía.
+                    </div>
+
+                </div>
+
+                {% endif %}
+
             </div>
 
             <!-- BOTON VER MAS -->
 
-            {% if project.comments|length > 10 %}
+            {% if project.comments and project.comments|length > 10 %}
 
             <div class="load-more-container">
 
@@ -153,9 +169,11 @@
 
             {% endif %}
 
-            <!-- COMENTARIOS OCULTOS -->
+            <!-- COMENTARIOS EXTRA -->
 
             <div class="extra-comments hidden" id="extraComments">
+
+                {% if project.comments %}
 
                 {% for comment in project.comments[10:] %}
 
@@ -166,12 +184,14 @@
                     </div>
 
                     <div class="comment-text">
-                        {{ comment.message }}
+                        {{ comment.text }}
                     </div>
 
                 </div>
 
                 {% endfor %}
+
+                {% endif %}
 
             </div>
 
@@ -188,6 +208,7 @@
             </div>
 
         </div>
+
     </div>
 
     <script>
@@ -195,9 +216,12 @@
         let currentSlide = 0;
 
         const slides = document.getElementById("slides");
-        const totalSlides = document.querySelectorAll(".slide").length;
+
+        let totalSlides = document.querySelectorAll(".slide").length;
 
         function moveSlide(direction) {
+
+            if (totalSlides <= 1) return;
 
             currentSlide += direction;
 
@@ -214,6 +238,7 @@
         }
 
         function toggleHeart(button) {
+
             button.classList.toggle("active");
         }
 
