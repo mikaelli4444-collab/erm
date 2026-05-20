@@ -22,6 +22,12 @@ def cancel_payment(payment):
 def notify_invoice_due_date(user_id: int, company_id: int, message: dict, session: Session): #vencimiento de la factura
     create_notification(user_id, company_id, message, session)
     
+def is_owner(user):
+    if user.role == "owner" or "admin":
+        return True
+    
+    else:
+        return None
     
 def add_new_transaction(data: FinancialTransactionSchema, user: User):
     

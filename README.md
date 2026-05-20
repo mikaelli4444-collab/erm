@@ -1,4 +1,4 @@
-[🇺🇸 English](#english) | [🇪🇸 Español](#español) | [🇧🇷 Português](#português)
+[🇺🇸 English](#english) | [🇪🇸 Español](#español) | [🇧🇷 Português](#portugues)
 
 <a name="español"></a>
 
@@ -57,7 +57,7 @@ Este sistema permite a pequeñas y medianas carpinterias y negocios del sector m
 - Uvicorn
 
 ### 🗄 Base de Datos y ORM
-- PostgreSQL
+- PostgreSQL (psycopg2-binary)
 - SQLAlchemy
 - Alembic
 
@@ -66,6 +66,8 @@ Este sistema permite a pequeñas y medianas carpinterias y negocios del sector m
 - Passlib
 - Bcrypt
 - Cryptography
+- RSA
+- ECDSA
 
 ### 📧 Servicio de Email
 - FastAPI-Mail
@@ -82,71 +84,150 @@ Este sistema permite a pequeñas y medianas carpinterias y negocios del sector m
 
 ### 📦 Validación y Serialización de Datos
 - Pydantic
+- annotated-types
+- annotated-doc
 
 ### 🌐 HTTP y Networking
 - Requests
 - urllib3
 - websockets
+- dnspython
 
-### 🧰 Utilidades
-- Jinja2 (templating)
+### 🧰 Templates y Utilidades
+- Jinja2
+- Mako
 - python-dateutil
 - regex
 - uuid
+- click
+- colorama
 
-### 🧪 Otros
+### 📄 Validación de JSON y Schemas
+- jsonschema
+- jsonschema-specifications
+- referencing
+- rpds-py
+
+### 💸 Pagos
+- MercadoPago
+
+### 🧪 Otras Dependencias Internas
 - anyio
 - attrs
-- click
+- blinker
+- cffi
+- greenlet
+- h11
+- MarkupSafe
+- python-multipart
+- six
+- typing_extensions
+- typing-inspection
+- tzdata
+
 ---
 
 ## 🏗️ Estructura del proyecto
 ```
 erm/
-│
+├── .env.example
+├── .gitignore
+├── README.md
+├── ToDo.txt
+├── alembic.ini
+├── config.yaml
+├── errors_tracking.md
+├── requirements.txt
+├── alembic/
+│   └── versions/
+├── contacts/
+│   ├── contacts_models.py
+│   ├── contacts_route.py
+│   ├── contacts_schema.py
+│   └── contacts_services.py
 ├── core/
-│   ├── main.py
+│   ├── __init__.py
 │   ├── database.py
-│   ├── security.py
 │   ├── dependencies.py
 │   ├── email_service.py
-│   └── config/
-│
-├── users/
-│   ├── users_model.py
-│   ├── users_route.py
-│   ├── users_service.py
-│   └── users_schemas.py
-│
-├── inventory/
-│   ├── inventory_model.py
-│   ├── inventory_route.py
-│   ├── inventory_service.py
-│   └── inventory_schema.py
-│
+│   ├── main.py
+│   ├── security.py
+│   ├── config/
+│   │   ├── __init__.backup.py
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── config_loader.py
+│   │   └── parsers.py
+│   └── enum/
+│       └── enum.py
 ├── financery/
 │   ├── financery_models.py
 │   ├── financery_route.py
+│   ├── financery_schema.py
 │   ├── financery_services.py
-│   └── financery_schema.py
-
-├── contacts/
-│   ├── contacts_model.py
-│   ├── contacts_route.py
-│   └── contacts_service.py
-│
+│   └── payments_domain.py
 ├── frontend/
-│   ├── templates/
-│   └── static/
-│
-├── alembic/
-│   └── versions/
-│
-├── .gitignore
-├── README.md
-├── alembic.ini
-├── config_example.yaml
-└── requirements.txt
+│   ├── static/
+│   │   ├── contacts/
+│   │   ├── financery/
+│   │   ├── img/
+│   │   ├── inv/
+│   │   ├── js/
+│   │   ├── production/
+│   │   ├── projects/
+│   │   ├── home.css
+│   │   ├── login.css
+│   │   ├── plans.css
+│   │   ├── signup.css
+│   │   └── verify_email.css
+│   └── templates/
+│       ├── contacts/
+│       ├── financery/
+│       ├── home/
+│       ├── inv/
+│       ├── payments/
+│       ├── production/
+│       ├── projects/
+│       ├── aside.html
+│       └── notification.html
+├── inventory/
+│   ├── __init__.py
+│   ├── inventory_model.py
+│   ├── inventory_route.py
+│   ├── inventory_schema.py
+│   └── inventory_service.py
+├── notification/
+│   ├── notification_model.py
+│   ├── notification_route.py
+│   ├── notification_schema.py
+│   ├── notification_services.py
+│   └── ws_route.py
+├── payments/
+│   ├── payments_models.py
+│   ├── payments_router.py
+│   ├── payments_services.py
+│   └── prueba.py
+├── production/
+│   ├── production_model.py
+│   ├── production_route.py
+│   └── production_schema.py
+├── projects/
+│   ├── coisa.py
+│   ├── projects_model.py
+│   ├── projects_route.py
+│   ├── projects_schema.py
+│   └── projects_services.py
+├── users/
+│   ├── __init__.py
+│   ├── users_model.py
+│   ├── users_route.py
+│   ├── users_schema.py
+│   └── users_service.py
+└── utilities/
+    ├── net/
+    │   └── autorouter.py
+    └── storage/
+        └── storage_service.py
 ```
 
 ## 🚀 Instalación
@@ -194,7 +275,7 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 Agente de IA (En proceso)
 
-👨🏻‍💻 Projectos (En proceso)
+✔️ Projectos
 
 ✔️ Gestión de empresas
 
@@ -202,7 +283,7 @@ http://127.0.0.1:8000
 
 ❌ Exportación de reportes (pendiente)
 
-👨🏻‍💻 Compartir links para dar seguimiento a los proyectos con el cliente final (En proceso)
+✔️ Compartir links para dar seguimiento a los proyectos con el cliente final
 
 ## 🤝 Contribución
 
@@ -321,6 +402,7 @@ git commit -m "refactor: improve service layer structure"
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128.3-000000?style=for-the-badge&logo=fastapi )
 ![Python](https://img.shields.io/badge/python-3.11.9-000000?style=for-the-badge&logo=Python&logoColor=)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-000000?style=for-the-badge&logo=pydantic)
+![MercadoPago](https://img.shields.io/badge/MercadoPago-2.4.0-000000?style=for-the-badge&logo=mercadopago)
 ![Jinja](https://img.shields.io/badge/Jinja2-3.1.6-000000?style=for-the-badge&logo=jinja)
 ![Posgresql](https://img.shields.io/badge/Postgresql-9.9-000000?style=for-the-badge&logo=postgresql&logoColor=white)
 ![js](https://img.shields.io/badge/javascript-ES6+-000000?style=for-the-badge&logo=javascript)
@@ -329,6 +411,7 @@ git commit -m "refactor: improve service layer structure"
 ![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
 ![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
 ![Google Gemini](https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=googlecloud)
+![MercadoPago](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
 
 # ProntoERP
 
@@ -367,97 +450,177 @@ This system allows small and medium-sized carpenter shops and furniture business
 - Starlette
 - Uvicorn
 
-### 🗄 Database & ORM
-- PostgreSQL
+### 🗄 Database and ORM
+- PostgreSQL (psycopg2-binary)
 - SQLAlchemy
 - Alembic
 
-### 🔐 Authentication & Security
+### 🔐 Authentication and Security
 - JWT (python-jose)
 - Passlib
 - Bcrypt
 - Cryptography
+- RSA
+- ECDSA
 
 ### 📧 Email Service
 - FastAPI-Mail
 - aiosmtplib
 - email-validator
 
-### ☁️ Storage & External Services
+### ☁️ Storage and External Services
 - AWS S3 / Cloudflare R2 (boto3, botocore, s3transfer)
 
-### ⚙️ Configuration & Environment
+### ⚙️ Configuration and Environment
 - python-dotenv
 - PyYAML
 - pydantic-settings
 
-### 📦 Data Validation & Serialization
+### 📦 Data Validation and Serialization
 - Pydantic
+- annotated-types
+- annotated-doc
 
-### 🌐 HTTP & Networking
+### 🌐 HTTP and Networking
 - Requests
 - urllib3
 - websockets
+- dnspython
 
-### 🧰 Utilities
-- Jinja2 (templating)
+### 🧰 Templates and Utilities
+- Jinja2
+- Mako
 - python-dateutil
 - regex
 - uuid
+- click
+- colorama
 
-### 🧪 Others
+### 📄 JSON Validation and Schemas
+- jsonschema
+- jsonschema-specifications
+- referencing
+- rpds-py
+
+### 💸 Payments
+- MercadoPago
+
+### 🧪 Other Internal Dependencies
 - anyio
 - attrs
-- click
+- blinker
+- cffi
+- greenlet
+- h11
+- MarkupSafe
+- python-multipart
+- six
+- typing_extensions
+- typing-inspection
+- tzdata
 ---
 
 ## 🏗️ Project Structure
 ```
 erm/
-│
+├── .env.example
+├── .gitignore
+├── README.md
+├── ToDo.txt
+├── alembic.ini
+├── config.yaml
+├── errors_tracking.md
+├── requirements.txt
+├── alembic/
+│   └── versions/
+├── contacts/
+│   ├── contacts_models.py
+│   ├── contacts_route.py
+│   ├── contacts_schema.py
+│   └── contacts_services.py
 ├── core/
-│   ├── main.py
+│   ├── __init__.py
 │   ├── database.py
-│   ├── security.py
 │   ├── dependencies.py
 │   ├── email_service.py
-│   └── config/
-│
-├── users/
-│   ├── users_model.py
-│   ├── users_route.py
-│   ├── users_service.py
-│   └── users_schemas.py
-│
-├── inventory/
-│   ├── inventory_model.py
-│   ├── inventory_route.py
-│   ├── inventory_service.py
-│   └── inventory_schema.py
-│
+│   ├── main.py
+│   ├── security.py
+│   ├── config/
+│   │   ├── __init__.backup.py
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── config_loader.py
+│   │   └── parsers.py
+│   └── enum/
+│       └── enum.py
 ├── financery/
 │   ├── financery_models.py
 │   ├── financery_route.py
+│   ├── financery_schema.py
 │   ├── financery_services.py
-│   └── financery_schema.py
-
-├── contacts/
-│   ├── contacts_model.py
-│   ├── contacts_route.py
-│   └── contacts_service.py
-│
+│   └── payments_domain.py
 ├── frontend/
-│   ├── templates/
-│   └── static/
-│
-├── alembic/
-│   └── versions/
-│
-├── .gitignore
-├── README.md
-├── alembic.ini
-├── config_example.yaml
-└── requirements.txt
+│   ├── static/
+│   │   ├── contacts/
+│   │   ├── financery/
+│   │   ├── img/
+│   │   ├── inv/
+│   │   ├── js/
+│   │   ├── production/
+│   │   ├── projects/
+│   │   ├── home.css
+│   │   ├── login.css
+│   │   ├── plans.css
+│   │   ├── signup.css
+│   │   └── verify_email.css
+│   └── templates/
+│       ├── contacts/
+│       ├── financery/
+│       ├── home/
+│       ├── inv/
+│       ├── payments/
+│       ├── production/
+│       ├── projects/
+│       ├── aside.html
+│       └── notification.html
+├── inventory/
+│   ├── __init__.py
+│   ├── inventory_model.py
+│   ├── inventory_route.py
+│   ├── inventory_schema.py
+│   └── inventory_service.py
+├── notification/
+│   ├── notification_model.py
+│   ├── notification_route.py
+│   ├── notification_schema.py
+│   ├── notification_services.py
+│   └── ws_route.py
+├── payments/
+│   ├── payments_models.py
+│   ├── payments_router.py
+│   ├── payments_services.py
+│   └── prueba.py
+├── production/
+│   ├── production_model.py
+│   ├── production_route.py
+│   └── production_schema.py
+├── projects/
+│   ├── coisa.py
+│   ├── projects_model.py
+│   ├── projects_route.py
+│   ├── projects_schema.py
+│   └── projects_services.py
+├── users/
+│   ├── __init__.py
+│   ├── users_model.py
+│   ├── users_route.py
+│   ├── users_schema.py
+│   └── users_service.py
+└── utilities/
+    ├── net/
+    │   └── autorouter.py
+    └── storage/
+        └── storage_service.py
 ```
 
 ## 🚀 Installation
@@ -505,7 +668,7 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 AI Agent (In progress)
 
-👨🏻‍💻 Projects (In progress)
+✔️ Projects
 
 ✔️ Company Management
 
@@ -513,7 +676,7 @@ http://127.0.0.1:8000
 
 ❌ Report Export (Pending)
 
-👨🏻‍💻 Share links to track projects with the end client (In progress)
+✔️ Share links to track projects with the end client
 
 ## 🤝 Contribution
 
@@ -631,13 +794,14 @@ git commit -m "refactor: improve service layer structure"
 
 #### * Please always create branches from main, develop the desired module following the mandatory structure, thank you for your understanding.
 
-<a name="português"></a>
+<a name="portugues"></a>
 
 # PORTUGUÊS
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.128.3-000000?style=for-the-badge&logo=fastapi )
 ![Python](https://img.shields.io/badge/python-3.11.9-000000?style=for-the-badge&logo=Python&logoColor=)
 ![Pydantic](https://img.shields.io/badge/Pydantic-2.12.5-000000?style=for-the-badge&logo=pydantic)
+![MercadoPago](https://img.shields.io/badge/MercadoPago-2.4.0-000000?style=for-the-badge&logo=mercadopago)
 ![Jinja](https://img.shields.io/badge/Jinja2-3.1.6-000000?style=for-the-badge&logo=jinja)
 ![Posgresql](https://img.shields.io/badge/Postgresql-9.9-000000?style=for-the-badge&logo=postgresql&logoColor=white)
 ![js](https://img.shields.io/badge/javascript-ES6+-000000?style=for-the-badge&logo=javascript)
@@ -646,6 +810,7 @@ git commit -m "refactor: improve service layer structure"
 ![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
 ![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
 ![Google Gemini](https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=googlecloud)
+![MercadoPago](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
 
 # ProntoERP
 
@@ -677,7 +842,7 @@ Este sistema permite que pequenas e médias marcenarias e negócios do setor mov
 
 
 
-## ⚙️ Tecnologias Usadas
+## ⚙️ Tecnologias Utilizadas
 
 ### 🚀 Backend
 - FastAPI
@@ -685,7 +850,7 @@ Este sistema permite que pequenas e médias marcenarias e negócios do setor mov
 - Uvicorn
 
 ### 🗄 Banco de Dados e ORM
-- PostgreSQL
+- PostgreSQL (psycopg2-binary)
 - SQLAlchemy
 - Alembic
 
@@ -694,8 +859,10 @@ Este sistema permite que pequenas e médias marcenarias e negócios do setor mov
 - Passlib
 - Bcrypt
 - Cryptography
+- RSA
+- ECDSA
 
-### 📧 Serviço de Email
+### 📧 Serviço de E-mail
 - FastAPI-Mail
 - aiosmtplib
 - email-validator
@@ -710,71 +877,150 @@ Este sistema permite que pequenas e médias marcenarias e negócios do setor mov
 
 ### 📦 Validação e Serialização de Dados
 - Pydantic
+- annotated-types
+- annotated-doc
 
 ### 🌐 HTTP e Networking
 - Requests
 - urllib3
 - websockets
+- dnspython
 
-### 🧰 Utilidades
-- Jinja2 (templating)
+### 🧰 Templates e Utilitários
+- Jinja2
+- Mako
 - python-dateutil
 - regex
 - uuid
+- click
+- colorama
 
-### 🧪 Outros
+### 📄 Validação de JSON e Schemas
+- jsonschema
+- jsonschema-specifications
+- referencing
+- rpds-py
+
+### 💸 Pagamentos
+- MercadoPago
+
+### 🧪 Outras Dependências Internas
 - anyio
 - attrs
-- click
+- blinker
+- cffi
+- greenlet
+- h11
+- MarkupSafe
+- python-multipart
+- six
+- typing_extensions
+- typing-inspection
+- tzdata
+
 ---
 
 ## 🏗️ Estrutura do Projeto
 ```
 erm/
-│
+├── .env.example
+├── .gitignore
+├── README.md
+├── ToDo.txt
+├── alembic.ini
+├── config.yaml
+├── errors_tracking.md
+├── requirements.txt
+├── alembic/
+│   └── versions/
+├── contacts/
+│   ├── contacts_models.py
+│   ├── contacts_route.py
+│   ├── contacts_schema.py
+│   └── contacts_services.py
 ├── core/
-│   ├── main.py
+│   ├── __init__.py
 │   ├── database.py
-│   ├── security.py
 │   ├── dependencies.py
 │   ├── email_service.py
-│   └── config/
-│
-├── users/
-│   ├── users_model.py
-│   ├── users_route.py
-│   ├── users_service.py
-│   └── users_schemas.py
-│
-├── inventory/
-│   ├── inventory_model.py
-│   ├── inventory_route.py
-│   ├── inventory_service.py
-│   └── inventory_schema.py
-│
+│   ├── main.py
+│   ├── security.py
+│   ├── config/
+│   │   ├── __init__.backup.py
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── config_loader.py
+│   │   └── parsers.py
+│   └── enum/
+│       └── enum.py
 ├── financery/
 │   ├── financery_models.py
 │   ├── financery_route.py
+│   ├── financery_schema.py
 │   ├── financery_services.py
-│   └── financery_schema.py
-
-├── contacts/
-│   ├── contacts_model.py
-│   ├── contacts_route.py
-│   └── contacts_service.py
-│
+│   └── payments_domain.py
 ├── frontend/
-│   ├── templates/
-│   └── static/
-│
-├── alembic/
-│   └── versions/
-│
-├── .gitignore
-├── README.md
-├── alembic.ini
-├── config_example.yaml
-└── requirements.txt
+│   ├── static/
+│   │   ├── contacts/
+│   │   ├── financery/
+│   │   ├── img/
+│   │   ├── inv/
+│   │   ├── js/
+│   │   ├── production/
+│   │   ├── projects/
+│   │   ├── home.css
+│   │   ├── login.css
+│   │   ├── plans.css
+│   │   ├── signup.css
+│   │   └── verify_email.css
+│   └── templates/
+│       ├── contacts/
+│       ├── financery/
+│       ├── home/
+│       ├── inv/
+│       ├── payments/
+│       ├── production/
+│       ├── projects/
+│       ├── aside.html
+│       └── notification.html
+├── inventory/
+│   ├── __init__.py
+│   ├── inventory_model.py
+│   ├── inventory_route.py
+│   ├── inventory_schema.py
+│   └── inventory_service.py
+├── notification/
+│   ├── notification_model.py
+│   ├── notification_route.py
+│   ├── notification_schema.py
+│   ├── notification_services.py
+│   └── ws_route.py
+├── payments/
+│   ├── payments_models.py
+│   ├── payments_router.py
+│   ├── payments_services.py
+│   └── prueba.py
+├── production/
+│   ├── production_model.py
+│   ├── production_route.py
+│   └── production_schema.py
+├── projects/
+│   ├── coisa.py
+│   ├── projects_model.py
+│   ├── projects_route.py
+│   ├── projects_schema.py
+│   └── projects_services.py
+├── users/
+│   ├── __init__.py
+│   ├── users_model.py
+│   ├── users_route.py
+│   ├── users_schema.py
+│   └── users_service.py
+└── utilities/
+    ├── net/
+    │   └── autorouter.py
+    └── storage/
+        └── storage_service.py
 ```
 
 ## 🚀 Instalação
@@ -822,7 +1068,7 @@ http://127.0.0.1:8000
 
 👨🏻‍💻 Agente de IA (Em andamento)
 
-👨🏻‍💻 Projetos (Em andamento)
+✔️ Projetos
 
 ✔️ Gestão de empresas
 
@@ -830,7 +1076,7 @@ http://127.0.0.1:8000
 
 ❌ Exportação de relatórios (Pendente)
 
-👨🏻‍💻 Compartilhar links para acompanhamento de projetos com o cliente final (Em andamento)
+✔️ Compartilhar links para acompanhamento de projetos com o cliente final
 
 ## 🤝 Contribución
 

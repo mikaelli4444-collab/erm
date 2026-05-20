@@ -17,7 +17,8 @@ from financery.financery_services import (
     delete_payment,
     delete_receivable,
     edit_payment,
-    edit_receivable
+    edit_receivable,
+    is_owner
 )
 from financery.financery_models import Sells
 from financery.financery_schema import SellsSchema, DebtCreateSchema, ReceivableCreate
@@ -29,67 +30,128 @@ financery_router = APIRouter(prefix="/financery", tags=["financery"])
 @financery_router.post("/dashboard")
 @financery_router.post("/sell")
 def add_sell_endpoint(data: SellsSchema, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    add_sell(user, session, data)
-    return RedirectResponse("/financery/dashboard", status_code=303)
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        add_sell(user, session, data)
+        return RedirectResponse("/financery/dashboard", status_code=303)
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.delete("/sell/{sell_id}")
 def delete_sell_endpoint(sell_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    sell = session.query(Sells).filter(Sells.id == sell_id, Sells.company_id == user.company_id).first()
-    if not sell:
-        raise HTTPException(status_code=404, detail="Sell not found")
-    session.delete(sell)
-    session.commit()
-    return {"message": "Sell deleted"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        sell = session.query(Sells).filter(Sells.id == sell_id, Sells.company_id == user.company_id).first()
+        if not sell:
+            raise HTTPException(status_code=404, detail="Sell not found")
+        session.delete(sell)
+        session.commit()
+        return {"message": "Sell deleted"}
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.post("/dashboard/debt")
 def create_debt(data: DebtCreateSchema, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    add_debts(user, session, data)
-    return {"message": "Debt created"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        add_debts(user, session, data)
+        return {"message": "Debt created"}
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.post("/dashboard/receivable")
 def create_receivable(data: ReceivableCreate, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    to_receive(user, session, data)
-    return {"message": "Receivable created"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        to_receive(user, session, data)
+        return {"message": "Receivable created"}
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.post("/dashboard/payment/{payment_id}/pay")
 def pay_debt_endpoint(payment_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    pay_debt(user, session, payment_id)
-    return {"message": "Payment marked as paid"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        pay_debt(user, session, payment_id)
+        return {"message": "Payment marked as paid"}
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.post("/dashboard/receivable/{receivable_id}/pay")
 def pay_receivable_endpoint(receivable_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    pay_receivable(user, session, receivable_id)
-    return {"message": "Receivable marked as paid"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        pay_receivable(user, session, receivable_id)
+        return {"message": "Receivable marked as paid"}
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.delete("/dashboard/payment/{payment_id}")
 def delete_payment_endpoint(payment_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    delete_payment(user, session, payment_id)
-    return {"message": "Pending payment deleted"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        delete_payment(user, session, payment_id)
+        return {"message": "Pending payment deleted"}
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.delete("/dashboard/receivable/{receivable_id}")
 def delete_receivable_endpoint(receivable_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    delete_receivable(user, session, receivable_id)
-    return {"message": "Receivable deleted"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        delete_receivable(user, session, receivable_id)
+        return {"message": "Receivable deleted"}
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.put("/dashboard/payment/{payment_id}")
 def edit_payment_endpoint(payment_id: int, data: dict = Body(...), user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    edit_payment(user, session, payment_id, data)
-    return {"message": "Pending payment updated"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        edit_payment(user, session, payment_id, data)
+        return {"message": "Pending payment updated"}
+    
+    else:
+        return ValueError('No Owner')
 
 
 @financery_router.put("/dashboard/receivable/{receivable_id}")
 def edit_receivable_endpoint(receivable_id: int, data: dict = Body(...), user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    edit_receivable(user, session, receivable_id, data)
-    return {"message": "Receivable updated"}
+    is_owner = is_owner(user)
+    
+    if is_owner:
+        edit_receivable(user, session, receivable_id, data)
+        return {"message": "Receivable updated"}
+    
+    else:
+        return ValueError('No Owner')
 
+#VIEWS
 
 @financery_router.get("/dashboard")
 def show_sell(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
