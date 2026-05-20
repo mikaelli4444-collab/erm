@@ -39,6 +39,14 @@ Este sistema ERP multi-tenancy busca solucionar problemas comunes de fabricas y 
 
 ![Notifications](https://i.imgur.com/lZjmEA6.png)
 
+![Plans](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20095911.png)
+
+![Payment](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20100014.png)
+
+![Project_View](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20102353.png)
+
+![Project_Client](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20102518.png)
+
 ---
 
 ## 🧠 Descripción
@@ -432,6 +440,14 @@ This multi-tenancy ERP system aims to solve common problems for factories and di
 ![Verify Email](https://i.imgur.com/hvAY55S.png)
 
 ![Notifications](https://i.imgur.com/lZjmEA6.png)
+
+![Plans](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20095911.png)
+
+![Payment](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20100014.png)
+
+![Project_View](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20102353.png)
+
+![Project_Client](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20102518.png)
 
 ---
 
@@ -831,6 +847,14 @@ Este sistema ERP multi-tenancy busca solucionar problemas comuns de fábricas e 
 ![Verify Email](https://i.imgur.com/hvAY55S.png)
 
 ![Notifications](https://i.imgur.com/lZjmEA6.png)
+
+![Plans](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20095911.png)
+
+![Payment](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20100014.png)
+
+![Project_View](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20102353.png)
+
+![Project_Client](https://pub-d87bacf6dcc9454fb4443bece5f09d58.r2.dev/repo/Captura%20de%20tela%202026-05-19%20102518.png)
 
 ---
 
