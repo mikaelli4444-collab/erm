@@ -51,8 +51,6 @@ Este sistema ERP multi-tenancy busca solucionar problemas comunes de fabricas y 
 
 ## 🧠 Descripción
 
-Este proyecto busca resolver:
-
 Este sistema permite a pequeñas y medianas carpinterias y negocios del sector mobiliario gestionar stock, contactos, producción, finanzas y proyectos en un solo lugar, reduciendo errores humanos, mejorando trazabilidad, comunicación y dando la oportunidad a los carpinteros de poder concentrarse mas en su trabajo sin perder tiempo ni energia en logistica y burocracias al mantener el contacto con el cliente de una forma mas facíl y satisfactoria para el usuario
 
 
