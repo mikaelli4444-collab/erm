@@ -225,6 +225,9 @@ def create_company_router(request: Request, session: Session = Depends(CreateSes
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    if user.company:
+        raise HTTPException(status_code=401, detail="Invalid request")
+    
     company = create_company(session, company_name, legal_name, tax_id, email)
     
     company.owner_id = user.id
