@@ -253,26 +253,13 @@ body {
     text-align: right;
 }
 
-/* COMMENTS SECTION */
-.comments {
-    margin-top: 24px;
-    padding: 24px;
-    border-radius: var(--radius-lg);
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow);
-}
-
-.comments h4 {
-    margin: 0 0 20px 0;
-    font-size: 18px;
-    font-weight: 700;
-}
-
 .comment {
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 1px solid #f0f2f5;
+
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .comment:last-child {
@@ -282,18 +269,28 @@ body {
 .comment strong {
     font-size: 14px;
     color: var(--text-main);
+
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .comment small {
     color: var(--text-muted);
     font-size: 12px;
     margin-left: 8px;
+
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .comment p {
     margin: 6px 0 0 0;
     font-size: 14px;
     color: var(--secondary-color);
+
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
 }
 
 textarea {

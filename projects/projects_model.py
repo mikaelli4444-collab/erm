@@ -49,15 +49,13 @@ class Comments(base):
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False, index=True)
-    author_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    text = Column(String, nullable=False)
+    author_id = Column(Integer, ForeignKey('users.id'), nullable=True, index=True)
+    author_name = Column(String, nullable=False, index=True)
+    session_token = Column(String, nullable=True, index=True)
+    text = Column(String, nullable=False, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
-    
-    
     project = relationship("Projects", back_populates="comments")
     author = relationship("User", back_populates="user_comments")
-    company = relationship("Company", back_populates="company_comments")
     
 class SharedProjects(base):
     __tablename__ = 'shared_projects'
@@ -67,3 +65,4 @@ class SharedProjects(base):
     token = Column(String, nullable=False, unique=True, index=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     expired_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc) + timedelta(minutes=URL_EXPIRATION_MINUTES), nullable=True)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False, index=True)

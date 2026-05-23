@@ -182,10 +182,11 @@ def generate_project_share_link(project_id: int, session: Session):
         token = secrets.token_urlsafe(36) 
         
         session.add(SharedProjects(
-            project_id=project_id, 
-            token=token
-            ))
-        
+                        project_id=project_id,
+                        token=token,
+                        company_id=project.company_id
+                    ))
+                                    
         session.commit()
         
         link = f'{BASE_URL}/projects/public/projects/client?token={token}' #generando link para compartir proyecto usando token para mas seguridad
@@ -243,3 +244,39 @@ def delete_link(token: str, session: Session):
             status_code=500,
             detail="Error deleting share link"
         )
+        
+def public_comment(text, author, session, project_token, session_token): 
+    
+    shared = session.query(SharedProjects).filter( SharedProjects.token == project_token ).first() 
+    
+    if not shared: 
+        raise HTTPException( status_code=404, detail="Project not found" ) 
+    
+    if not author.strip(): 
+        raise HTTPException( status_code=400, detail="Author is required" )
+    
+    if len(author) < 2: 
+        raise HTTPException( status_code=400, detail="Author name too short" ) 
+    
+    if not text.strip(): 
+        raise HTTPException( status_code=400, detail="Comment is required" ) 
+    
+    if len(text) > 255: 
+        raise HTTPException( status_code=400, detail="Comment too long" ) 
+
+    new_comment = Comments( 
+                           text=text, 
+                           author_name=author, 
+                           session_token=session_token, 
+                           project_id=shared.project_id
+                           ) 
+    
+    session.add(new_comment) 
+    session.commit() 
+    session.refresh(new_comment) 
+    
+    return { 
+            "author": new_comment.author_name, 
+            "text": new_comment.text, 
+            "created_at": str(new_comment.created_at) 
+            }

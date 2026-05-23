@@ -51,7 +51,6 @@ class Company(base):
     company_receivable = relationship("Receivable", back_populates="company")
     company_financial_transactions = relationship("FinancialTransaction", back_populates="company")
     company_projects = relationship("Projects", back_populates="company")
-    company_comments = relationship("Comments", back_populates="company")
     company_subscription = relationship("Subscription", back_populates="company", uselist=False)
     
 class CompanyJoinRequest(base):

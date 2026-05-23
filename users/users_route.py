@@ -43,7 +43,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
+        secure=True, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
         samesite="lax"
     )
 
@@ -51,7 +51,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
+        secure=True, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
         samesite="lax"
     )
 

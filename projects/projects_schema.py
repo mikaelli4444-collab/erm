@@ -13,3 +13,10 @@ class CreateProject(BaseModel):
     
     class Config:
         from_attributes = True
+        
+class CommentPayload(BaseModel):
+    author: str
+    text: str
+    
+    class Config:
+        from_attributes = True

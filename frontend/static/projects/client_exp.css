@@ -299,6 +299,23 @@ body {
     background: var(--primary-light);
 }
 
+.comment-author-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    background: var(--card-background);
+    color: var(--text-primary);
+    transition: .25s;
+}
+
+.comment-author-input:focus {
+    border-color: var(--primary-light);
+}
+
 /* ANIMATION */
 
 @keyframes fadeIn {
@@ -335,3 +352,4 @@ body {
         max-width: 100%;
     }
 }
+

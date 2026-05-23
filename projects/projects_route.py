@@ -1,16 +1,18 @@
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, HTTPException
-from projects.projects_model import Projects
+from projects.projects_model import Projects, Comments
 from sqlalchemy import or_
 from typing import List
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates
 from core.security import verify_token
 from users.users_model import User
-from projects.projects_services import create_project, add_photo, add_pdf, show_projects, generate_project_share_link, get_shared_project_by_token, delete_link
+from projects.projects_services import create_project, add_photo, add_pdf, show_projects, generate_project_share_link, get_shared_project_by_token, delete_link, public_comment
 from utilities.storage.storage_service import StorageService
+from projects.projects_schema import CommentPayload
 from datetime import date
 from core.config.config_loader import RAW_CONFIG
+import secrets
 
 projects_router = APIRouter(prefix="/projects", tags=["prj"])
 
@@ -52,6 +54,38 @@ def create_link(project_id: int, session: Session = Depends(CreateSession), user
         "token": token
         }
 
+@projects_router.post("/{project_token}/comments") 
+def create_comment(request: Request, project_token: str, payload: CommentPayload, session: Session = Depends(CreateSession)): 
+
+    session_token = request.cookies.get("comment_session")
+
+    created_new_cookie = False
+
+
+    if not session_token:
+        session_token = secrets.token_urlsafe(12)
+        created_new_cookie = True
+
+    comment = public_comment(
+        text=payload.text,
+        author=payload.author,
+        session=session,
+        project_token=project_token,
+        session_token=session_token
+    )
+
+    response = JSONResponse(content=comment)
+
+    if created_new_cookie: 
+        response.set_cookie(
+            key="comment_session", 
+            value=session_token, 
+            httponly=True, 
+            max_age=60*60*24*30  #30 dias, 60seg*60min*24hrs*30dias
+            )
+            
+    return response
+    
 # VIEWS
 
 @projects_router.get("/dashboard")
@@ -93,6 +127,7 @@ def shared_projects_client_view(request: Request, token: str, session: Session =
         "projects/client_exp.html",
         {
             "request": request,
+            "token": token,
             "project": {
                 "name": shared_project.name,
                 "client_name": shared_project.client_name,
@@ -107,21 +142,12 @@ def shared_projects_client_view(request: Request, token: str, session: Session =
                 "created_at": shared_project.created_at,
                 "comments": [
                     {
-                        "author": comment.author.fullname,
+                        "author": comment.author_name,
                         "date": comment.created_at,
                         "text": comment.text
                     }
                     for comment in shared_project.comments]
             },
-            
-            # "comments": [
-            #     {
-            #         "author": comment.author.fullname,
-            #         "date": comment.created_at,
-            #         "text": comment.text
-            #     }
-            #     for comment in shared_project.comments
-            #     ]
             }
         )
     
@@ -157,7 +183,7 @@ def show_projects_details(request: Request, project_id: int, session: Session = 
                 "created_at": project.created_at,
                 "comments": [
                     {
-                        "author": comment.author.fullname,
+                        "author": comment.author_name,
                         "date": comment.created_at,
                         "text": comment.text
                     }
