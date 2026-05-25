@@ -636,6 +636,160 @@
                 "DELETE"
             );
 
+            // =========================
+// CHARTS
+// =========================
+
+const chartData = JSON.parse(
+    document.getElementById("dashboard-chart-data").textContent
+);
+
+const pieCtx = document.getElementById("pieChart");
+
+const lineCtx = document.getElementById("lineChart");
+
+// PIE CHART
+
+if (pieCtx) {
+
+    new Chart(pieCtx, {
+
+        type: "doughnut",
+
+        data: {
+
+            labels: [
+                "Receitas",
+                "Despesas",
+                "Lucro"
+            ],
+
+            datasets: [{
+
+                data: [
+                    chartData.pie_chart.income.value,
+                    chartData.pie_chart.expense.value,
+                    chartData.pie_chart.profit.value
+                ],
+
+                backgroundColor: [
+                    "#16a34a",
+                    "#dc2626",
+                    "#2563eb"
+                ],
+
+                borderWidth: 0
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    position: "bottom"
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+// LINE CHART
+
+if (lineCtx) {
+
+    new Chart(lineCtx, {
+
+        type: "line",
+
+        data: {
+
+            labels: chartData.line_chart.current_month.days,
+
+            datasets: [
+
+                {
+
+                    label: chartData.line_chart.current_month.month,
+
+                    data: chartData.line_chart.current_month.sales_count,
+
+                    borderColor: "#1e40af",
+
+                    backgroundColor: "rgba(30,64,175,0.2)",
+
+                    tension: 0.35,
+
+                    fill: true
+
+                },
+
+                {
+
+                    label: chartData.line_chart.previous_month.month,
+
+                    data: chartData.line_chart.previous_month.sales_count,
+
+                    borderColor: "#16a34a",
+
+                    backgroundColor: "rgba(22,163,74,0.15)",
+
+                    tension: 0.35,
+
+                    fill: true
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    title: {
+                        display: true,
+                        text: "Quantidade de vendas"
+                    }
+
+                },
+
+                x: {
+
+                    title: {
+                        display: true,
+                        text: "Dias do mês"
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
         });
     </script>
 
