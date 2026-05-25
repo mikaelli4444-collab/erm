@@ -32,7 +32,7 @@ body {
     width: 95%;
     max-width: 1500px;
     margin: auto;
-    padding: 30px 0;
+    padding: clamp(16px, 4vw, 30px) 0;
 }
 
 /* HEADER */
@@ -56,8 +56,8 @@ body {
 .carousel {
     position: relative;
     overflow: hidden;
-    border-radius: 35px;
-    height: 500px;
+    border-radius: 28px;
+    height: clamp(280px, 45vw, 500px);
     background: var(--primary-color);
     box-shadow: var(--shadow-lg);
 }
@@ -86,8 +86,8 @@ body {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 70px;
-    height: 70px;
+    width: clamp(44px, 7vw, 70px);
+    height: clamp(44px, 7vw, 70px);
     border-radius: 50%;
     border: none;
     cursor: pointer;
@@ -118,8 +118,8 @@ body {
     position: absolute;
     bottom: 25px;
     right: 30px;
-    width: 65px;
-    height: 65px;
+    width: clamp(46px, 7vw, 65px);
+    height: clamp(46px, 7vw, 65px);
     border-radius: 50%;
     border: none;
     cursor: pointer;
@@ -218,6 +218,7 @@ body {
     font-size: 16px;
     color: var(--text-secondary);
     line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
 /* HIDDEN */
@@ -339,7 +340,7 @@ body {
     }
 
     .carousel {
-        height: 320px;
+        height: clamp(260px, 52vw, 360px);
     }
 
     .comments-title h1 {
@@ -350,6 +351,73 @@ body {
         width: 100%;
         min-width: 100%;
         max-width: 100%;
+    }
+}
+
+@media(max-width: 640px) {
+    .container {
+        width: 100%;
+        padding: 12px;
+    }
+
+    .top-section {
+        gap: 18px;
+    }
+
+    .carousel {
+        border-radius: 18px;
+    }
+
+    .prev {
+        left: 12px;
+    }
+
+    .next {
+        right: 12px;
+    }
+
+    .heart-btn {
+        right: 14px;
+        bottom: 14px;
+        font-size: 24px;
+    }
+
+    .nav-btn {
+        font-size: 22px;
+    }
+
+    .info-card {
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+    .info-card h2 {
+        font-size: 26px;
+        overflow-wrap: anywhere;
+    }
+
+    .info-item {
+        font-size: 16px;
+    }
+
+    .comments-title h1 {
+        font-size: 30px;
+    }
+
+    .comment-input-box button,
+    #loadMoreBtn {
+        width: 100%;
+    }
+}
+
+@media(max-width: 420px) {
+    .carousel {
+        height: 230px;
+    }
+
+    .comment {
+        padding: 16px;
+        border-radius: 14px;
     }
 }
 

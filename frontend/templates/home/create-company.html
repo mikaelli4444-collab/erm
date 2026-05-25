@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Company | ERM System</title>
+    <title>Criar empresa | ERM System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../static/signup.css">
 </head>
@@ -13,8 +13,8 @@
 
     <div class="signup-container">
         <div class="signup-header">
-            <h1>Create Company</h1>
-            <p>Register your company in the ERM system</p>
+            <h1>Criar empresa</h1>
+            <p>Cadastre sua empresa no sistema ERM</p>
         </div>
 
         {% if message %}
@@ -27,13 +27,13 @@
         <form action="/home/create-company" method="POST">
 
             <div class="form-group">
-                <label for="name">Company Name</label>
-                <input type="text" id="name" name="company_name" placeholder="E.g: Tech Solutions" required>
+                <label for="name">Nome da empresa</label>
+                <input type="text" id="name" name="company_name" placeholder="Ex: Soluções Tech" required>
             </div>
 
             <div class="form-group">
-                <label for="legal_name">Legal Name</label>
-                <input type="text" id="legal_name" name="legal_name" placeholder="E.g: Tech Solutions LTDA" required>
+                <label for="legal_name">Razão social</label>
+                <input type="text" id="legal_name" name="legal_name" placeholder="Ex: Soluções Tech LTDA" required>
             </div>
 
             <div class="form-group">
@@ -43,16 +43,16 @@
             </div>
 
             <div class="form-group">
-                <label for="email">Company Email</label>
-                <input type="email" id="email" name="email" placeholder="company@example.com" required>
+                <label for="email">E-mail da empresa</label>
+                <input type="email" id="email" name="email" placeholder="empresa@exemplo.com" required>
             </div>
 
-            <button type="submit" class="btn-signup">Create Company</button>
+            <button type="submit" class="btn-signup">Criar empresa</button>
 
         </form>
 
         <div class="footer-links">
-            <p>Already have a company? <a href="/home/login">Login</a></p>
+            <p>Já tem uma empresa? <a href="/home/login">Entrar</a></p>
         </div>
     </div>
 

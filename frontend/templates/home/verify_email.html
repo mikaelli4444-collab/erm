@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificar Email</title>
+    <title>Verificar e-mail</title>
     <link rel="stylesheet" href="../../static/verify_email.css">
 </head>
 
@@ -13,7 +13,7 @@
         <!-- Header Section -->
         <div class="verification-header">
             <h1>Verificar tu Email</h1>
-            <p>Completa el proceso de verificación</p>
+            <p>Conclua o processo de verificação</p>
         </div>
 
         <!-- Message Section -->
@@ -28,13 +28,13 @@
         {% endif %}
 
         <div class="info-text">
-            Se ha enviado un código de verificación a tu email: <strong>{{ email }}</strong>
+            Um código de verificação foi enviado para o seu e-mail: <strong>{{ email }}</strong>
         </div>
 
         <form action="/home/verify-email" method="post">
             <div class="form-group">
-                <label for="code">Código de Verificación:</label>
-                <input type="text" id="code" name="code" placeholder="Ingresa el código" required
+                <label for="code">Código de verificação:</label>
+                <input type="text" id="code" name="code" placeholder="Digite o código" required
                     maxlength="6" pattern="[0-9]{6}" autocomplete="off">
             </div>
             {% if verification_jwt %}
@@ -48,7 +48,7 @@
             {% if verification_jwt %}
             <input type="hidden" name="verification_jwt" value="{{ verification_jwt }}">
             {% endif %}
-            <button type="submit">Reenviar Código</button>
+            <button type="submit">Reenviar código</button>
         </form>
     </div>
 </body>

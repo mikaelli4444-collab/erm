@@ -22,6 +22,7 @@ body {
     font-family: "Open Sans", system-ui, -apple-system, sans-serif;
     color: var(--text-main);
     line-height: 1.5;
+    overflow-x: hidden;
 }
 
 .container {
@@ -42,7 +43,7 @@ body {
 /* CAROUSEL - Inspirado en el visor de imágenes de VivaReal */
 .carousel {
     position: relative;
-    height: 450px;
+    height: clamp(260px, 42vw, 450px);
     overflow: hidden;
     border-radius: var(--radius-lg);
     background: #000;
@@ -303,6 +304,7 @@ textarea {
     font-family: inherit;
     resize: vertical;
     transition: border-color 0.2s;
+    box-sizing: border-box;
 }
 
 textarea:focus {
@@ -343,7 +345,6 @@ button[onclick="addComment()"]:hover {
     }
 
     .carousel {
-        height: 300px;
         margin-bottom: 15px;
     }
 
@@ -407,11 +408,29 @@ button[onclick="addComment()"]:hover {
 }
 
 @media (max-width: 480px) {
+    .container {
+        padding: 14px 12px;
+    }
+
     .carousel {
-        height: 200px;
+        height: 220px;
+        border-radius: var(--radius-md);
     }
 
     .pdfs {
         grid-template-columns: 1fr;
+    }
+
+    .title-row h2 {
+        font-size: 20px;
+        overflow-wrap: anywhere;
+    }
+
+    .info-box {
+        padding: 16px;
+    }
+
+    .company-header {
+        align-items: flex-start;
     }
 }

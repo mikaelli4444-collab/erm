@@ -9,8 +9,10 @@ body {
     background: linear-gradient(135deg, #293953, #0d1527);
     color: white;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 /* NAVBAR */
@@ -75,6 +77,14 @@ nav {
     color: white;
 }
 
+.btn-primary,
+.btn-secondary {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* HERO SECTION */
 
 .hero {
@@ -116,4 +126,56 @@ footer {
     padding: 20px;
     font-size: 0.9rem;
     color: #94a3b8;
+}
+
+@media (max-width: 760px) {
+    .navbar {
+        padding: 18px 20px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    nav {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .nav-link,
+    nav .btn-primary {
+        flex: 1;
+        text-align: center;
+    }
+
+    .hero {
+        align-items: flex-start;
+        padding: 48px 20px 32px;
+    }
+
+    .hero h1 {
+        font-size: 2.15rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .hero-buttons a {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    .hero h1 {
+        font-size: 1.85rem;
+    }
 }

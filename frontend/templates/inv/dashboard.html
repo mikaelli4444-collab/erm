@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Dashboard</title>
+    <title>Painel de Estoque</title>
 
-    <link rel="stylesheet" href="../../static/inv/dashboard.css">
+    <link rel="stylesheet" href="../../static/inv/dashboard.css?v=inventory-mobile-2">
     <script type="module" src="/static/js/refresh_token.js"></script>
 </head>
 
@@ -16,8 +16,8 @@
 
         <header class="header-top">
             <div class="page-title">
-                <h1>Inventory</h1>
-                <p>Manage your materials and stock levels</p>
+                <h1>Estoque</h1>
+                <p>Gerencie seus materiais e níveis de estoque</p>
             </div>
 
             <div class="top-bar">
@@ -29,30 +29,30 @@
 
         <section class="controls">
             <form class="search-form" method="get" action="/inv/dashboard">
-                <input type="text" name="search" placeholder="Search materials..."
+                <input type="text" name="search" placeholder="Pesquisar materiais..."
                     value="{{ request.query_params.get('search', '') }}">
                 <button type="submit">🔍</button>
             </form>
 
-            <button class="primary-btn" id="add-material-btn">➕ Add Material</button>
+            <button class="primary-btn" id="add-material-btn">➕ Adicionar material</button>
 
             <form method="post" action="/inv/add" class="add-material-form">
-                <input type="text" name="item_name" placeholder="Nombre" required>
-                <input type="text" name="description" placeholder="Descripción" required>
-                <input type="number" name="quantity" placeholder="Cantidad inicial" required>
-                <button type="submit">Guardar</button>
+                <input type="text" name="item_name" placeholder="Nome" required>
+                <input type="text" name="description" placeholder="Descrição" required>
+                <input type="number" name="quantity" placeholder="Quantidade inicial" required>
+                <button type="submit">Salvar</button>
             </form>
         </section>
 
         <table>
             <thead>
                 <tr>
-                    <th>ID Owner</th>
+                    <th>ID do proprietário</th>
                     <th>Material</th>
-                    <th>Description</th>
-                    <th>Stock</th>
-                    <th>Actions</th>
-                    <th>Updated Date</th>
+                    <th>Descrição</th>
+                    <th>Estoque</th>
+                    <th>Ações</th>
+                    <th>Data de atualização</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,8 +63,8 @@
                     <td>{{ item.description }}</td>
                     <td>{{ item.quantity }}</td>
                     <td class="actions">
-                        <button class="edit-btn" data-item-id="{{ item.id }}">✏️ Edit</button>
-                        <button class="delete-btn" data-item-id="{{ item.id }}">🗑️ Delete</button>
+                        <button class="edit-btn" data-item-id="{{ item.id }}">✏️ Editar</button>
+                        <button class="delete-btn" data-item-id="{{ item.id }}">🗑️ Excluir</button>
                     </td>
                     <td>{{ item.updated_at.strftime('%d/%m/%Y') if item.updated_at else '' }}</td>
                 </tr>
@@ -72,7 +72,6 @@
             </tbody>
         </table>
     </main>
-    <h1><a href="/payment/plans" class="href">plans</a></h1>
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('collapsed');
@@ -83,7 +82,7 @@
             const form = document.querySelector(".add-material-form");
 
             if (!addBtn || !form) {
-                console.error("Botón o formulario no encontrado");
+                console.error("Botão ou formulário não encontrado");
                 return;
             }
 
@@ -96,14 +95,14 @@
                     const row = btn.closest('tr');
                     const itemName = row.children[1].innerText.trim();
 
-                    if (!confirm(`¿Eliminar "${itemName}"?`)) return;
+                    if (!confirm(`Excluir "${itemName}"?`)) return;
 
                     const response = await fetch(`/inv/delete/${encodeURIComponent(itemName)}`, {
                         method: 'POST'
                     });
 
                     if (response.ok) location.reload();
-                    else alert("Error al eliminar");
+                    else alert("Erro ao excluir");
                 });
             });
 
@@ -123,7 +122,7 @@
                         <td><input type="text" id="edit-desc" value="${originalDesc}"></td>
                         <td><input type="number" id="edit-qty" value="${originalQty}"></td>
                         <td class="actions">
-                            <button type="button" class="save-btn">💾 Guardar</button>
+                            <button type="button" class="save-btn">💾 Salvar</button>
                             <button type="button" class="cancel-edit">❌ Cancelar</button>
                         </td>
                         <td>${originalDate}</td>
@@ -142,7 +141,7 @@
                         });
 
                         if (response.ok) location.reload();
-                        else alert("No se pudo actualizar");
+                        else alert("Não foi possível atualizar");
                     });
 
                     row.querySelector('.cancel-edit').addEventListener('click', () => location.reload());

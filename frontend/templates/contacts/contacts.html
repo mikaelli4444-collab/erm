@@ -1,74 +1,74 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
-    <title>Contactos</title>
+    <title>Contatos</title>
     <link rel="stylesheet" href="/static/contacts/contacts.css?v=999">
     <script type="module" src="../../static/js/refresh_token.js"></script>
 </head>
 
-<body>>
+<body>
 
     <main class="main-content">
         <div class="page-header">
-            <h1>📇 Contacts</h1>
+            <h1>📇 Contatos</h1>
 
             <button id="add-contact-btn" class="add-btn">
-                 New Contact
+                 Novo contato
             </button>
         </div>
 
         <form method="post" action="/ctc/add" class="add-contact-form hidden">
 
             <div class="form-row">
-                <input type="text" name="name" placeholder="Nombre" required>
+                <input type="text" name="name" placeholder="Nome" required>
 
-                <input type="email" name="email" placeholder="Email (opcional)">
+                <input type="email" name="email" placeholder="E-mail (opcional)">
             </div>
 
             <div class="form-row">
-                <input type="text" name="phone" placeholder="Teléfono" required>
+                <input type="text" name="phone" placeholder="Telefone" required>
 
                 <select name="type" required>
                     <option value="">Tipo</option>
-                    <option value="client">Client</option>
-                    <option value="architect">Architech</option>
-                    <option value="personal">Personal</option>
-                    <option value="employed">Employed</option>
+                    <option value="client">Cliente</option>
+                    <option value="architect">Arquiteto</option>
+                    <option value="personal">Pessoal</option>
+                    <option value="employed">Empregado</option>
                 </select>
             </div>
 
-            <button type="submit">Save Contact</button>
+            <button type="submit">Salvar contato</button>
 
         </form>
 
         <form method="get">
-            <input type="text" name="q" placeholder="Search by name, email or phone" value="{{ q or '' }}">
+            <input type="text" name="q" placeholder="Pesquisar por nome, e-mail ou telefone" value="{{ q or '' }}">
 
             <select name="contact_type">
-                <option value="">All</option>
+                <option value="">Todos</option>
                 <option value="cliente" {% if contact_type=="client" %}selected{% endif %}>
-                    Client
+                    Cliente
                 </option>
                 <option value="arquitecto" {% if contact_type=="architech" %}selected{% endif %}>
                     Architect
                 </option>
                 <option value="arquitecto" {% if contact_type=="phone" %}selected{% endif %}>
-                    Phone
+                    Telefone
                 </option>
             </select>
 
-            <button type="submit">Search</button>
+            <button type="submit">Pesquisar</button>
         </form>
 
         <table>
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Job Title</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Telefone</th>
+                    <th>Cargo</th>
                 </tr>
             </thead>
             <tbody>
@@ -88,7 +88,7 @@
                 {% else %}
                 <tr>
                     <td colspan="6" class="empty">
-                        Not results found
+                        Nenhum resultado encontrado
                     </td>
                 </tr>
                 {% endif %}

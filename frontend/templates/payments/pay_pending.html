@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pago Pendiente</title>
+  <title>Pagamento pendente</title>
 
   <style>
     :root {
@@ -43,10 +43,12 @@
     }
 
     body {
-      height: 100vh;
+      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 1rem;
       background: var(--background-color);
       font-family: var(--font-family-body);
       color: var(--text-primary);
@@ -79,14 +81,29 @@
       font-size: var(--font-size-base);
       line-height: 1.5;
     }
+
+    @media (max-width: 420px) {
+      .card {
+        width: 100%;
+        padding: var(--spacing-lg);
+      }
+
+      .icon {
+        font-size: 3.2rem;
+      }
+
+      h1 {
+        font-size: var(--font-size-xl);
+      }
+    }
   </style>
 </head>
 <body>
 
   <div class="card">
     <div class="icon">⏳</div>
-    <h1>Pago pendiente</h1>
-    <p>Estamos esperando la confirmación del pago.</p>
+    <h1>Pagamento pendente</h1>
+    <p>Estamos aguardando a confirmação do pagamento.</p>
   </div>
 
 </body>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Detail</title>
+    <title>Detalhes do projeto</title>
+    <link rel="stylesheet" href="../../static/projects/projects_detail.css">
 </head>
-<link rel="stylesheet" href="../../static/projects/projects_detail.css"">
 <body>
 
 <div class=" container">
@@ -28,7 +28,7 @@
 
     {% if project.id %}
     <button class="share-btn" onclick="shareProject()">
-        <span>🔗</span> Compartir
+        <span>🔗</span> Compartilhar
     </button>
     {% endif %}
 
@@ -38,7 +38,7 @@
     <div id="desc" class="description fade">
         {{ project.description }}
     </div>
-    <div class="read-more" onclick="toggleDesc()">Ver más</div>
+    <div class="read-more" onclick="toggleDesc()">Ver mais</div>
 
     <!-- PDFS -->
     <div class="pdfs">
@@ -71,15 +71,15 @@
                 <div class="company-info">
                     <strong>{{ project.company_name }}</strong>
                     <div class="date">
-                        Creado el {{ project.created_at }}
+                        Criado em {{ project.created_at }}
                     </div>
                 </div>
             </div>
 
             <div class="info-data-row">
                 <p><strong>Entrega:</strong> <span>{{ project.delivery }}</span></p>
-                <p><strong>Carpintero:</strong> <span>{{ project.carpenter.fullname }}</span></p>
-                <p><strong>Dirección:</strong> <span>{{ project.address }}</span></p>
+                <p><strong>Carpinteiro:</strong> <span>{{ project.carpenter.fullname }}</span></p>
+                <p><strong>Endereço:</strong> <span>{{ project.address }}</span></p>
                 <p><strong>Cliente:</strong> <span>{{ project.client_name }}</span></p>
                 <p><strong>Status:</strong> <span style="color: var(--success-color);">{{ project.status }}</span></p>
             </div>
@@ -89,7 +89,7 @@
 
         <div class="comments">
 
-            <h4>Comentarios</h4>
+            <h4>Comentários</h4>
 
             <div id="comment-list">
                 {% for comment in project.comments %}
@@ -101,8 +101,8 @@
                 {% endfor %}
             </div>
 
-            <textarea id="new-comment" placeholder="Escribe un comentario..."></textarea>
-            <button onclick="addComment()">Publicar Comentario</button>
+            <textarea id="new-comment" placeholder="Escreva um comentário..."></textarea>
+            <button onclick="addComment()">Publicar comentário</button>
 
         </div>
 
@@ -140,7 +140,7 @@
         if (desc.style.maxHeight === "none") {
 
             desc.style.maxHeight = "100px";
-            readMore.innerText = "Ver más";
+            readMore.innerText = "Ver mais";
 
         } else {
 
@@ -160,7 +160,7 @@
         try {
 
             button.disabled = true;
-            button.innerHTML = "<span>⏳</span> Generando...";
+            button.innerHTML = "<span>⏳</span> Gerando...";
 
             const projectId = "{{ project.id }}";
 
@@ -187,19 +187,19 @@
 
                 await navigator.clipboard.writeText(shareUrl);
 
-                alert("Link copiado al portapapeles");
+                alert("Link copiado para a área de transferência");
             }
 
         } catch (error) {
 
             console.error(error);
 
-            alert("Error compartiendo proyecto");
+            alert("Erro ao compartilhar o projeto");
 
         } finally {
 
             button.disabled = false;
-            button.innerHTML = "<span>🔗</span> Compartir";
+            button.innerHTML = "<span>🔗</span> Compartilhar";
         }
     }
 
@@ -209,7 +209,7 @@
 
         if (!text) return;
 
-        alert("Aquí conectas el backend");
+        alert("Aqui você conecta o backend");
     }
 </script>
 

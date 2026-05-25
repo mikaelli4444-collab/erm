@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
 
@@ -24,9 +24,9 @@
 
         <div class="login-header">
 
-            <h1>Choose Your Plan</h1>
+            <h1>Escolha seu plano</h1>
 
-            <p>Select the best plan for your company</p>
+            <p>Selecione o melhor plano para sua empresa</p>
 
         </div>
 
@@ -35,21 +35,21 @@
             <!-- BASIC -->
             <div class="plan-card" data-plan-id="{{ plan_basic_id }}">
 
-                <div class="plan-title">Basic</div>
+                <div class="plan-title">Básico</div>
 
                 <div class="plan-price">
-                    {{ plan_basic_price }} <span>/month</span>
+                    {{ plan_basic_price }} <span>/mês</span>
                 </div>
 
                 <ul class="plan-features">
-                    <li>✔ Up to 3 users</li>
-                    <li>✖ No financial summary</li>
-                    <li>✖ No public links</li>
-                    <li>✔ Limited inventory space</li>
+                    <li>✔ Até 3 usuários</li>
+                    <li>✖ Sem resumo financeiro</li>
+                    <li>✖ Sem links públicos</li>
+                    <li>✔ Espaço limitado de estoque</li>
                 </ul>
 
                 <button type="button" class="btn-login">
-                    Choose Plan
+                    Escolher plano
                 </button>
 
             </div>
@@ -62,18 +62,18 @@
                 <div class="plan-title">Premium</div>
 
                 <div class="plan-price">
-                    {{ plan_premium_price }} <span>/month</span>
+                    {{ plan_premium_price }} <span>/mês</span>
                 </div>
 
                 <ul class="plan-features">
-                    <li>✔ Up to 10 users</li>
-                    <li>✔ Monthly financial summary</li>
-                    <li>✔ 2 public links / month</li>
-                    <li>✔ Increased inventory space</li>
+                    <li>✔ Até 10 usuários</li>
+                    <li>✔ Resumo financeiro mensal</li>
+                    <li>✔ 2 links públicos / mês</li>
+                    <li>✔ Espaço de estoque maior</li>
                 </ul>
 
                 <button type="button" class="btn-login">
-                    Choose Plan
+                    Escolher plano
                 </button>
 
             </div>
@@ -84,19 +84,19 @@
                 <div class="plan-title">Enterprise</div>
 
                 <div class="plan-price">
-                    {{ plan_enterprise_price }} <span>/month</span>
+                    {{ plan_enterprise_price }} <span>/mês</span>
                 </div>
 
                 <ul class="plan-features">
-                    <li>✔ Up to 20 users</li>
-                    <li>✔ Monthly financial summary (PDF)</li>
-                    <li>✔ 5 public links / month</li>
-                    <li>✔ Unlimited inventory space</li>
-                    <li>✔ Priority support</li>
+                    <li>✔ Até 20 usuários</li>
+                    <li>✔ Resumo financeiro mensal (PDF)</li>
+                    <li>✔ 5 links públicos / mês</li>
+                    <li>✔ Espaço ilimitado de estoque</li>
+                    <li>✔ Suporte prioritário</li>
                 </ul>
 
                 <button type="button" class="btn-login">
-                    Choose Plan
+                    Escolher plano
                 </button>
 
             </div>
@@ -106,24 +106,24 @@
 
                 <div class="badge">Best Value</div>
 
-                <div class="plan-title">Enterprise (Annual)</div>
+                <div class="plan-title">Enterprise (Anual)</div>
 
                 <div class="plan-price">
-                    {{ plan_annual_price }} <span>/year</span>
+                    {{ plan_annual_price }} <span>/ano</span>
                 </div>
 
                 <p class="discount">
-                    2 Months Free! Save 15% compared to monthly billing
+                    2 meses grátis! Economize 15% em comparação ao faturamento mensal
                 </p>
 
                 <ul class="plan-features">
-                    <li>✔ Everything in Enterprise</li>
-                    <li>✔ Save ${{ descuento }} per year</li>
-                    <li>✔ Pay once, forget monthly billing</li>
+                    <li>✔ Tudo no Enterprise</li>
+                    <li>✔ Economize ${{ descuento }} por ano</li>
+                    <li>✔ Pague uma vez e esqueça o faturamento mensal</li>
                 </ul>
 
                 <button type="button" class="btn-login">
-                    Choose Plan
+                    Escolher plano
                 </button>
 
             </div>
@@ -139,7 +139,7 @@
                     ✕
                 </div>
 
-                <h3>Complete Payment</h3>
+                <h3>Finalizar pagamento</h3>
 
                 <form id="form-checkout" action="/payment/create_checkout" method="POST">
 
@@ -150,7 +150,7 @@
                     <input type="hidden" name="card_token_id" id="card_token_id">
 
                     <!-- CARD NUMBER -->
-                    <label>Card Number</label>
+                    <label>Número do cartão</label>
 
                     <div id="form-checkout__cardNumber" class="mp-input"></div>
 
@@ -159,7 +159,7 @@
                         <!-- EXPIRY -->
                         <div>
 
-                            <label>Expiry</label>
+                            <label>Validade</label>
 
                             <div id="form-checkout__expirationDate" class="mp-input"></div>
 
@@ -178,30 +178,30 @@
 
                     <!-- Nuevos campos obligatorios para evitar el bloqueo -->
                     <div class="form-group form-group-issuer">
-                        <label>Banco Emisor</label>
+                        <label>Banco emissor</label>
                         <select id="form-checkout__issuer" name="issuer"></select>
                     </div>
 
                     <div class="form-group form-group-installments">
-                        <label>Cuotas</label>
+                        <label>Parcelas</label>
                         <select id="form-checkout__installments" name="installments"></select>
                     </div>
 
 
                     <!-- NAME -->
-                    <label>Name</label>
+                    <label>Nome</label>
 
-                    <input type="text" id="form-checkout__cardholderName" name="cardholderName"
-                        placeholder="Name on card">
+                    <input type="text" id="form-checkout__cardholderNome" name="cardholderNome"
+                        placeholder="Nome on card">
 
                     <!-- EMAIL -->
-                    <label>Email</label>
+                    <label>E-mail</label>
 
-                    <input type="email" id="form-checkout__cardholderEmail" name="cardholderEmail"
-                        value="{{ userEmail }}" placeholder="Email@domain.com">
+                    <input type="email" id="form-checkout__cardholderE-mail" name="cardholderE-mail"
+                        value="{{ userE-mail }}" placeholder="E-mail@domain.com">
 
                     <!-- DOCUMENT TYPE -->
-                    <label>Document Type</label>
+                    <label>Tipo de documento</label>
 
                     <select id="form-checkout__identificationType" name="identificationType"></select>
 
@@ -213,7 +213,7 @@
 
                     <!-- SUBMIT -->
                     <button type="submit" class="pay-btn" id="form-checkout__submit">
-                        Pay Now
+                        Pagar agora
                     </button>
 
                     <input type="hidden" name="cpf" id="cpf_hidden">
@@ -231,7 +231,7 @@
         </div>
 
         <p class="footer-links">
-            <a href="/">Back to Home</a>
+            <a href="/">Voltar para a home</a>
         </p>
 
     </div>
@@ -315,12 +315,12 @@
                             placeholder: "CVV"
                         },
 
-                        cardholderName: {
-                            id: "form-checkout__cardholderName"
+                        cardholderNome: {
+                            id: "form-checkout__cardholderNome"
                         },
 
-                        cardholderEmail: {
-                            id: "form-checkout__cardholderEmail"
+                        cardholderE-mail: {
+                            id: "form-checkout__cardholderE-mail"
                         },
 
                         identificationType: {
@@ -347,7 +347,7 @@
 
                             if (error) {
 
-                                console.error("MOUNT ERROR:", error);
+                                console.error("ERRO DE MONTAGEM:", error);
 
                                 return;
 
@@ -368,7 +368,7 @@
 
                             if (!formData.token) {
 
-                                alert("Token no generado");
+                                alert("Token não gerado");
 
                                 return;
 
@@ -424,7 +424,7 @@
                         onError: error => {
 
                             console.error(
-                                "SDK ERROR:",
+                                "ERRO SDK:",
                                 error
                             );
 

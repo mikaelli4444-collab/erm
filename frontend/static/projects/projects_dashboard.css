@@ -23,6 +23,8 @@ body {
     color: var(--text-main);
     display: flex;
     min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
 }
 
 /* =========================================================
@@ -32,6 +34,7 @@ body {
     margin-left: var(--sidebar-width);
     padding: 40px;
     flex: 1;
+    min-width: 0;
     background: var(--bg-page);
     transition: margin-left 0.3s ease;
 }
@@ -136,6 +139,7 @@ body {
     flex-direction: column;
     gap: 10px;
     transition: 0.2s ease;
+    overflow: hidden;
 }
 
 .card:hover {
@@ -199,4 +203,177 @@ body {
 a {
     text-decoration: none;
     color: black;
+}
+
+@media (max-width: 900px) {
+    body {
+        display: block;
+    }
+
+    .sidebar {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar.collapsed {
+        width: 100%;
+    }
+
+    .sidebar-header {
+        height: 58px;
+        padding: 0 16px;
+    }
+
+    .sidebar.collapsed .app-icon,
+    .sidebar.collapsed .nav-item .label,
+    .sidebar.collapsed .logout-link span:not(.icon) {
+        display: inline;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 0 12px 12px;
+    }
+
+    .nav-item {
+        flex: 0 0 auto;
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    .main-content,
+    .sidebar.collapsed + .main-content {
+        margin-left: 0;
+        padding: 24px 16px;
+    }
+
+    .header-top h1 {
+        font-size: 1.6rem;
+    }
+
+    .top-bar {
+        justify-content: flex-start;
+        padding: 8px 0 0;
+    }
+
+    .controls {
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .search-form {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .search-form button,
+    .primary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        text-align: center;
+    }
+
+    .cards-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 18px;
+    }
+
+    .card {
+        width: 100%;
+        padding: 0;
+        border-radius: 14px;
+        gap: 0;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .card:hover {
+        transform: none;
+    }
+
+    .card-image-container {
+        height: auto;
+        min-height: 180px;
+        max-height: none;
+        aspect-ratio: 4 / 3;
+        border-radius: 14px 14px 0 0;
+        background: #e5e7eb;
+    }
+
+    .card-image {
+        display: block;
+        object-fit: cover;
+    }
+
+    .card-header,
+    .card-desc,
+    .card-info {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .card-header {
+        padding-top: 14px;
+    }
+
+    .card-title {
+        font-size: 1.05rem;
+        overflow-wrap: anywhere;
+    }
+
+    .card-owner {
+        margin-top: 4px;
+    }
+
+    .card-desc {
+        padding-top: 8px;
+    }
+
+    .card-info {
+        padding-top: 10px;
+        padding-bottom: 14px;
+    }
+}
+
+@media (max-width: 520px) {
+    .main-content,
+    .sidebar.collapsed + .main-content {
+        padding: 20px 12px;
+    }
+
+    .search-form {
+        flex-direction: row;
+    }
+
+    .search-form button {
+        flex: 0 0 52px;
+        padding: 0;
+    }
+
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .primary-btn {
+        width: 100%;
+    }
+
+    .card-image-container {
+        min-height: 220px;
+        aspect-ratio: auto;
+    }
 }

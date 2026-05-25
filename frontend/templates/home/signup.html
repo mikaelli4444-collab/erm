@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up | ERM System</title>
+    <title>Cadastrar | ERM System</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <!-- Link to CSS file (Make sure the path is correct in your project) -->
@@ -15,8 +15,8 @@
 
     <div class="signup-container">
         <div class="signup-header">
-            <h1>Create Account</h1>
-            <p>Join the ERM system today</p>
+            <h1>Criar conta</h1>
+            <p>Junte-se ao sistema ERM hoje</p>
         </div>
 
         {% if message %}
@@ -29,8 +29,8 @@
         <form action="/home/signup" method="POST">
 
             <div class="form-group">
-                <label for="fullname">Full Name</label>
-                <input type="text" id="fullname" name="fullname" placeholder="E.g: John Doe" required>
+                <label for="fullname">Nome completo</label>
+                <input type="text" id="fullname" name="fullname" placeholder="Ex: João da Silva" required>
             </div>
 
             <div class="form-group">
@@ -39,14 +39,14 @@
             </div>
 
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="email@example.com" required>
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="email@exemplo.com" required>
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">Senha</label>
                 <div class="password-wrapper">
-                    <input type="password" id="password" name="password" placeholder="Minimum 8 characters" required
+                    <input type="password" id="password" name="password" placeholder="Mínimo de 8 caracteres" required
                         minlength="8">
                     <button type="button" class="toggle-password" id="toggleBtn">
                         <img src="https://cdn-icons-png.flaticon.com/512/709/709612.png" id="eyeIcon" alt="Show">
@@ -56,17 +56,17 @@
 
             <!-- NUEVO CAMPO -->
             <div class="form-group">
-                <label for="company">Company you want to join</label>
-                <input type="text" id="company" name="company" placeholder="Company Name">
+                <label for="company">Empresa que deseja entrar</label>
+                <input type="text" id="company" name="company" placeholder="Nome da empresa">
             </div>
 
-            <button type="submit" class="btn-signup">Sign Up</button>
+            <button type="submit" class="btn-signup">Cadastrar</button>
 
         </form>
 
 
         <div class="footer-links">
-            <p>Already have an account? <a href="/home/login">Log in</a></p>
+            <p>Já tem uma conta? <a href="/home/login">Entrar</a></p>
         </div>
     </div>
 
@@ -79,9 +79,9 @@
         const iconHide = "https://cdn-icons-png.flaticon.com/512/2767/2767146.png";
 
         toggleBtn.addEventListener('click', function () {
-            const isPassword = passwordInput.getAttribute('type') === 'password';
-            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-            eyeIcon.src = isPassword ? iconHide : iconView;
+            const isSenha = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isSenha ? 'text' : 'password');
+            eyeIcon.src = isSenha ? iconHide : iconView;
         });
     </script>
 </body>

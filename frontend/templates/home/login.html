@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
@@ -15,7 +15,7 @@
     <div class="login-container">
         <div class="login-header">
             <h1>ERM System</h1>
-            <p>Manage your entities efficiently</p>
+            <p>Gerencie suas entidades com eficiência</p>
         </div>
 
         <!-- Dynamic notification from FastAPI -->
@@ -28,12 +28,12 @@
 
         <form action="/home/login" method="POST">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Your username" required>
+                <label for="username">Usuário</label>
+                <input type="text" id="username" name="username" placeholder="Seu usuário" required>
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+                <label for="password">Senha</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" placeholder="••••••••" required>
                     <button type="button" class="toggle-password" id="toggleBtn">
@@ -43,12 +43,12 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-login">Sign In</button>
+            <button type="submit" class="btn-login">Entrar</button>
         </form>
 
         <div class="footer-links">
-            <p>Don't have an account? <a href="/home/signup">Register here</a></p>
-            <p>Forgot your password? <a href="/home/forgot_password">Reset it here</a></p>
+            <p>Não tem uma conta? <a href="/home/signup">Cadastre-se aqui</a></p>
+            <p>Esqueceu a senha? <a href="/home/forgot_password">Redefina aqui</a></p>
         </div>
     </div>
 
@@ -62,13 +62,13 @@
         const iconHide = "https://cdn-icons-png.flaticon.com/512/2767/2767146.png";
 
         toggleBtn.addEventListener('click', function () {
-            const isPassword = passwordInput.getAttribute('type') === 'password';
+            const isSenha = passwordInput.getAttribute('type') === 'password';
 
             // Change input type
-            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            passwordInput.setAttribute('type', isSenha ? 'text' : 'password');
 
             // Change image source
-            eyeIcon.src = isPassword ? iconHide : iconView;
+            eyeIcon.src = isSenha ? iconHide : iconView;
         });
     </script>
 

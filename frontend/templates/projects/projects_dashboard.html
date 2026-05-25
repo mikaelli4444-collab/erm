@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects</title>
+    <title>Projetos</title>
 
-    <link rel="stylesheet" href="../../static/projects/projects_dashboard.css">
+    <link rel="stylesheet" href="../../static/projects/projects_dashboard.css?v=projects-mobile-catalog-1">
 </head>
 
 <body>
@@ -15,8 +15,8 @@
 
         <header class="header-top">
             <div class="page-title">
-                <h1>Projects</h1>
-                <p>Control your projects and share</p>
+                <h1>Projetos</h1>
+                <p>Controle seus projetos e compartilhe</p>
             </div>
 
             <div class="top-bar">
@@ -29,12 +29,12 @@
         <section class="controls">
 
             <form class="search-form" method="get" action="/projects/dashboard">
-                <input type="text" name="search" placeholder="Search projects"
+                <input type="text" name="search" placeholder="Pesquisar projetos"
                     value="{{ request.query_params.get('search', '') }}">
                 <button type="submit">🔍</button>
             </form>
 
-            <a href="/projects/add" class="primary-btn" id="add-material-btn">➕ Add Project</a>
+            <a href="/projects/add" class="primary-btn" id="add-material-btn">➕ Adicionar projeto</a>
 
 
 
@@ -48,26 +48,28 @@
 
                 {% if project.photos and project.photos|length > 0 %}
 
-                <img src="{{ project.photos[0] }}">
+                <div class="card-image-container">
+                    <img class="card-image" src="{{ project.photos[0] }}" alt="{{ project.name }}">
+                </div>
 
                 {% else %}
 
-                <div>No image</div>
+                <div class="card-image-container card-image-placeholder">Sem imagem</div>
 
                 {% endif %}
 
                 <div class="card-header">
 
-                    <h3>{{ project.name }}</h3>
+                    <h3 class="card-title">{{ project.name }}</h3>
 
-                    <p>{{ project.client_name }}</p>
+                    <p class="card-owner">{{ project.client_name }}</p>
 
                 </div>
                 
-                <span>Carpenter: {{ project.carpenter.fullname }}</span>
+                <span class="card-desc">Carpinteiro: {{ project.carpenter.fullname }}</span>
 
-                <div>
-                    Delivery: {{ project.delivery }}
+                <div class="card-info">
+                    Entrega: {{ project.delivery }}
                 </div>
 
             </a>
@@ -87,14 +89,14 @@
                     const card = btn.closest('.card');
                     const itemName = card.querySelector('.card-title').innerText.trim();
 
-                    if (!confirm(`¿Eliminar "${itemName}"?`)) return;
+                    if (!confirm(`Excluir "${itemName}"?`)) return;
 
                     const response = await fetch(`/inv/delete/${encodeURIComponent(itemName)}`, {
                         method: 'POST'
                     });
 
                     if (response.ok) location.reload();
-                    else alert("Error al eliminar");
+                    else alert("Erro ao excluir");
                 });
             });
 
@@ -118,8 +120,8 @@
                 <input type="number" id="edit-qty" value="${originalQty}">
 
                 <div class="card-actions">
-                    <button class="save-btn">💾 Save</button>
-                    <button class="cancel-edit">❌ Cancel</button>
+                    <button class="save-btn">💾 Salvar</button>
+                    <button class="cancel-edit">❌ Cancelar</button>
                 </div>
 
                 <div class="date">${originalDate}</div>
@@ -139,7 +141,7 @@
                         });
 
                         if (response.ok) location.reload();
-                        else alert("No se pudo actualizar");
+                        else alert("Não foi possível atualizar");
                     });
 
                     card.querySelector('.cancel-edit').addEventListener('click', () => location.reload());

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Dashboard</title>
+    <title>Painel de Produção</title>
 
     <link rel="stylesheet" href="../../static/production/production.css">
     <script type="module" src="/static/js/refresh_token.js"></script>
@@ -16,8 +16,8 @@
 
         <header class="header-top">
             <div class="page-title">
-                <h1>Production</h1>
-                <p>Manage your production projects</p>
+                <h1>Produção</h1>
+                <p>Gerencie seus projetos de produção</p>
             </div>
 
             <div class="top-bar">
@@ -29,26 +29,26 @@
 
         <section class="controls">
 
-            <!-- BOTÓN PARA AÑADIR PRODUCCIÓN -->
-            <button class="primary-btn" id="add-production-btn">➕ Add Production</button>
+            <!-- BOTÃO PARA ADICIONAR PRODUÇÃO -->
+            <button class="primary-btn" id="add-production-btn">➕ Adicionar produção</button>
 
             <!-- FORMULARIO (flotante) -->
             <form class="add-material-form" id="production-form">
-                <input type="text" id="project_name" placeholder="Project Name" required>
-                <input type="text" id="client_name" placeholder="Client Name" required>
-                <textarea id="description" placeholder="Description" required></textarea>
+                <input type="text" id="project_name" placeholder="Nome do projeto" required>
+                <input type="text" id="client_name" placeholder="Nome do cliente" required>
+                <textarea id="description" placeholder="Descrição" required></textarea>
                 <input type="date" id="delivery_date" required>
                 <select id="status">
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
+                    <option value="pending">Pendente</option>
+                    <option value="in_progress">Em andamento</option>
+                    <option value="completed">Concluído</option>
                 </select>
-                <button type="submit">Save</button>
+                <button type="submit">Salvar</button>
             </form>
 
             <!-- BUSCADOR POR CLIENTE -->
             <form class="search-form" onsubmit="event.preventDefault(); searchProduction();">
-                <input type="text" id="searchClient" placeholder="Search by client name">
+                <input type="text" id="searchCliente" placeholder="Pesquisar pelo nome do cliente">
                 <button type="submit">🔍</button>
             </form>
         </section>
@@ -57,12 +57,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>Project</th>
-                    <th>Client</th>
-                    <th>Description</th>
+                    <th>Projeto</th>
+                    <th>Cliente</th>
+                    <th>Descrição</th>
                     <th>Status</th>
-                    <th>Delivery Date</th>
-                    <th>Actions</th>
+                    <th>Data de entrega</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody id="production-table-body">
@@ -74,10 +74,10 @@
                     <td>{{ production.status }}</td>
                     <td>{{ production.delivery_date }}</td>
                     <td class="actions">
-                        <button class="edit-btn" data-item-id="{{ production.id }}">✏️ Edit</button>
+                        <button class="edit-btn" data-item-id="{{ production.id }}">✏️ Editar</button>
                         <button class="delete-btn" data-item-id="{{ production.id }}"><a
                                 href="/production/delete/{{ production.id }}" class="delete-btn"
-                                onclick="return confirm('¿Eliminar este proyecto?')">🗑️ Delete</a></button>
+                                onclick="return confirm('Excluir este projeto?')">🗑️ Excluir</a></button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -92,6 +92,15 @@
             const addBtn = document.getElementById("add-production-btn");
             const form = document.getElementById("production-form");
             const tableBody = document.getElementById("production-table-body");
+
+            window.searchProduction = function () {
+                const query = document.getElementById("searchCliente").value.trim().toLowerCase();
+
+                document.querySelectorAll("#production-table-body tr").forEach((row) => {
+                    const clientName = row.children[1]?.textContent.toLowerCase() || "";
+                    row.style.display = clientName.includes(query) ? "" : "none";
+                });
+            };
 
             // ===============================
             // TOKEN
@@ -128,14 +137,14 @@
             <td>${item.status}</td>
             <td>${item.delivery_date}</td>
             <td class="actions">
-                <button class="edit-btn">✏️ Edit</button>
-                <button class="delete-btn">🗑️ Delete</button>
+                <button class="edit-btn">✏️ Editar</button>
+                <button class="delete-btn">🗑️ Excluir</button>
             </td>
         `;
 
                 // DELETE CON JS (usa tu backend TAL CUAL)
                 row.querySelector(".delete-btn").addEventListener("click", async () => {
-                    if (!confirm("¿Eliminar este proyecto?")) return;
+                    if (!confirm("Excluir este projeto?")) return;
 
                     try {
                         const res = await fetch(
@@ -150,14 +159,14 @@
 
                         if (!res.ok) {
                             const err = await res.json();
-                            alert(err.detail || "Error deleting project");
+                            alert(err.detail || "Erro ao excluir o projeto");
                             return;
                         }
 
                         row.remove();
 
                     } catch {
-                        alert("Server connection error");
+                        alert("Erro de conexão com o servidor");
                     }
                 });
 
@@ -191,7 +200,7 @@
                     const data = await res.json();
 
                     if (!res.ok) {
-                        alert(data.detail || "Error creating production");
+                        alert(data.detail || "Erro ao criar produção");
                         return;
                     }
 
@@ -203,7 +212,7 @@
                     form.classList.remove("active");
 
                 } catch {
-                    alert("Server connection error");
+                    alert("Erro de conexão com o servidor");
                 }
             });
 

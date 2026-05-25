@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
@@ -89,22 +89,22 @@
                 </div>
 
                 <div class="info-item">
-                    <strong>Carpintero:</strong>
+                    <strong>Carpinteiro:</strong>
                     {{ project.carpenter }}
                 </div>
 
                 <div class="info-item">
-                    <strong>Dirección:</strong>
+                    <strong>Endereço:</strong>
                     {{ project.address }}
                 </div>
 
                 <div class="info-item">
-                    <strong>Creado:</strong>
+                    <strong>Criado:</strong>
                     {{ project.created_at }}
                 </div>
 
                 <div class="info-item">
-                    <strong>Descripción:</strong>
+                    <strong>Descrição:</strong>
                     {{ project.description }}
                 </div>
 
@@ -117,7 +117,7 @@
         <div class="comments-section">
 
             <div class="comments-title">
-                <h1>Comentarios</h1>
+                <h1>Comentários</h1>
             </div>
 
             <!-- LISTA DE COMENTARIOS -->
@@ -147,7 +147,7 @@
                 <div class="comment">
 
                     <div class="comment-text">
-                        No hay comentarios todavía.
+                        Ainda não há comentários.
                     </div>
 
                 </div>
@@ -163,7 +163,7 @@
             <div class="load-more-container">
 
                 <button id="loadMoreBtn" onclick="toggleComments()">
-                    ↓ Ver más comentarios
+                    ↓ Ver mais comentários
                 </button>
 
             </div>
@@ -200,9 +200,9 @@
 
             <div class="comment-input-box">
 
-                <input type="text" placeholder="Tu nombre" class="comment-author-input" />
+                <input type="text" placeholder="Seu nome" class="comment-author-input" />
 
-                <textarea placeholder="Escribe un comentario..."></textarea>
+                <textarea placeholder="Escreva um comentário..."></textarea>
 
                 <button onclick="publishComment()">Publicar</button>
 
@@ -272,7 +272,7 @@
         if (extraComments.classList.contains("hidden")) {
 
             button.innerHTML =
-                "↓ Ver más comentarios";
+                "↓ Ver mais comentários";
 
         } else {
 
@@ -396,7 +396,7 @@
 
         if (!response.ok) {
 
-            alert("Error posting comment");
+            alert("Erro ao publicar comentário");
 
             return;
         }

@@ -23,7 +23,7 @@ def notify_invoice_due_date(user_id: int, company_id: int, message: dict, sessio
     create_notification(user_id, company_id, message, session)
     
 def is_owner(user):
-    if user.role == "owner" or "admin":
+    if user.role == "owner" or user.role == "admin":
         return True
     
     else:

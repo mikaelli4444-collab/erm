@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pago Exitoso</title>
+  <title>Pagamento aprovado</title>
 
   <style>
     :root {
@@ -29,10 +29,12 @@
     }
 
     body {
-      height: 100vh;
+      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 1rem;
       background: var(--success-bg);
       font-family: var(--font-family-body);
     }
@@ -62,14 +64,25 @@
     p {
       color: var(--text-secondary);
     }
+
+    @media (max-width: 420px) {
+      .card {
+        width: 100%;
+        padding: 1.5rem;
+      }
+
+      .icon {
+        font-size: 3.2rem;
+      }
+    }
   </style>
 </head>
 <body>
 
   <div class="card">
     <div class="icon">✔</div>
-    <h1>Pago aprobado</h1>
-    <p>Tu pago fue procesado correctamente.</p>
+    <h1>Pagamento aprovado</h1>
+    <p>Seu pagamento foi processado com sucesso.</p>
   </div>
 
 </body>

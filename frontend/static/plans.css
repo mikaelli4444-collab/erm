@@ -68,8 +68,12 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: var(--spacing-md);
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100dvh;
+  padding: clamp(1rem, 4vw, 2rem);
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(99, 102, 241, 0.14), transparent 32rem),
+    linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 /* ============================================
@@ -97,9 +101,10 @@ p {
 
 .signup-container {
   background-color: var(--card-background);
-  border-radius: var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  padding: var(--spacing-2xl);
+  padding: clamp(1.5rem, 5vw, var(--spacing-2xl));
   max-width: 500px;
   width: 100%;
   animation: slideUp 0.5s ease-out;
@@ -205,7 +210,8 @@ input[type="text"],
 input[type="email"],
 input[type="password"] {
   width: 100%;
-  padding: var(--spacing-md);
+  min-height: 48px;
+  padding: 0.875rem var(--spacing-md);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   font-family: var(--font-family-body);
@@ -213,7 +219,7 @@ input[type="password"] {
   color: var(--text-primary);
   background-color: var(--card-background);
   transition: all var(--transition-base);
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
 }
 
 input[type="text"]:focus,
@@ -280,6 +286,7 @@ input[type="password"]::placeholder {
 
 button {
   width: 100%;
+  min-height: 48px;
   padding: var(--spacing-md) var(--spacing-lg);
   border: none;
   border-radius: var(--radius-md);
@@ -293,19 +300,22 @@ button {
   font-size: var(--font-size-sm);
 }
 
-.btn-signup {
+.btn-signup,
+.btn-login {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
   color: white;
   box-shadow: var(--shadow-md);
 }
 
-.btn-signup:hover {
+.btn-signup:hover,
+.btn-login:hover {
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
-.btn-signup:active {
+.btn-signup:active,
+.btn-login:active {
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
 }
@@ -351,21 +361,26 @@ button:disabled {
 
 @media (max-width: 640px) {
   .signup-container {
-    padding: var(--spacing-xl);
+    max-width: 100%;
   }
 
   .signup-header h1 {
     font-size: var(--font-size-xl);
   }
 
-  body {
-    padding: var(--spacing-md);
+  .signup-header {
+    margin-bottom: var(--spacing-xl);
   }
 }
 
 @media (max-width: 480px) {
+  body {
+    align-items: flex-start;
+    padding: var(--spacing-md);
+  }
+
   .signup-container {
-    padding: var(--spacing-lg);
+    margin: auto 0;
   }
 
   .signup-header h1 {
@@ -373,7 +388,6 @@ button:disabled {
   }
 
   button {
-    padding: var(--spacing-md);
     font-size: var(--font-size-sm);
   }
 
@@ -538,7 +552,9 @@ button:focus-visible {
 }
 
 .payment-modal {
-  width: 420px;
+  width: min(420px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
   background: #fff;
   border-radius: 16px;
   padding: 24px;
@@ -728,4 +744,65 @@ input {
 .form-group-issuer,
 .form-group-installments {
     display: none;
+}
+
+.login-container {
+  background-color: var(--card-background);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: clamp(1.5rem, 5vw, var(--spacing-2xl));
+  width: min(100%, 1180px);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.login-header h1 {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--spacing-sm);
+}
+
+.login-header p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.plans-container {
+  max-width: 100%;
+}
+
+@media (max-width: 760px) {
+  .plans-container {
+    gap: var(--spacing-md);
+    margin-left: calc(var(--spacing-md) * -1);
+    margin-right: calc(var(--spacing-md) * -1);
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+
+  .plan-card {
+    min-width: min(280px, calc(100vw - 3rem));
+  }
+
+  .payment-overlay {
+    align-items: flex-start;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .payment-modal {
+    padding: 20px;
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
 }

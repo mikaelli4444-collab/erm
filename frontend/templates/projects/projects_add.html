@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Builder</title>
-    <link rel="stylesheet" href="../../static/projects/projects_add.css" />
+    <title>Construtor de projeto</title>
+    <link rel="stylesheet" href="../../static/projects/projects_add.css?v=projects-add-responsive-1" />
 </head>
 
 <body>
 
-<form action="/projects/add" method="post" enctype="multipart/form-data">
+<form action="/projects/add" method="post" enctype="multipart/form-data" id="projectForm" novalidate>
     <div class="container">
-        <h1>Project Builder</h1>
+        <h1>Construtor de projeto</h1>
 
         <div class="card">
-            <h3>Imágenes del proyecto</h3>
+            <h3>Imagens do projeto</h3>
             <div class="dropzone" id="dropzone">
-                <p>Arrastra imágenes aquí o haz click</p>
+                <p>Arraste imagens aqui ou clique</p>
                 <input type="file" id="imagesInput" name="photo" multiple accept="image/*" hidden>
             </div>
             <div class="image-grid" id="imageGrid"></div>
@@ -25,55 +25,55 @@
 
         <div class="card">
             <h3>Documentos PDF</h3>
-            <button type="button" class="file-button" id="pdfButton">Seleccionar PDFs</button>
+            <button type="button" class="file-button" id="pdfButton">Selecionar PDFs</button>
             <input type="file" id="pdfInput" name="pdf" multiple accept="application/pdf" hidden>
             <div id="pdfList"></div>
         </div>
 
         <div class="card card-form">
-            <h3>Datos del proyecto</h3>
+            <h3>Dados do projeto</h3>
 
             <div class="grid">
                 <div>
-                    <label>Nombre</label>
-                    <input type="text" name="name">
+                    <label>Nome</label>
+                    <input type="text" name="name" id="projectName" required>
                 </div>
 
                 <div>
-                    <label>Marceneiro</label>
-                    <input type="text" name="carpenter" id="carpenterInput">
-                    <input type="hidden" name="carpenter_id" id="carpenterId">
+                    <label>Carpinteiro</label>
+                    <input type="text" name="carpenter" id="carpenterInput" required>
+                    <input type="hidden" name="carpenter_id" id="carpenterId" required>
                     <div id="carpenterResults"></div>
                 </div>
 
                 <div>
                     <label>Cliente</label>
-                    <input type="text" name="client_name">
+                    <input type="text" name="client_name" id="clientName" required>
                 </div>
 
                 <div>
-                    <label>Arquitecto</label>
-                    <input type="text" name="architect">
+                    <label>Arquiteto</label>
+                    <input type="text" name="architect" id="architect" required>
                 </div>
 
                 <div>
-                    <label>Fecha entrega</label>
-                    <input type="date" name="delivery">
+                    <label>Data de entrega</label>
+                    <input type="date" name="delivery" id="delivery" required>
                 </div>
 
                 <div style="grid-column: span 2;">
-                    <label>Dirección</label>
-                    <input type="text" name="address">
+                    <label>Endereço</label>
+                    <input type="text" name="address" id="address" required>
                 </div>
             </div>
 
-            <label>Materiales</label>
-            <textarea name="materials"></textarea>
+            <label>Materiais</label>
+            <textarea name="materials" id="materials" required></textarea>
 
-            <label>Descripción</label>
-            <textarea name="description"></textarea>
+            <label>Descrição</label>
+            <textarea name="description" id="description" required></textarea>
 
-            <button class="btn-submit">Guardar proyecto</button>
+            <button class="btn-submit">Salvar projeto</button>
         </div>
     </div>
 </form>
@@ -162,8 +162,42 @@ function renderPDFs() {
 const carpenterInput = document.getElementById("carpenterInput");
 const carpenterIdInput = document.getElementById("carpenterId");
 const carpenterResults = document.getElementById("carpenterResults");
+const projectForm = document.getElementById("projectForm");
 
 let timeout = null;
+
+projectForm.addEventListener("submit", (event) => {
+    const requiredFields = [
+        { id: "projectName", label: "Nome" },
+        { id: "carpenterInput", label: "Carpinteiro" },
+        { id: "carpenterId", label: "Carpinteiro válido" },
+        { id: "clientName", label: "Cliente" },
+        { id: "architect", label: "Arquiteto" },
+        { id: "delivery", label: "Data de entrega" },
+        { id: "address", label: "Endereço" },
+        { id: "materials", label: "Materiais" },
+        { id: "description", label: "Descrição" }
+    ];
+
+    const missing = [];
+
+    requiredFields.forEach(({ id, label }) => {
+        const field = document.getElementById(id);
+        const value = field ? field.value.trim() : "";
+
+        if (!value) {
+            missing.push(label);
+        }
+    });
+
+    if (missing.length > 0) {
+        event.preventDefault();
+        alert(`Falta preencher: ${missing.join(", ")}`);
+
+        const firstMissingId = requiredFields.find(({ label }) => missing.includes(label))?.id;
+        document.getElementById(firstMissingId)?.focus();
+    }
+});
 
 carpenterInput.addEventListener("input", () => {
     const query = carpenterInput.value.trim();
