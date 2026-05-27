@@ -102,35 +102,48 @@
         </section>
 
         <!-- TABLE -->
-        
+        <div class="data-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Carpinteiro</th>
+                        <th>Status</th>
+                        <th>Receita</th>
+                        <th>Despesas</th>
+                        <th>Parcelas</th>
+                        <th>Entrega</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for sell in sells %}
+                    <tr data-id="{{ sell.id }}">
+                        <td>{{ sell.client_name }}</td>
+                        <td>{{ sell.carpenter_id }}</td>
+                        <td>{{ sell.status }}</td>
+                        <td>{{ sell.income }}</td>
+                        <td>{{ sell.expenses }}</td>
+                        <td>{{ sell.installments }}</td>
+                        <td>{{ sell.delivery }}</td>
+
+                        <td>
+                            <button class="delete-btn" data-id="{{ sell.id }}">🗑️ Excluir</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
             <!-- PAGINATION -->
 
-            <div class="pagination">
+            {% set page = page_sells %}
+            {% set total_pages = total_sells_pages %}
+            {% set param = "page_sells" %}
+            {% set extra_params = "page_debts=" ~ page_debts ~ "&page_receivables=" ~ page_receivables %}
 
-                {% if page_sells > 1 %}
-                <a
-                    href="?page_sells={{ page_sells - 1 }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables }}">
-                    ←
-                </a>
-                {% endif %}
-
-                {% for p in range(1, total_sells_pages + 1) %}
-
-                <a href="?page_sells={{ p }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables }}"
-                    class="{% if p == page_sells %}active{% endif %}">
-                    {{ p }}
-                </a>
-
-                {% endfor %}
-
-                {% if page_sells < total_sells_pages %} <a
-                    href="?page_sells={{ page_sells + 1 }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables }}">
-                    →
-                    </a>
-                    {% endif %}
-
-            </div>
+            {% include "pagination.html" %}
         </div>
 
         <!-- CHARTS -->
@@ -208,31 +221,12 @@
                 </table>
                 </table>
 
-                <div class="pagination">
+                {% set page = page_debts %}
+                {% set total_pages = total_debts_pages %}
+                {% set param = "page_debts" %}
+                {% set extra_params = "page_sells=" ~ page_sells ~ "&page_receivables=" ~ page_receivables %}
 
-                    {% if page_debts > 1 %}
-                    <a
-                        href="?page_sells={{ page_sells }}&page_debts={{ page_debts - 1 }}&page_receivables={{ page_receivables }}">
-                        ←
-                    </a>
-                    {% endif %}
-
-                    {% for p in range(1, total_debts_pages + 1) %}
-
-                    <a href="?page_sells={{ page_sells }}&page_debts={{ p }}&page_receivables={{ page_receivables }}"
-                        class="{% if p == page_debts %}active{% endif %}">
-                        {{ p }}
-                    </a>
-
-                    {% endfor %}
-
-                    {% if page_debts < total_debts_pages %} <a
-                        href="?page_sells={{ page_sells }}&page_debts={{ page_debts + 1 }}&page_receivables={{ page_receivables }}">
-                        →
-                        </a>
-                        {% endif %}
-
-                </div>
+                {% include "pagination.html" %}
             </div>
         </section>
 
@@ -275,31 +269,12 @@
                 </table>
                 </table>
 
-                <div class="pagination">
+                {% set page = page_receivables %}
+                {% set total_pages = total_receivables_pages %}
+                {% set param = "page_receivables" %}
+                {% set extra_params = "page_sells=" ~ page_sells ~ "&page_debts=" ~ page_debts %}
 
-                    {% if page_receivables > 1 %}
-                    <a
-                        href="?page_sells={{ page_sells }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables - 1 }}">
-                        ←
-                    </a>
-                    {% endif %}
-
-                    {% for p in range(1, total_receivables_pages + 1) %}
-
-                    <a href="?page_sells={{ page_sells }}&page_debts={{ page_debts }}&page_receivables={{ p }}"
-                        class="{% if p == page_receivables %}active{% endif %}">
-                        {{ p }}
-                    </a>
-
-                    {% endfor %}
-
-                    {% if page_receivables < total_receivables_pages %} <a
-                        href="?page_sells={{ page_sells }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables + 1 }}">
-                        →
-                        </a>
-                        {% endif %}
-
-                </div>
+                {% include "pagination.html" %}
             </div>
         </section>
 

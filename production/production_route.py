@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from fastapi.responses import RedirectResponse
+from math import ceil
 from production.production_model import Production
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates 
@@ -55,17 +56,32 @@ def delete_production_route(project_name: str, session: Session = Depends(Create
 
 
 @production_router.get("/")
-def show_production_by_client(request: Request, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+def show_production_by_client(request: Request, session: Session = Depends(CreateSession), user: User = Depends(verify_token), page_projects: int = Query(1, ge=1)):
+    PER_PAGE = 30
     
-    production_projects = session.query(Production).filter(Production.company_id == user.company_id).all()
-
+    base_query = session.query(Production).filter(Production.company_id == user.company_id)
+    total_projects = base_query.count()
+    total_projects_page = ceil(total_projects / PER_PAGE)
+    offset_pages = (page_projects - 1) * PER_PAGE
+    projects_per_page = (base_query.offset(offset_pages).limit(PER_PAGE).all())
     
     return templates.TemplateResponse(
         "production/production.html",
         {   
             "user": user,
             "request": request,
-            "production_projects": production_projects,
+            "items": [{"client_name": project.client_name,
+                        "id": project.id,
+                        "project_name": project.project_name, 
+                        "delivery_date": project.delivery_date,
+                        "description": project.description,
+                        "status": project.status               
+                        } 
+                        for project in projects_per_page
+                        ],
+            "page": page_projects,
+            "total_pages": total_projects_page,
+            "param": "page_projects"
         }
     )
 

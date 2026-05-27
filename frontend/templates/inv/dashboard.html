@@ -47,7 +47,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID do proprietário</th>
+                    <th>Nome do proprietário</th>
                     <th>Material</th>
                     <th>Descrição</th>
                     <th>Estoque</th>
@@ -57,21 +57,36 @@
             </thead>
             <tbody>
                 {% for item in items %}
-                <tr data-item-id="{{ item.id }}">
-                    <td>{{ item.owner.username }}</td>
-                    <td>{{ item.item_name }}</td>
-                    <td>{{ item.description }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td class="actions">
-                        <button class="edit-btn" data-item-id="{{ item.id }}">✏️ Editar</button>
-                        <button class="delete-btn" data-item-id="{{ item.id }}">🗑️ Excluir</button>
-                    </td>
-                    <td>{{ item.updated_at.strftime('%d/%m/%Y') if item.updated_at else '' }}</td>
-                </tr>
-                {% endfor %}
+
+<tr data-item-id="{{ item.id }}">
+    <td>{{ item.owner }}</td>
+    <td>{{ item.item_name }}</td>
+    <td>{{ item.description }}</td>
+    <td>{{ item.quantity }}</td>
+
+    <td class="actions">
+        <button class="edit-btn" data-item-id="{{ item.id }}">
+            ✏️ Editar
+        </button>
+
+        <button class="delete-btn" data-item-id="{{ item.id }}">
+            🗑️ Excluir
+        </button>
+    </td>
+
+    <td>{{ item.updated_at.strftime('%d/%m/%Y') if item.updated_at else '' }}</td>
+</tr>
+
+{% endfor %}
             </tbody>
         </table>
-    </main>
+
+        {% set page = page %}
+        {% set total_pages = total_pages %}
+        {% set param = param %}
+
+        {% include "pagination.html" %}
+</main>
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('collapsed');

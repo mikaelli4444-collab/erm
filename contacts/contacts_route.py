@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Request, Form, HTTPException, status
+from fastapi import APIRouter, Depends, Request, Form, HTTPException, status, Query
+from math import ceil
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates
@@ -30,15 +31,31 @@ def create_contact(name: str = Form(...), email: str | None = Form(None), phone:
 #VIEWS
 
 @contacts_router.get("/")
-def get_contacts(request: Request, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+def get_contacts(request: Request, session: Session = Depends(CreateSession), user: User = Depends(verify_token), page_contacts: int = Query(1, ge=1)):
+    PER_PAGE = 30
     
-    contacts =  session.query(Contacts).filter(Contacts.company_id == user.company_id).all()
-
+    base_query =  session.query(Contacts).filter(Contacts.company_id == user.company_id)
+    total_contacts = base_query.count()
+    total_contacts_page = ceil(total_contacts / PER_PAGE)
+    offset_pages = (page_contacts - 1) * PER_PAGE
+    contacts_per_page = (base_query.offset(offset_pages).limit(PER_PAGE).all())
 
     return templates.TemplateResponse(
         "contacts/contacts.html",
         {
             "request": request,
-            "contacts": contacts,
+            "user": user,
+            "page": page_contacts,
+            "total_pages": total_contacts_page,
+            "param": "page_contacts",
+            "items": [{"name": contact.name,
+                        "id": contact.id,
+                        "phone": contact.phone, 
+                        "type": contact.type,
+                        "email": contact.email,
+                        } 
+                        for contact in contacts_per_page
+                        ],
+            
         }
     )

@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projetos</title>
-
-    <link rel="stylesheet" href="../../static/projects/projects_dashboard.css?v=projects-mobile-catalog-1">
+    <link rel="stylesheet" href="../../static/projects/projects_dashboard.css?v=999">
+    <style>
+        
+    </style>
 </head>
 
 <body>
@@ -65,7 +67,7 @@
                     <p class="card-owner">{{ project.client_name }}</p>
 
                 </div>
-                
+
                 <span class="card-desc">Carpinteiro: {{ project.carpenter.fullname }}</span>
 
                 <div class="card-info">
@@ -74,6 +76,12 @@
 
             </a>
             {% endfor %}
+
+            {% set page = page %}
+            {% set total_pages = total_pages %}
+            {% set param = param %}
+
+            {% include "pagination.html" %}
 
         </section>
 

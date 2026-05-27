@@ -65,18 +65,18 @@
                     <th>Ações</th>
                 </tr>
             </thead>
-            <tbody id="production-table-body">
-                {% for production in production_projects %}
-                <tr data-item-id="{{ production.id }}">
-                    <td>{{ production.project_name }}</td>
-                    <td>{{ production.client_name }}</td>
-                    <td>{{ production.description }}</td>
-                    <td>{{ production.status }}</td>
-                    <td>{{ production.delivery_date }}</td>
+            <tbody id="project-table-body">
+                {% for project in items %}
+                <tr data-item-id="{{ project.id }}">
+                    <td>{{ project.project_name }}</td>
+                    <td>{{ project.client_name }}</td>
+                    <td>{{ project.description }}</td>
+                    <td>{{ project.status }}</td>
+                    <td>{{ project.delivery_date }}</td>
                     <td class="actions">
-                        <button class="edit-btn" data-item-id="{{ production.id }}">✏️ Editar</button>
-                        <button class="delete-btn" data-item-id="{{ production.id }}"><a
-                                href="/production/delete/{{ production.id }}" class="delete-btn"
+                        <button class="edit-btn" data-item-id="{{ project.id }}">✏️ Editar</button>
+                        <button class="delete-btn" data-item-id="{{ project.id }}"><a
+                                href="/production/delete/{{ project.id }}" class="delete-btn"
                                 onclick="return confirm('Excluir este projeto?')">🗑️ Excluir</a></button>
                     </td>
                 </tr>
@@ -84,6 +84,11 @@
             </tbody>
         </table>
 
+        {% set page = page %}
+        {% set total_pages = total_pages %}
+        {% set param = param %}
+
+        {% include "pagination.html" %}
     </main>
 
     <script>

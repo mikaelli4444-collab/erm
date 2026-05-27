@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, Request, Form
+from fastapi import APIRouter, Depends, Request, Form, Query
 from fastapi.responses import RedirectResponse
+from math import ceil
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession
 from inventory.inventory_model import Inventory
@@ -31,20 +32,33 @@ def delete_inventory_item_route(item_name: str, session: Session = Depends(Creat
 
 
 @inventory_router.get("/dashboard")
-def inventory_dashboard(request: Request, search: str = None, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-    query = session.query(Inventory).filter(Inventory.company_id == user.company_id)
-
-    if search:
-        query = query.filter(Inventory.item_name.ilike(f"%{search}%"))
-
-    items = query.all()
+def inventory_dashboard(request: Request, search: str = None, session: Session = Depends(CreateSession), user: User = Depends(verify_token), page_items: int = Query(1, ge=1)):
+    PER_PAGE = 30
+    
+    base_query = session.query(Inventory).filter(Inventory.company_id == user.company_id)
+    total_items = base_query.count()
+    total_items_page = ceil(total_items / PER_PAGE)
+    offset_pages = (page_items - 1) * PER_PAGE
+    item_per_page = (base_query.offset(offset_pages).limit(PER_PAGE).all())
+    
     
     return templates.TemplateResponse(
         "inv/dashboard.html",
         {
             "request": request,
-            "items": items,
-            "user": user
+            "items": [{"item_name": item.item_name,
+                        "id": item.id,
+                        "description": item.description, 
+                        "quantity": item.quantity,
+                        "updated_at": item.updated_at,
+                        "owner": item.owner.username
+                        } 
+                        for item in item_per_page
+                        ],
+            "user": user,
+            "page": page_items,
+            "total_pages": total_items_page,
+            "param": "items_page"
         })
 
 

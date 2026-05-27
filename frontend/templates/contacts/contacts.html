@@ -72,8 +72,8 @@
                 </tr>
             </thead>
             <tbody>
-                {% if contacts %}
-                {% for c in contacts %}
+                {% if items %}
+                {% for c in items %}
                 <tr>
                     <td>{{ c.name }}</td>
                     <td>{{ c.email }}</td>
@@ -94,6 +94,11 @@
                 {% endif %}
             </tbody>
         </table>
+        {% set page = page %}
+        {% set total_pages = total_pages %}
+        {% set param = param %}
+
+        {% include "pagination.html" %}
     </main>
 
     <script>

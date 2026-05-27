@@ -146,11 +146,8 @@ def tranform_contents(projects):
     ]
 
 def show_projects(session: Session, user: User):
-    projects = session.query(Projects).filter(Projects.company_id == user.company_id).options(selectinload(Projects.photos), selectinload(Projects.pdfs), joinedload(Projects.carpenter)).all()
-    
-    transformed_projects = tranform_contents(projects)
-        
-    return transformed_projects
+    return session.query(Projects).filter(Projects.company_id == user.company_id).options(selectinload(Projects.photos), selectinload(Projects.pdfs), joinedload(Projects.carpenter))  
+
 
 def generate_project_share_link(project_id: int, session: Session):
     link = session.query(SharedProjects).filter(SharedProjects.project_id == project_id).first()

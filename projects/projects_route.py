@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, HTTPException, Query
+from math import ceil
 from projects.projects_model import Projects, Comments
 from sqlalchemy import or_
 from typing import List
@@ -7,7 +8,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates
 from core.security import verify_token
 from users.users_model import User
-from projects.projects_services import create_project, add_photo, add_pdf, show_projects, generate_project_share_link, get_shared_project_by_token, delete_link, public_comment
+from projects.projects_services import create_project, tranform_contents, add_photo, add_pdf, show_projects, generate_project_share_link, get_shared_project_by_token, delete_link, public_comment
 from utilities.storage.storage_service import StorageService
 from projects.projects_schema import CommentPayload
 from datetime import date
@@ -89,13 +90,27 @@ def create_comment(request: Request, project_token: str, payload: CommentPayload
 # VIEWS
 
 @projects_router.get("/dashboard")
-def show_projects_view(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+def show_projects_view(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession), page_projects: int = Query(1, ge=1)):
+    
+    PER_PAGE = 10
+    
+    base_query = show_projects(session, user)
+    total_projects = base_query.count()
+    total_items_page = ceil(total_projects / PER_PAGE)
+    offset_pages = (page_projects - 1) * PER_PAGE
+    projects_per_page = (base_query.offset(offset_pages).limit(PER_PAGE).all())
+    
+    transformed_projects = tranform_contents(base_query)
+    
     return templates.TemplateResponse(
         "projects/projects_dashboard.html",
         {
             "request": request,
             "user": user,
-            "items": show_projects(session, user)
+            "items": transformed_projects,
+            "page": page_projects,
+            "total_pages": total_items_page,
+            "param": "items_page"
         }
     )
 
