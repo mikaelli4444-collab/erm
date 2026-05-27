@@ -102,39 +102,35 @@
         </section>
 
         <!-- TABLE -->
-        <div class="data-table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Carpinteiro</th>
-                        <th>Status</th>
-                        <th>Receita</th>
-                        <th>Despesas</th>
-                        <th>Parcelas</th>
-                        <th>Entrega</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
+        
 
-                <tbody>
-                    {% for sell in sells %}
-                    <tr data-id="{{ sell.id }}">
-                        <td>{{ sell.client_name }}</td>
-                        <td>{{ sell.carpenter_id }}</td>
-                        <td>{{ sell.status }}</td>
-                        <td>{{ sell.income }}</td>
-                        <td>{{ sell.expenses }}</td>
-                        <td>{{ sell.installments }}</td>
-                        <td>{{ sell.delivery }}</td>
+            <!-- PAGINATION -->
 
-                        <td>
-                            <button class="delete-btn" data-id="{{ sell.id }}">🗑️ Excluir</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="pagination">
+
+                {% if page_sells > 1 %}
+                <a
+                    href="?page_sells={{ page_sells - 1 }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables }}">
+                    ←
+                </a>
+                {% endif %}
+
+                {% for p in range(1, total_sells_pages + 1) %}
+
+                <a href="?page_sells={{ p }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables }}"
+                    class="{% if p == page_sells %}active{% endif %}">
+                    {{ p }}
+                </a>
+
+                {% endfor %}
+
+                {% if page_sells < total_sells_pages %} <a
+                    href="?page_sells={{ page_sells + 1 }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables }}">
+                    →
+                    </a>
+                    {% endif %}
+
+            </div>
         </div>
 
         <!-- CHARTS -->
@@ -210,6 +206,33 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </table>
+
+                <div class="pagination">
+
+                    {% if page_debts > 1 %}
+                    <a
+                        href="?page_sells={{ page_sells }}&page_debts={{ page_debts - 1 }}&page_receivables={{ page_receivables }}">
+                        ←
+                    </a>
+                    {% endif %}
+
+                    {% for p in range(1, total_debts_pages + 1) %}
+
+                    <a href="?page_sells={{ page_sells }}&page_debts={{ p }}&page_receivables={{ page_receivables }}"
+                        class="{% if p == page_debts %}active{% endif %}">
+                        {{ p }}
+                    </a>
+
+                    {% endfor %}
+
+                    {% if page_debts < total_debts_pages %} <a
+                        href="?page_sells={{ page_sells }}&page_debts={{ page_debts + 1 }}&page_receivables={{ page_receivables }}">
+                        →
+                        </a>
+                        {% endif %}
+
+                </div>
             </div>
         </section>
 
@@ -234,11 +257,11 @@
                     <tbody>
                         {% for receive in receivables %}
                         <tr class="{% if receive.status != 'paid' and receive.due_date < today %}overdue{% endif %}">
-                            <td>{{ receive.client_name }}</td>
-                            <td>{{ receive.installment_number or receive.installments or "—" }}</td>
+                            <td>{{ receive.payer_name }}</td>
+                            <td>{{ receive.numero_cuota_format or "—" }}</td>
                             <td>{{ receive.amount }}</td>
                             <td>{{ receive.due_date }}</td>
-                            <td>{{ "paid" if receive.paid_at else "pending" }}</td>
+                            <td>{{ receive.status }}</td>
                             <td class="actions-row">
                                 <button class="small-btn pay receive-pay-btn" data-id="{{ receive.id }}">Pago</button>
                                 <button class="small-btn edit receive-edit-btn"
@@ -250,6 +273,33 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </table>
+
+                <div class="pagination">
+
+                    {% if page_receivables > 1 %}
+                    <a
+                        href="?page_sells={{ page_sells }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables - 1 }}">
+                        ←
+                    </a>
+                    {% endif %}
+
+                    {% for p in range(1, total_receivables_pages + 1) %}
+
+                    <a href="?page_sells={{ page_sells }}&page_debts={{ page_debts }}&page_receivables={{ p }}"
+                        class="{% if p == page_receivables %}active{% endif %}">
+                        {{ p }}
+                    </a>
+
+                    {% endfor %}
+
+                    {% if page_receivables < total_receivables_pages %} <a
+                        href="?page_sells={{ page_sells }}&page_debts={{ page_debts }}&page_receivables={{ page_receivables + 1 }}">
+                        →
+                        </a>
+                        {% endif %}
+
+                </div>
             </div>
         </section>
 
@@ -637,158 +687,158 @@
             );
 
             // =========================
-// CHARTS
-// =========================
+            // CHARTS
+            // =========================
 
-const chartData = JSON.parse(
-    document.getElementById("dashboard-chart-data").textContent
-);
+            const chartData = JSON.parse(
+                document.getElementById("dashboard-chart-data").textContent
+            );
 
-const pieCtx = document.getElementById("pieChart");
+            const pieCtx = document.getElementById("pieChart");
 
-const lineCtx = document.getElementById("lineChart");
+            const lineCtx = document.getElementById("lineChart");
 
-// PIE CHART
+            // PIE CHART
 
-if (pieCtx) {
+            if (pieCtx) {
 
-    new Chart(pieCtx, {
+                new Chart(pieCtx, {
 
-        type: "doughnut",
+                    type: "doughnut",
 
-        data: {
+                    data: {
 
-            labels: [
-                "Receitas",
-                "Despesas",
-                "Lucro"
-            ],
+                        labels: [
+                            "Receitas",
+                            "Despesas",
+                            "Lucro"
+                        ],
 
-            datasets: [{
+                        datasets: [{
 
-                data: [
-                    chartData.pie_chart.income.value,
-                    chartData.pie_chart.expense.value,
-                    chartData.pie_chart.profit.value
-                ],
+                            data: [
+                                chartData.pie_chart.income.value,
+                                chartData.pie_chart.expense.value,
+                                chartData.pie_chart.profit.value
+                            ],
 
-                backgroundColor: [
-                    "#16a34a",
-                    "#dc2626",
-                    "#2563eb"
-                ],
+                            backgroundColor: [
+                                "#16a34a",
+                                "#dc2626",
+                                "#2563eb"
+                            ],
 
-                borderWidth: 0
+                            borderWidth: 0
 
-            }]
+                        }]
 
-        },
+                    },
 
-        options: {
+                    options: {
 
-            responsive: true,
+                        responsive: true,
 
-            maintainAspectRatio: false,
+                        maintainAspectRatio: false,
 
-            plugins: {
+                        plugins: {
 
-                legend: {
-                    position: "bottom"
-                }
+                            legend: {
+                                position: "bottom"
+                            }
+
+                        }
+
+                    }
+
+                });
 
             }
 
-        }
+            // LINE CHART
 
-    });
+            if (lineCtx) {
 
-}
+                new Chart(lineCtx, {
 
-// LINE CHART
+                    type: "line",
 
-if (lineCtx) {
+                    data: {
 
-    new Chart(lineCtx, {
+                        labels: chartData.line_chart.current_month.days,
 
-        type: "line",
+                        datasets: [
 
-        data: {
+                            {
 
-            labels: chartData.line_chart.current_month.days,
+                                label: chartData.line_chart.current_month.month,
 
-            datasets: [
+                                data: chartData.line_chart.current_month.sales_count,
 
-                {
+                                borderColor: "#1e40af",
 
-                    label: chartData.line_chart.current_month.month,
+                                backgroundColor: "rgba(30,64,175,0.2)",
 
-                    data: chartData.line_chart.current_month.sales_count,
+                                tension: 0.35,
 
-                    borderColor: "#1e40af",
+                                fill: true
 
-                    backgroundColor: "rgba(30,64,175,0.2)",
+                            },
 
-                    tension: 0.35,
+                            {
 
-                    fill: true
+                                label: chartData.line_chart.previous_month.month,
 
-                },
+                                data: chartData.line_chart.previous_month.sales_count,
 
-                {
+                                borderColor: "#16a34a",
 
-                    label: chartData.line_chart.previous_month.month,
+                                backgroundColor: "rgba(22,163,74,0.15)",
 
-                    data: chartData.line_chart.previous_month.sales_count,
+                                tension: 0.35,
 
-                    borderColor: "#16a34a",
+                                fill: true
 
-                    backgroundColor: "rgba(22,163,74,0.15)",
+                            }
 
-                    tension: 0.35,
+                        ]
 
-                    fill: true
+                    },
 
-                }
+                    options: {
 
-            ]
+                        responsive: true,
 
-        },
+                        maintainAspectRatio: false,
 
-        options: {
+                        scales: {
 
-            responsive: true,
+                            y: {
 
-            maintainAspectRatio: false,
+                                beginAtZero: true,
 
-            scales: {
+                                title: {
+                                    display: true,
+                                    text: "Quantidade de vendas"
+                                }
 
-                y: {
+                            },
 
-                    beginAtZero: true,
+                            x: {
 
-                    title: {
-                        display: true,
-                        text: "Quantidade de vendas"
+                                title: {
+                                    display: true,
+                                    text: "Dias do mês"
+                                }
+
+                            }
+
+                        }
+
                     }
 
-                },
-
-                x: {
-
-                    title: {
-                        display: true,
-                        text: "Dias do mês"
-                    }
-
-                }
+                });
 
             }
-
-        }
-
-    });
-
-}
 
         });
     </script>

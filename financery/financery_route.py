@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, Request, HTTPException, Body
+from fastapi import APIRouter, Depends, Request, HTTPException, Body, Query
 from fastapi.responses import RedirectResponse
+from math import ceil
 from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates
 from core.security import verify_token
@@ -20,7 +21,7 @@ from financery.financery_services import (
     edit_receivable,
     is_owner
 )
-from financery.financery_models import Sells
+from financery.financery_models import Sells, Receivable, Debt
 from financery.financery_schema import SellsSchema, DebtCreateSchema, ReceivableCreate
 from datetime import date
 
@@ -163,18 +164,36 @@ def search_users_route(username: str, user: User = Depends(verify_token), sessio
 #VIEWS
 
 @financery_router.get("/dashboard")
-def show_sell(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+def show_sell(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession), page_sells: int = Query(1, ge=1), page_debts: int = Query(1, ge=1), page_receivables: int = Query(1, ge=1)):
     
     isowner = is_owner(user)
     
     if isowner:
-        sells = session.query(Sells).filter(Sells.company_id == user.company_id).all()
-    
+        
+        PER_PAGE = 10
+        base_sells_query = session.query(Sells).filter(Sells.company_id == user.company_id)
+        total_sells = base_sells_query.count()
+        total_sells_pages = ceil(total_sells / PER_PAGE)
+        offset_sells = (page_sells - 1) * PER_PAGE
+        sells = (base_sells_query.offset(offset_sells).limit(PER_PAGE).all())
+
+
+        base_debts_query = session.query(Debt).filter(Debt.company_id == user.company_id)
+        total_debts = base_debts_query.count()
+        total_debts_pages = ceil(total_debts / PER_PAGE)
+        offset_debts = (page_debts - 1) * PER_PAGE
+        pending_debts = (base_debts_query.offset(offset_debts).limit(PER_PAGE).all())
+
+        base_receivables_query = session.query(Receivable).filter(Receivable.company_id == user.company_id)
+        total_receivables = base_receivables_query.count()
+        total_receivables_pages = ceil(total_receivables / PER_PAGE)
+        offset_receivables = (page_receivables - 1) * PER_PAGE
+        receivables = (base_receivables_query.offset(offset_receivables).limit(PER_PAGE).all())
+        
         kdi_data = kdis_calculate(user, session)
         chart_data = financial_transaction_charts(user, session)
-        pending_debts = get_pending_debts(user, session)
-        receivables = get_pending_receivables(user, session)
         today = date.today()
+        
 
         return templates.TemplateResponse("financery/financery_dashboard.html", {
             "request": request,
@@ -184,7 +203,14 @@ def show_sell(request: Request, user: User = Depends(verify_token), session: Ses
             "pending_debts": pending_debts,
             "receivables": receivables,
             "today": today,
-            "user": user
+            "user": user,
+            "page_sells": page_sells,
+            "page_debts": page_debts,
+            "page_receivables": page_receivables,
+
+            "total_sells_pages": total_sells_pages,
+            "total_debts_pages": total_debts_pages,
+            "total_receivables_pages": total_receivables_pages,
         })
         
     else:

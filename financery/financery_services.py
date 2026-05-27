@@ -84,10 +84,11 @@ def add_sell(user: User, session: Session, data: SellsSchema):
 
     if data.carpenter_id:
         carpenter = session.query(User).filter(User.id == data.carpenter_id, User.company_id == user.company_id).one_or_none()
-    
         if not carpenter:
             raise HTTPException(status_code=404, detail="Carpenter not found")
-    
+    else:
+        carpenter = None
+
     new_sell = Sells(
         user_id = user.id,
         company_id = user.company_id,
@@ -102,33 +103,79 @@ def add_sell(user: User, session: Session, data: SellsSchema):
 
     session.add(new_sell)
     session.flush()
-    
-    income_schema = FinancialTransactionSchema(
-    type="income",
-    category="sale",
-    amount=data.income,
-    description=f"Sell to {data.client_name}",
-    reference_id=new_sell.id,
-    is_variable=False
-)
-    
-    expense_schema = FinancialTransactionSchema(
-    type="expense",
-    category="material",
-    amount=data.expenses,
-    description=f"Invested in {data.client_name}",
-    reference_id=new_sell.id,
-    is_variable=False
-)
-    
-    income_data = add_new_transaction(income_schema, user)
-    expense_data = add_new_transaction(expense_schema, user)
-    
-    session.add(income_data)
-    session.add(expense_data)
-    session.commit()
-    
-    return new_sell
+
+    # Si la venta es en cuotas
+    if data.installments > 1:
+        cuota_valor = (Decimal(data.income) / data.installments).quantize(Decimal("0.01"))
+        
+        # Registrar solo la primera cuota como transacción
+        income_schema = FinancialTransactionSchema(
+            type="income",
+            category="sale",
+            amount=cuota_valor,
+            description=f"Primera cuota venta a {data.client_name}",
+            reference_id=new_sell.id,
+            is_variable=False
+        )
+        income_data = add_new_transaction(income_schema, user)
+        session.add(income_data)
+
+        # Registrar el gasto completo (egreso)
+        expense_schema = FinancialTransactionSchema(
+            type="expense",
+            category="material",
+            amount=data.expenses,
+            description=f"Invested in {data.client_name}",
+            reference_id=new_sell.id,
+            is_variable=False
+        )
+        expense_data = add_new_transaction(expense_schema, user)
+        session.add(expense_data)
+
+        for i in range(1, data.installments):
+            
+            due_date = data.delivery + relativedelta(months=i)
+            
+            receivable = Receivable(
+                amount=cuota_valor,
+                due_date=due_date,
+                receiver_id=user.id,
+                payer_name=data.client_name,  # no guardar nombre del cliente en las cuotas
+                description=f"Cuota {i+1}/{data.installments} venta a {data.client_name}",
+                company_id=user.company_id,
+                status="pending",
+                numero_cuota=i+1,
+                numero_cuota_format=f"{i+1}/{data.installments}"
+            )
+            session.add(receivable)
+        session.commit()
+        return new_sell
+
+    # Si la venta es al contado
+    else:
+        income_schema = FinancialTransactionSchema(
+            type="income",
+            category="sale",
+            amount=data.income,
+            description=f"Sell to {data.client_name}",
+            reference_id=new_sell.id,
+            is_variable=False
+        )
+        expense_schema = FinancialTransactionSchema(
+            type="expense",
+            category="material",
+            amount=data.expenses,
+            description=f"Invested in {data.client_name}",
+            reference_id=new_sell.id,
+            is_variable=False
+        )
+        income_data = add_new_transaction(income_schema, user)
+        expense_data = add_new_transaction(expense_schema, user)
+        session.add(income_data)
+        session.add(expense_data)
+        session.commit()
+        
+        return new_sell
     
 def kdis_calculate(user: User, session: Session):
     

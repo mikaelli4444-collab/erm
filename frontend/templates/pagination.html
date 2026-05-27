@@ -1,0 +1,78 @@
+<style>
+    .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.pagination a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    min-width: 38px;
+    height: 38px;
+    padding: 0 12px;
+
+    border-radius: 10px;
+
+    background: var(--bg-main);
+    color: var(--text-main);
+
+    border: 1px solid var(--border);
+
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+
+    transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+    transform: translateY(-2px);
+    border-color: var(--blue);
+    color: var(--blue);
+}
+
+.pagination a.active {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+    box-shadow: 0 6px 16px rgba(30, 64, 175, 0.25);
+}
+
+.pagination a:active {
+    transform: translateY(0px);
+}
+</style>
+
+
+<div class="pagination">
+
+    {% if page > 1 %}
+        <a href="?{{ param }}={{ page - 1 }}&{{ extra_params }}">
+            ←
+        </a>
+    {% endif %}
+
+    {% for p in range(1, total_pages + 1) %}
+
+        <a
+            href="?{{ param }}={{ p }}&{{ extra_params }}"
+            class="{% if p == page %}active{% endif %}"
+        >
+            {{ p }}
+        </a>
+
+    {% endfor %}
+
+    {% if page < total_pages %}
+        <a href="?{{ param }}={{ page + 1 }}&{{ extra_params }}">
+            →
+        </a>
+    {% endif %}
+
+</div>

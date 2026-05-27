@@ -73,6 +73,8 @@ class Receivable(base): #para recibir
     status = Column(SQLEnum(ReceivablesStatusEnum), default=ReceivablesStatusEnum.pending)
     paid_at = Column(Date, nullable=True)
     notification = Column(Boolean, nullable=False, default=False)
+    numero_cuota = Column(Integer, index=True, nullable=True)
+    numero_cuota_format = Column(String, index=True, nullable=True)
     
 class FinancialTransaction(base):
     __tablename__ = "transactions" #METER SOLO LAS TRANSACCIONES QUE REALMENTE SE EFECTUARON, VERIFICAR ESO EN BACK
