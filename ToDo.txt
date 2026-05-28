@@ -20,5 +20,5 @@
 17. agregar un método para eliminar archivos del R2 cuando se borre un registro en la base de datos, para no dejar "archivos huérfanos" en el storage.
 18. Para mayor seguridad, podrías validar la extensión del archivo contra una lista permitida (whitelist) para evitar que suban scripts maliciosos con mimetypes falseados. ........................... DONE
 19. rate limite en todo el proyecto ................. DONE
-20. cuidar duplicados y dobles clicks
+20. cuidar duplicados y dobles clicks 
 21. CAMBIAR TODOS LOS DATOS SENSIBLES DE .env

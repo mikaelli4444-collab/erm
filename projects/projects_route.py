@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates
 from core.security import verify_token
 from users.users_model import User
-from projects.projects_services import create_project, tranform_contents, add_photo, add_pdf, show_projects, generate_project_share_link, get_shared_project_by_token, delete_link, public_comment
+from projects.projects_services import create_project, tranform_contents, add_photo, add_pdf, show_projects, generate_project_share_link, get_shared_project_by_token, public_comment
 from utilities.storage.storage_service import StorageService
 from projects.projects_schema import CommentPayload
 from datetime import date

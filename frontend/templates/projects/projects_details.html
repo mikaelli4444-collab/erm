@@ -111,7 +111,7 @@
 </div>
 
 <script>
-    let images = {{ project.photos | tojson | safe }} || [];
+    let images = JSON.parse('{{ (project.photos or []) | tojson }}');
     let index = 0;
 
     function nextImage() {
