@@ -12,13 +12,13 @@
 9. financery study .... DONE
 10. save and show pictures, pdf and data in projects and show to client with a link (the client dont need login) .................................... DONE
 11. creo que voy a tener que aprovechar la db de ventas y usarlas en projects, talvez production sea eliminado, esa seccion la puedo unir con proyectos facilmente (pensare en ello) .... DONE
-12. agregar seguridad    (innecesario)
+12. agregar seguridad
 13. agregar el cascade es las db que sean necesarias para eliminar correctamente datos relacionados si no tiene sentido guardarlos .... DONE
-14. automatizar la creacion de cuotas para recibir en financery con la creacion de ventas, ya que se dice en cuantas cuotas se paga
-15. no guardar en financeryTransactions las ventas justo despues de crearlas, esperar los pagos realmente efectuarse
+14. automatizar la creacion de cuotas para recibir en financery con la creacion de ventas, ya que se dice en cuantas cuotas se paga ............... DONE
+15. no guardar en financeryTransactions las ventas justo despues de crearlas, esperar los pagos realmente efectuarse ............... DONE
 16. hacer metodos de pago con mercadoPago API .......................... DONE
 17. agregar un método para eliminar archivos del R2 cuando se borre un registro en la base de datos, para no dejar "archivos huérfanos" en el storage.
 18. Para mayor seguridad, podrías validar la extensión del archivo contra una lista permitida (whitelist) para evitar que suban scripts maliciosos con mimetypes falseados. ........................... DONE
-19. rate limite en todo el proyecto
+19. rate limite en todo el proyecto ................. DONE
 20. cuidar duplicados y dobles clicks
 21. CAMBIAR TODOS LOS DATOS SENSIBLES DE .env

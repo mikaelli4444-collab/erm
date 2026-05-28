@@ -8,11 +8,14 @@ from contacts.contacts_models import Contacts
 from contacts.contacts_services import CreateContact
 from contacts.contacts_schema import ContactsBase
 from users.users_model import User
+from utilities.limiter.limiter import limiter
+
 
 contacts_router = APIRouter(prefix="/ctc", tags=["ctc"])
 
 @contacts_router.post("/add")
-def create_contact(name: str = Form(...), email: str | None = Form(None), phone: str = Form(...), type: str = Form(...), user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("5/minute")
+def create_contact(request: Request, name: str = Form(...), email: str | None = Form(None), phone: str = Form(...), type: str = Form(...), user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     
     contact = ContactsBase(
         name=name,

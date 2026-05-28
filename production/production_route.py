@@ -7,12 +7,14 @@ from core.dependencies import CreateSession, templates
 from core.security import verify_token 
 from production.production_schema import create_production
 from users.users_model import User
+from utilities.limiter.limiter import limiter
 
 
 production_router = APIRouter(prefix="/production", tags=["production"])
 
 @production_router.post("/add")
-def create_project_in_production(production: create_production, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+@limiter.limit("5/minute")
+def create_project_in_production(request: Request, production: create_production, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     
     new_production_item = Production(
         project_name=production.project_name,
@@ -36,7 +38,8 @@ def create_project_in_production(production: create_production, session: Session
     }
 
 @production_router.post("/delete/{production_name}")
-def delete_production_route(project_name: str, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+@limiter.limit("5/minute")
+def delete_production_route(request: Request, project_name: str, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
     project_to_delete = session.query(Production).filter(Production.project_name == project_name, Production.company_id == user.company_id).first()
 
@@ -86,7 +89,8 @@ def show_production_by_client(request: Request, session: Session = Depends(Creat
     )
 
 @production_router.get("/delete/{production_id}")
-def delete_project_get(production_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+@limiter.limit("5/minute")
+def delete_project_get(request: Request, production_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
 
     project = session.query(Production).filter(Production.id == production_id, Production.company_id == user.company_id).first()
 

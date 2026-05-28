@@ -12,10 +12,12 @@ from core.dependencies import templates
 from core.config import SECRET_KEY, ALGORITHM
 from utilities.net.autorouter import use_autorouter
 from jose import jwt
+from utilities.limiter.limiter import limiter
 
 home_router = APIRouter(prefix="/home", tags=["home"])
 
 @home_router.post("/login")
+@limiter.limit("5/minute")
 async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(CreateSession)):
     user = authuser(form_data.username, form_data.password, session)
 
@@ -59,6 +61,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
     
 
 @home_router.post("/signup")
+@limiter.limit("2/minute")
 async def create_user(request: Request, session: Session = Depends(CreateSession), company: str = Form(None), fullname: str = Form(...), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     
     user = session.query(User).filter((User.email==email) | (User.username==username)).first()
@@ -136,6 +139,7 @@ async def create_user(request: Request, session: Session = Depends(CreateSession
 
 
 @home_router.post("/verify-email")
+@limiter.limit("5/minute")
 async def verify_email(request: Request,session: Session = Depends(CreateSession), code: str = Form(...), verification_jwt: str = Form(...)):
 
     data = verify_verification_token(verification_jwt)
@@ -171,6 +175,7 @@ async def verify_email(request: Request,session: Session = Depends(CreateSession
 
 
 @home_router.post("/resend-verification-email")
+@limiter.limit("2/minute")
 async def resend_verification_email(request: Request, session: Session = Depends(CreateSession), verification_jwt: str = Form(...)):
     data = verify_verification_token(verification_jwt)
     
@@ -206,6 +211,7 @@ async def resend_verification_email(request: Request, session: Session = Depends
     })
 
 @home_router.post("/create-company")
+@limiter.limit("2/minute")
 def create_company_router(request: Request, session: Session = Depends(CreateSession), company_name: str = Form(...), legal_name: str = Form(...), tax_id: str = Form(...), email: str = Form(...)):
     
     access_token = request.cookies.get("access_token")
@@ -273,6 +279,7 @@ async def forgot_password(request: Request, password: str = Form(...), confirm_p
         })
 
 @home_router.post("/verify-email-password")
+@limiter.limit("5/minute")
 async def verify_email_password(request: Request, code: str = Form(...), verification_jwt: str = Form(...), session: Session = Depends(CreateSession)):
     data = verify_verification_token(verification_jwt)
 

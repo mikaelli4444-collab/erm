@@ -14,6 +14,7 @@ from projects.projects_schema import CommentPayload
 from datetime import date
 from core.config.config_loader import RAW_CONFIG
 import secrets
+from utilities.limiter.limiter import limiter
 
 projects_router = APIRouter(prefix="/projects", tags=["prj"])
 
@@ -24,7 +25,8 @@ def show_projects_router(session: Session = Depends(CreateSession), user: User =
     
 
 @projects_router.post("/add")
-def create_new_project(user: User = Depends(verify_token), session: Session = Depends(CreateSession), name: str = Form(...), carpenter_id: int = Form(...), client_name: str = Form(...), delivery: date = Form(...), description: str = Form(...), address: str = Form(...), photo: List[UploadFile] = File([]), pdf: List[UploadFile] = File([])):
+@limiter.limit("5/minute")
+def create_new_project(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession), name: str = Form(...), carpenter_id: int = Form(...), client_name: str = Form(...), delivery: date = Form(...), description: str = Form(...), address: str = Form(...), photo: List[UploadFile] = File([]), pdf: List[UploadFile] = File([])):
     new_project = create_project(user, session, name, carpenter_id, client_name, delivery, description, address)
     
     storage = StorageService(RAW_CONFIG) #nota mental: aqui le estoy pasando toda la config porque el storage necesita saber el valor de variables de entorno

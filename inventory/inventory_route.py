@@ -9,24 +9,28 @@ from users.users_model import User
 from core.security import verify_token
 from inventory.inventory_service import edit_inventory_item, delete_inventory_item, create_inventory_item
 from core.dependencies import templates
+from utilities.limiter.limiter import limiter
 
 inventory_router = APIRouter(prefix="/inv", tags=["inv"])
 
 @inventory_router.post("/add")
-def create_inventory_item_route(item_name: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+@limiter.limit("5/minute")
+def create_inventory_item_route(request: Request, item_name: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     create_inventory_item(item_name, description, quantity, session, user)
     return RedirectResponse(url="/inv/dashboard", status_code=303)
 
 
 @inventory_router.post("/edit/{item_name}")
-def update_inventory_item_route(item_name: str, item_name_new: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+@limiter.limit("5/minute")
+def update_inventory_item_route(request: Request, item_name: str, item_name_new: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     item_update = ItemCreate( item_name=item_name_new, description=description, quantity=quantity, owner_id=user.id)
     edit_inventory_item(item_name, item_update, user, session)
     return RedirectResponse(url="/inv/dashboard", status_code=303)
 
 
 @inventory_router.post("/delete/{item_name}")
-def delete_inventory_item_route(item_name: str, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+@limiter.limit("5/minute")
+def delete_inventory_item_route(request: Request, item_name: str, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     delete_inventory_item(item_name, user, session)
     return RedirectResponse(url="/inv/dashboard", status_code=303)
 

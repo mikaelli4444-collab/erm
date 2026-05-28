@@ -24,13 +24,14 @@ from financery.financery_services import (
 from financery.financery_models import Sells, Receivable, Debt
 from financery.financery_schema import SellsSchema, DebtCreateSchema, ReceivableCreate
 from datetime import date
+from utilities.limiter.limiter import limiter
 
 financery_router = APIRouter(prefix="/financery", tags=["financery"])
 
 
-@financery_router.post("/dashboard")
 @financery_router.post("/sell")
-def add_sell_endpoint(data: SellsSchema, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("5/minute")
+def add_sell_endpoint(request: Request, data: SellsSchema, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -42,7 +43,8 @@ def add_sell_endpoint(data: SellsSchema, user: User = Depends(verify_token), ses
 
 
 @financery_router.delete("/sell/{sell_id}")
-def delete_sell_endpoint(sell_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("5/minute")
+def delete_sell_endpoint(request: Request, sell_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -58,7 +60,8 @@ def delete_sell_endpoint(sell_id: int, user: User = Depends(verify_token), sessi
 
 
 @financery_router.post("/dashboard/debt")
-def create_debt(data: DebtCreateSchema, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("8/minute")
+def create_debt(request: Request, data: DebtCreateSchema, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -70,7 +73,8 @@ def create_debt(data: DebtCreateSchema, user: User = Depends(verify_token), sess
 
 
 @financery_router.post("/dashboard/receivable")
-def create_receivable(data: ReceivableCreate, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("8/minute")
+def create_receivable(request: Request, data: ReceivableCreate, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -82,7 +86,8 @@ def create_receivable(data: ReceivableCreate, user: User = Depends(verify_token)
 
 
 @financery_router.post("/dashboard/payment/{payment_id}/pay")
-def pay_debt_endpoint(payment_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("8/minute")
+def pay_debt_endpoint(request: Request, payment_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -94,7 +99,8 @@ def pay_debt_endpoint(payment_id: int, user: User = Depends(verify_token), sessi
 
 
 @financery_router.post("/dashboard/receivable/{receivable_id}/pay")
-def pay_receivable_endpoint(receivable_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("8/minute")
+def pay_receivable_endpoint(request: Request, receivable_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -106,7 +112,8 @@ def pay_receivable_endpoint(receivable_id: int, user: User = Depends(verify_toke
 
 
 @financery_router.delete("/dashboard/payment/{payment_id}")
-def delete_payment_endpoint(payment_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("8/minute")
+def delete_payment_endpoint(request: Request, payment_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -118,7 +125,8 @@ def delete_payment_endpoint(payment_id: int, user: User = Depends(verify_token),
 
 
 @financery_router.delete("/dashboard/receivable/{receivable_id}")
-def delete_receivable_endpoint(receivable_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("8/minute")
+def delete_receivable_endpoint(request: Request, receivable_id: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -130,7 +138,8 @@ def delete_receivable_endpoint(receivable_id: int, user: User = Depends(verify_t
 
 
 @financery_router.put("/dashboard/payment/{payment_id}")
-def edit_payment_endpoint(payment_id: int, data: dict = Body(...), user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("8/minute")
+def edit_payment_endpoint(request: Request, payment_id: int, data: dict = Body(...), user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -142,7 +151,8 @@ def edit_payment_endpoint(payment_id: int, data: dict = Body(...), user: User = 
 
 
 @financery_router.put("/dashboard/receivable/{receivable_id}")
-def edit_receivable_endpoint(receivable_id: int, data: dict = Body(...), user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+@limiter.limit("8/minute")
+def edit_receivable_endpoint(request: Request, receivable_id: int, data: dict = Body(...), user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     isowner = is_owner(user)
     
     if isowner:
@@ -153,7 +163,7 @@ def edit_receivable_endpoint(receivable_id: int, data: dict = Body(...), user: U
         return ValueError('No Owner')
     
 @financery_router.get("/users/search") #esta funcion es para el autocomplete del input de carpintero en el html
-def search_users_route(username: str, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+def search_users_route(request: Request, username: str, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
     users = session.query(User).filter((User.company_id == user.company_id), User.username.ilike(f"%{username}%") | (User.fullname.ilike(f"%{username}%"))).all()
 
     return [
