@@ -139,17 +139,112 @@ body {
 }
 
 /* =========================
-   PAGE HEADER (TÍTULO + BOTÓN)
+   PAGE HEADER
 ========================= */
 .page-header {
+    position: relative; /* FUNDAMENTAL para que el form se posicione aquí */
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-bottom: 24px;
 }
 
-.page-header h1 {
-    font-size: 2rem;
+/* =========================
+   ADD CONTACT FORM
+========================= */
+.add-contact-form {
+    position: absolute;
+    top: 100%; /* Justo debajo del header */
+    right: 0;
+    margin-top: 10px; /* Espacio entre el botón y el form */
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    background: var(--bg-main);
+    padding: 16px 18px;
+    border-radius: 8px;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* Sombra un poco más visible */
+
+    z-index: 100; /* Asegura que esté por encima de la tabla */
+}
+
+.add-contact-form.hidden {
+    display: none;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.form-row input {
+    min-width: 180px;
+    padding: 8px 2px;
+    font-size: 14px;
+    color: var(--text-main);
+
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+}
+
+.form-row input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-row input:focus {
+    outline: none;
+    border-bottom-color: var(--blue);
+}
+
+.form-row select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+
+.form-row select:focus {
+    outline: none;
+    border-bottom-color: var(--blue);
+}
+
+.add-contact-form button {
+    padding: 8px 18px;
+
+    background: var(--blue);
+    color: white;
+
+    font-weight: 600;
+
+    border: none;
+    border-radius: 6px;
+
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.add-contact-form button:hover {
+    background: var(--blue-hover);
+}
+
+/* Estilos generales para botones de acción (opcional si no los tenías) */
+.add-btn {
+    padding: 10px 20px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.add-btn:hover {
+    background: var(--blue-hover);
 }
 
 /* =========================
@@ -174,34 +269,6 @@ body {
     background: var(--blue-hover);
 }
 
-/* =========================
-   ADD CONTACT FORM
-========================= */
-.add-contact-form {
-    margin-bottom: 24px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: white;
-}
-
-.add-contact-form.hidden {
-    display: none;
-}
-
-.form-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.form-row input,
-.form-row select {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-}
 
 /* =========================
    FILTER FORM
@@ -317,10 +384,13 @@ th, td {
     }
 
     .page-header {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 12px;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    position: relative;
+}
 
     .page-header h1 {
         font-size: 1.6rem;
@@ -361,4 +431,77 @@ th, td {
     .sidebar.collapsed + .main-content {
         padding: 20px 12px;
     }
+}
+
+
+.edit-btn,
+.delete-btn,
+.save-btn,
+.cancel-edit {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.edit-btn,
+.save-btn {
+    background: var(--blue);
+}
+
+.delete-btn,
+.cancel-edit {
+    background: var(--red);
+}
+
+.edit-btn:hover,
+.save-btn:hover {
+    filter: brightness(0.95);
+}
+
+.delete-btn:hover,
+.cancel-edit:hover {
+    filter: brightness(0.95);
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+tr[data-editing="true"] {
+    background: #eff6ff;
+}
+
+tr[data-editing="true"] td {
+    vertical-align: middle;
+}
+
+.edit-name,
+.edit-email,
+.edit-phone,
+.edit-type {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+}
+
+.edit-name:focus,
+.edit-email:focus,
+.edit-phone:focus,
+.edit-type:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
 }

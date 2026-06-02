@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projetos</title>
-    <link rel="stylesheet" href="../../static/projects/projects_dashboard.css?v=999">
+    <link rel="stylesheet" href="../../static/projects/projects_dashboard.css?v=projects-swipe-1">
     <style>
         
     </style>
@@ -50,8 +50,10 @@
 
                 {% if project.photos and project.photos|length > 0 %}
 
-                <div class="card-image-container">
-                    <img class="card-image" src="{{ project.photos[0] }}" alt="{{ project.name }}">
+                <div class="card-image-container card-gallery">
+                    {% for photo in project.photos %}
+                    <img class="card-image" src="{{ photo }}" alt="{{ project.name }}">
+                    {% endfor %}
                 </div>
 
                 {% else %}

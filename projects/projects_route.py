@@ -19,7 +19,8 @@ from utilities.limiter.limiter import limiter
 projects_router = APIRouter(prefix="/projects", tags=["prj"])
 
 @projects_router.post("/dashboard")
-def show_projects_router(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+@limiter.limit("3/minute")
+def show_projects_router(request: Request, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     show_projects(session, user)
     return RedirectResponse(url="/projects/dashboard", status_code=303)
     

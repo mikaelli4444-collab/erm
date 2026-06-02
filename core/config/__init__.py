@@ -54,6 +54,11 @@ ASSINATURA_MP = string_parse("mercado_pago.assinatura_mp")
 NOTIFY_URL = string_parse("mercado_pago.notify_url")
 #endregion
 
+#refion AbacatePay config
+ABACATE_PAY_KEY = string_parse("abacatepay.abacatepay_key")
+ABACATE_PAY_WEBHOOK_SECRET = string_parse("abacatepay.abacate_pay_webhook_secret")
+#endregion
+
 #region URL config
 URL_EXPIRATION_MINUTES = integer_parse("url.expiration_minutes")
 BASE_URL = string_parse("url.base_url")

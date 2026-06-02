@@ -43,6 +43,10 @@ mercado_pago:
   assinatura_mp: ${ASSINATURA_MP}
   notify_url: ${NOTIFY_URL}
 
+abacatepay:
+  abacatepay_key: ${ABACATE_PAY_KEY}
+  abacate_pay_webhook_secret: ${ABACATE_PAY_WEBHOOK_SECRET}
+
 url:
   expiration_minutes: 43200
   base_url: ${BASE_URL}

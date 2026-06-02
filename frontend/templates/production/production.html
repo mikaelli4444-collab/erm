@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Produção</title>
 
-    <link rel="stylesheet" href="../../static/production/production.css">
+    <link rel="stylesheet" href="../../static/production/production.css?v=2">
     <script type="module" src="/static/js/refresh_token.js"></script>
 </head>
 
@@ -96,12 +96,12 @@
 
             const addBtn = document.getElementById("add-production-btn");
             const form = document.getElementById("production-form");
-            const tableBody = document.getElementById("production-table-body");
+            const tableBody = document.getElementById("project-table-body");
 
             window.searchProduction = function () {
                 const query = document.getElementById("searchCliente").value.trim().toLowerCase();
 
-                document.querySelectorAll("#production-table-body tr").forEach((row) => {
+                document.querySelectorAll("#project-table-body tr").forEach((row) => {
                     const clientName = row.children[1]?.textContent.toLowerCase() || "";
                     row.style.display = clientName.includes(query) ? "" : "none";
                 });
@@ -128,6 +128,89 @@
                 form.classList.toggle("active");
             });
 
+            const productionStatuses = [
+                ["pending", "Pendente"],
+                ["in_progress", "Em andamento"],
+                ["completed", "Terminado"]
+            ];
+
+            function statusOptions(currentStatus) {
+                return productionStatuses.map(([value, label]) => {
+                    const selected = value === currentStatus ? "selected" : "";
+                    return `<option value="${value}" ${selected}>${label}</option>`;
+                }).join("");
+            }
+
+            function bindProductionRow(row) {
+                const editButton = row.querySelector(".edit-btn");
+
+                if (!editButton) return;
+
+                editButton.addEventListener("click", () => {
+                    if (row.dataset.editing === "true") return;
+
+                    row.dataset.editing = "true";
+
+                    const productionId = row.dataset.itemId;
+                    const originalProjectName = row.children[0].innerText.trim();
+                    const originalClientName = row.children[1].innerText.trim();
+                    const originalDescription = row.children[2].innerText.trim();
+                    const originalStatus = row.children[3].innerText.trim();
+                    const originalDeliveryDate = row.children[4].innerText.trim();
+
+                    row.innerHTML = `
+                        <td><input class="edit-project-name" type="text" value="${originalProjectName}" required></td>
+                        <td><input class="edit-client-name" type="text" value="${originalClientName}" required></td>
+                        <td><input class="edit-description" type="text" value="${originalDescription}" required></td>
+                        <td>
+                            <select class="edit-status">
+                                ${statusOptions(originalStatus)}
+                            </select>
+                        </td>
+                        <td><input class="edit-delivery-date" type="date" value="${originalDeliveryDate}" required></td>
+                        <td class="actions">
+                            <button type="button" class="save-btn">Salvar</button>
+                            <button type="button" class="cancel-edit">Cancelar</button>
+                        </td>
+                    `;
+
+                    row.querySelector(".save-btn").addEventListener("click", async () => {
+                        const payload = {
+                            project_name: row.querySelector(".edit-project-name").value,
+                            client_name: row.querySelector(".edit-client-name").value,
+                            description: row.querySelector(".edit-description").value,
+                            status: row.querySelector(".edit-status").value,
+                            delivery_date: row.querySelector(".edit-delivery-date").value
+                        };
+
+                        try {
+                            const res = await fetch(`/production/edit/${productionId}`, {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bearer ${getToken()}`
+                                },
+                                body: JSON.stringify(payload)
+                            });
+
+                            if (!res.ok) {
+                                const err = await res.json();
+                                alert(err.detail || "Não foi possÃ­vel atualizar");
+                                return;
+                            }
+
+                            location.reload();
+                        } catch {
+                            alert("Erro de conexão com o servidor");
+                        }
+                    });
+
+                    row.querySelector(".cancel-edit").addEventListener("click", () => location.reload());
+                });
+            }
+
+            document.querySelectorAll("#project-table-body tr").forEach(bindProductionRow);
+
             // ===============================
             // CREAR FILA
             // ===============================
@@ -142,38 +225,12 @@
             <td>${item.status}</td>
             <td>${item.delivery_date}</td>
             <td class="actions">
-                <button class="edit-btn">✏️ Editar</button>
-                <button class="delete-btn">🗑️ Excluir</button>
+                <button type="button" class="edit-btn" data-item-id="${item.id}">✏️ Editar</button>
+                <a href="/production/delete/${item.id}" class="delete-btn" onclick="return confirm('Excluir este projeto?')">🗑️ Excluir</a>
             </td>
         `;
 
-                // DELETE CON JS (usa tu backend TAL CUAL)
-                row.querySelector(".delete-btn").addEventListener("click", async () => {
-                    if (!confirm("Excluir este projeto?")) return;
-
-                    try {
-                        const res = await fetch(
-                            `/production/delete/${encodeURIComponent(item.project_name)}`,
-                            {
-                                method: "POST",
-                                headers: {
-                                    "Authorization": `Bearer ${getToken()}`
-                                }
-                            }
-                        );
-
-                        if (!res.ok) {
-                            const err = await res.json();
-                            alert(err.detail || "Erro ao excluir o projeto");
-                            return;
-                        }
-
-                        row.remove();
-
-                    } catch {
-                        alert("Erro de conexão com o servidor");
-                    }
-                });
+                bindProductionRow(row);
 
                 return row;
             }

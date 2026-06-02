@@ -40,7 +40,7 @@ def create_project(user: User, session: Session, name: str, carpenter_id: int, c
     
     role = usuario.role
     
-    if role not in ["carpenter", "admin"]:
+    if role not in ["carpenter", "admin", "owner"]:
         raise HTTPException(status_code=400, detail="User is not a carpenter or admin")
     
     

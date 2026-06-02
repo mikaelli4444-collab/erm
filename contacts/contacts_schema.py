@@ -14,3 +14,9 @@ class ContactsBase(BaseModel):
     email: Optional[str] = None
     phone: str
     type: types
+    
+class ContactUpdate(BaseModel):
+    name: str
+    email: str | None = None
+    phone: str
+    type: str

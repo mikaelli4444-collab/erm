@@ -68,12 +68,8 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  min-height: 100dvh;
-  padding: clamp(1rem, 4vw, 2rem);
-  overflow-x: hidden;
-  background:
-    radial-gradient(circle at top left, rgba(99, 102, 241, 0.14), transparent 32rem),
-    linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 /* ============================================
@@ -101,10 +97,9 @@ p {
 
 .signup-container {
   background-color: var(--card-background);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
-  padding: clamp(1.5rem, 5vw, var(--spacing-2xl));
+  padding: var(--spacing-2xl);
   max-width: 500px;
   width: 100%;
   animation: slideUp 0.5s ease-out;
@@ -210,8 +205,7 @@ input[type="text"],
 input[type="email"],
 input[type="password"] {
   width: 100%;
-  min-height: 48px;
-  padding: 0.875rem var(--spacing-md);
+  padding: var(--spacing-md);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   font-family: var(--font-family-body);
@@ -219,7 +213,7 @@ input[type="password"] {
   color: var(--text-primary);
   background-color: var(--card-background);
   transition: all var(--transition-base);
-  letter-spacing: 0;
+  letter-spacing: 0.05em;
 }
 
 input[type="text"]:focus,
@@ -286,7 +280,6 @@ input[type="password"]::placeholder {
 
 button {
   width: 100%;
-  min-height: 48px;
   padding: var(--spacing-md) var(--spacing-lg);
   border: none;
   border-radius: var(--radius-md);
@@ -300,22 +293,19 @@ button {
   font-size: var(--font-size-sm);
 }
 
-.btn-signup,
-.btn-login {
+.btn-signup {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
   color: white;
   box-shadow: var(--shadow-md);
 }
 
-.btn-signup:hover,
-.btn-login:hover {
+.btn-signup:hover {
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
-.btn-signup:active,
-.btn-login:active {
+.btn-signup:active {
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
 }
@@ -361,26 +351,21 @@ button:disabled {
 
 @media (max-width: 640px) {
   .signup-container {
-    max-width: 100%;
+    padding: var(--spacing-xl);
   }
 
   .signup-header h1 {
     font-size: var(--font-size-xl);
   }
 
-  .signup-header {
-    margin-bottom: var(--spacing-xl);
+  body {
+    padding: var(--spacing-md);
   }
 }
 
 @media (max-width: 480px) {
-  body {
-    align-items: flex-start;
-    padding: var(--spacing-md);
-  }
-
   .signup-container {
-    margin: auto 0;
+    padding: var(--spacing-lg);
   }
 
   .signup-header h1 {
@@ -388,6 +373,7 @@ button:disabled {
   }
 
   button {
+    padding: var(--spacing-md);
     font-size: var(--font-size-sm);
   }
 
@@ -552,9 +538,7 @@ button:focus-visible {
 }
 
 .payment-modal {
-  width: min(420px, calc(100vw - 2rem));
-  max-height: calc(100dvh - 2rem);
-  overflow-y: auto;
+  width: 420px;
   background: #fff;
   border-radius: 16px;
   padding: 24px;
@@ -746,13 +730,51 @@ input {
     display: none;
 }
 
+@media (max-width: 520px) {
+
+  /* 🔥 evita que el fondo siga “vivo” */
+  body {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* mejor contraste del overlay en móvil */
+  .payment-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+  }
+
+  /* hacer que el modal “domine” la pantalla */
+  .payment-modal {
+    background: #ffffff;
+    opacity: 1 !important;
+    transform: translateY(0);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+  }
+
+  /* mejora de legibilidad del contenido */
+  .payment-modal label {
+    color: #374151;
+    font-weight: 500;
+  }
+
+  /* evita sensación de “apagado” */
+  .payment-overlay.active {
+    pointer-events: auto;
+  }
+}
+
+/* =========================================
+   PLANS PAGE RESPONSIVE OVERRIDES
+========================================= */
+
 .login-container {
-  background-color: var(--card-background);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  width: min(1400px, 100%);
+  background: transparent;
+  border: 0;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: clamp(1.5rem, 5vw, var(--spacing-2xl));
-  width: min(100%, 1180px);
+  box-shadow: none;
+  padding: clamp(1.5rem, 4vw, var(--spacing-2xl));
 }
 
 .login-header {
@@ -775,34 +797,128 @@ input {
 }
 
 .plans-container {
-  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-lg);
+  overflow: visible;
+  scroll-snap-type: none;
+  padding-bottom: 0;
 }
 
-@media (max-width: 760px) {
+.plan-card {
+  min-width: 0;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  scroll-snap-align: unset;
+}
+
+.btn-login {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-login:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.payment-modal {
+  width: min(460px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+
+@media (max-width: 1100px) {
+  body {
+    align-items: flex-start;
+    padding: var(--spacing-lg);
+  }
+
   .plans-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: var(--spacing-md);
+  }
+
+  .login-container {
+    background: var(--card-background);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-lg);
+  }
+
+  .login-header {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .login-header h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .plans-container {
+    grid-template-columns: 1fr;
     gap: var(--spacing-md);
-    margin-left: calc(var(--spacing-md) * -1);
-    margin-right: calc(var(--spacing-md) * -1);
-    padding-left: var(--spacing-md);
-    padding-right: var(--spacing-md);
   }
 
   .plan-card {
-    min-width: min(280px, calc(100vw - 3rem));
+    padding: var(--spacing-lg);
+  }
+
+  .plan-price {
+    font-size: var(--font-size-xl);
   }
 
   .payment-overlay {
     align-items: flex-start;
-    padding: 1rem;
+    padding: var(--spacing-md);
     overflow-y: auto;
   }
 
   .payment-modal {
-    padding: 20px;
+    width: 100%;
+    padding: var(--spacing-lg);
   }
 
   .row {
     flex-direction: column;
     gap: 0;
+  }
+
+  .close-btn {
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -8px -8px 4px auto;
+  }
+}
+
+@media (max-width: 420px) {
+  body {
+    padding: var(--spacing-sm);
+  }
+
+  .login-container {
+    padding: var(--spacing-md);
+  }
+
+  .plan-card {
+    padding: var(--spacing-md);
+  }
+
+  .plan-features {
+    padding-left: var(--spacing-lg);
   }
 }

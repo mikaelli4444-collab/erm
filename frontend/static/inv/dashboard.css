@@ -492,3 +492,67 @@ tr:hover {
         padding: 12px;
     }
 }
+
+
+/* =========================================================
+   INVENTORY EDIT MODE
+   ========================================================= */
+
+.edit-input {
+    width: 100%;
+    min-width: 120px;
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    background: #fff;
+    color: var(--text-main);
+    font-size: 14px;
+
+    transition: all 0.2s ease;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+}
+
+.save-btn,
+.cancel-edit {
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.save-btn {
+    background: var(--blue);
+    color: rgb(252, 252, 252);
+}
+
+.save-btn:hover {
+    filter: brightness(0.95);
+}
+
+.cancel-edit {
+    background: var(--red);
+    color: rgb(252, 252, 252);
+}
+
+.cancel-edit:hover {
+    background: #d1d5db;
+}
+
+tr:has(.save-btn) {
+    background: #eff6ff;
+}
+
+tr:has(.save-btn):hover {
+    background: #eff6ff;
+}

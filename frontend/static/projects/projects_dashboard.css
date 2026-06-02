@@ -165,6 +165,25 @@ body {
     object-fit: cover;
 }
 
+.card-gallery {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.card-gallery .card-image {
+    flex: 0 0 100%;
+    min-width: 100%;
+    scroll-snap-align: center;
+}
+
+.card-gallery::-webkit-scrollbar {
+    display: none;
+}
+
 .card-image-placeholder {
     font-size: 0.8rem;
     color: var(--text-muted);
