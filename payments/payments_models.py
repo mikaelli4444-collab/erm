@@ -2,7 +2,7 @@ from sqlalchemy import Integer, String, Column, ForeignKey, Boolean, Date, Enum 
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import date
-from core.enum.enum import plansEnum, SubscriptionStatusEnum
+from core.enum.enum import PlansEnum, SubscriptionStatusEnum
 
 class Subscription(base):
     __tablename__ = 'subscription'
@@ -18,7 +18,7 @@ class Subscription(base):
     amount = Column(Integer, nullable=False)
     payment_provider_id = Column(String, nullable=True)
     provider_subscription_id = Column(String, nullable=True)
-    status = Column(String, nullable=False)
+    status = Column(SQLEnum(SubscriptionStatusEnum), nullable=False)
     is_active = Column(Boolean)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True, index=True)
     company = relationship("Company", back_populates="company_subscription")
@@ -28,7 +28,7 @@ class Plans(base):
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     #mp_plan_id = Column(String, nullable=False, index=True) MALDITA BASURA DE MERCADO_PAGO
-    name = Column(SQLEnum(plansEnum), nullable=False, index=True)
+    name = Column(SQLEnum(PlansEnum), nullable=False, index=True)
     amount = Column(Integer, nullable=False, index=True)
     frequency = Column(Integer, nullable=False, index=True)
     external_id = Column(String, nullable=True, index=True) #id del plan en el proveedor de pagos

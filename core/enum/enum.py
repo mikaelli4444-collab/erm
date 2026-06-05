@@ -74,3 +74,4 @@ class TaskStatusEnum(str, Enum):
     assembly = "Montagem"
     validation = "Validação"
     review = "Revisão"
+    
