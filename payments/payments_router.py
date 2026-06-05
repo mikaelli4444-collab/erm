@@ -1,4 +1,5 @@
 import json
+import requests
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from core.dependencies import templates, CreateSession
@@ -8,9 +9,77 @@ from payments.payments_models import Subscription, Plans
 from payments.payments_services import select_plan, create_subscription, update_subscription, update_company_value
 from payments.webhook import verify_webhook
 from utilities.limiter.limiter import limiter
+from core.config import ABACATE_PAY_KEY
 
 payments_router = APIRouter(prefix="/payments", tags=["Payments"])
 
+@payments_router.post("/create_plan")
+@limiter.limit("3/minute")
+async def create_plan(request: Request, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    data = await request.json()
+    name = data.get("name")
+    amount = data.get("amount")
+    external_id = data.get("external_id")
+    frequency = data.get("frequency", 1) 
+
+    if not all([name, amount, external_id]):
+        raise HTTPException(status_code=400, detail="Missing required fields")
+
+    cycle_map = {
+        1: "MONTHLY",
+        12: "ANNUALLY"
+    }
+    abacate_cycle = cycle_map.get(frequency, "MONTHLY")
+
+    headers = {
+        "Authorization": f"Bearer {ABACATE_PAY_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    abacate_payload = {
+        "externalId": external_id,
+        "name": name,
+        "price": amount,
+        "currency": "BRL", 
+        "description": f"Plano {name}",
+        "cycle": abacate_cycle
+    }
+
+    try:
+        response = requests.post(
+            f"https://api.abacatepay.com/v2/products/c  reate",
+            json=abacate_payload,
+            headers=headers
+        )
+        abacate_data = response.json()
+        
+        if response.status_code != 200 or not abacate_data.get("success"):
+            error_detail = abacate_data.get("error", "Erro desconhecido na AbacatePay")
+            raise HTTPException(status_code=400, detail=f"AbacatePay Error: {error_detail}")
+
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
+        raise HTTPException(status_code=500, detail=f"Erro de conexão com AbacatePay: {str(e)}")
+
+    new_plan = Plans(
+        name=name, 
+        amount=amount, 
+        external_id=external_id,
+        frequency=frequency,
+    )
+    session.add(new_plan)
+    session.commit()
+
+    return {
+        "status": "success", 
+        "plan_id": new_plan.id,
+        "abacatepay_id": abacate_data["data"]["id"]
+    }
+    
+    
 @payments_router.post("/subscribe/{plan_id}")
 @limiter.limit("2/minute")
 async def subscribe_logic(request: Request, plan_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
@@ -90,7 +159,7 @@ async def abacate_pay_webhook(request: Request, session: Session = Depends(Creat
 #VIEWS
 
 @payments_router.get("/plans")
-# @limiter.limit("5/minute")
+@limiter.limit("5/minute")
 def plans_view(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession)): 
     """Renderiza la página de selección de planes."""
     plans = session.query(Plans).order_by(Plans.id).all()

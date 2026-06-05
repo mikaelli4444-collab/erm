@@ -45,8 +45,12 @@ def create_refresh_token(user_id: int):
     return RefreshToken
 
 def verify_token(request: Request, session: Session = Depends(CreateSession)) -> User:
-
+    
+    print("COOKIES:", request.cookies)
+    
     token = request.cookies.get("access_token")
+    
+    print("TOKEN:", token)
 
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
