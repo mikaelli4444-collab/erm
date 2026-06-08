@@ -66,12 +66,12 @@ class SubscriptionStatusEnum(str, Enum):
 class SubscriptionCycle(str, Enum):
     MONTHLY = "Mensal"
     ANNUALLY = "Anual"
-
-
-class TaskStatusEnum(str, Enum):
-    protection = "Proteção"
-    preparation = "Preparação"
-    assembly = "Montagem"
-    validation = "Validação"
-    review = "Revisão"
     
+class WeekDayEnum(str, Enum):
+    monday = "segunda"
+    tuesday = "terça"
+    wednesday = "quarta"
+    thursday = "quinta"
+    friday = "sexta"
+    saturday = "sabado"
+    sunday = "domingo"

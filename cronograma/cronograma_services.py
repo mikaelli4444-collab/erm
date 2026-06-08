@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from cronograma.cronograma_models import WeeklySchedule, ScheduleTasks, WeeklyMilestones
+from cronograma.cronograma_models import *
 from cronograma.cronograma_schemas import *
 
 def create_schedule(session, schedule_data: WeeklyScheduleCreate, company_id: int) -> WeeklySchedule:
@@ -98,7 +98,7 @@ def create_task(session, task_data: ScheduleTaskCreate, company_id: int):
         weekly_schedule_id=task_data.weekly_schedule_id,
         day_of_week=task_data.day_of_week.lower(),
         activity=task_data.activity,
-        stage=task_data.stage,
+        category_id=task_data.category_id,
         order_position=task_data.order_position
     )
 
@@ -110,18 +110,8 @@ def create_task(session, task_data: ScheduleTaskCreate, company_id: int):
 
 def update_task(session, task_id: int, task_data: ScheduleTaskUpdate, company_id: int):
 
-    task = (
-        session.query(ScheduleTasks)
-        .join(
-            WeeklySchedule,
-            WeeklySchedule.id == ScheduleTasks.weekly_schedule_id
-        )
-        .filter(
-            ScheduleTasks.id == task_id,
-            WeeklySchedule.company_id == company_id
-        )
-        .first()
-    )
+    task = session.query(ScheduleTasks).join(WeeklySchedule,WeeklySchedule.id == ScheduleTasks.weekly_schedule_id).filter(ScheduleTasks.id == task_id,WeeklySchedule.company_id == company_id).first()
+    
 
     if not task:
         raise HTTPException(
@@ -218,56 +208,146 @@ def toggle_milestone(session, milestone_id: int, company_id: int):
 
     return milestone
 
+def get_schedule_categories(session, company_id: int):
+
+    categories = session.query(ScheduleCategory).filter(ScheduleCategory.company_id == company_id).order_by(ScheduleCategory.name).all()
+
+    return categories
+
+
+def create_schedule_category(session, category_data: ScheduleCategoryCreate, company_id: int):
+
+    existing_category = session.query(ScheduleCategory).filter(ScheduleCategory.company_id == company_id,ScheduleCategory.name == category_data.name).first()
+    
+
+    if existing_category:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Category already exists"
+        )
+
+    category = ScheduleCategory(company_id=company_id, name=category_data.name.strip(), color=category_data.color)
+
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+
+    return category
+
+
+def update_schedule_category(session, category_id: int, category_data: ScheduleCategoryUpdate, company_id: int):
+
+    category = session.query(ScheduleCategory).filter(ScheduleCategory.id == category_id,ScheduleCategory.company_id == company_id).first()
+
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found"
+        )
+
+    update_data = category_data.model_dump(exclude_unset=True)
+
+    if "name" in update_data:
+        duplicate = session.query(ScheduleCategory).filter(ScheduleCategory.company_id == company_id,ScheduleCategory.name == update_data["name"],ScheduleCategory.id != category_id).first()
+
+        if duplicate:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Category already exists"
+            )
+
+        update_data["name"] = update_data["name"].strip()
+
+    for field, value in update_data.items():
+        setattr(category, field, value)
+
+    session.commit()
+    session.refresh(category)
+
+    return category
+
+
+def delete_schedule_category(session, category_id: int, company_id: int):
+
+    category = session.query(ScheduleCategory).filter(ScheduleCategory.id == category_id, ScheduleCategory.company_id == company_id).first()
+    
+
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found"
+        )
+
+    tasks_using_category = session.query(ScheduleTasks).filter(ScheduleTasks.category_id == category_id).count()
+
+
+    if tasks_using_category > 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Category is being used by one or more tasks"
+        )
+
+    session.delete(category)
+    session.commit()
 
 def get_schedule_board(session,company_id: int):
 
     schedule = session.query(WeeklySchedule).filter(WeeklySchedule.company_id == company_id,WeeklySchedule.is_current == True).first()
 
-    if not schedule:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No active schedule found"
-        )
+    if schedule:
+        tasks = session.query(ScheduleTasks).filter(ScheduleTasks.weekly_schedule_id == schedule.id).order_by(ScheduleTasks.day_of_week, ScheduleTasks.order_position).all()
 
-    tasks = session.query(ScheduleTasks).filter(ScheduleTasks.weekly_schedule_id == schedule.id).order_by(ScheduleTasks.day_of_week, ScheduleTasks.order_position).all()
+        milestones = session.query(WeeklyMilestones).filter(WeeklyMilestones.weekly_schedule_id == schedule.id).all()
+        
+        categories = session.query(ScheduleCategory).filter(ScheduleCategory.company_id == company_id).all()
 
-    milestones = session.query(WeeklyMilestones).filter(WeeklyMilestones.weekly_schedule_id == schedule.id).all()
-
-    board = {
+        board = {
         "id": schedule.id,
         "title": schedule.title,
         "start": schedule.start,
         "end": schedule.end,
         "notes": schedule.notes,
 
+        "categories": [],
+
         "days": {
-            "monday": [],
-            "tuesday": [],
-            "wednesday": [],
-            "thursday": [],
-            "friday": [],
-            "saturday": [],
-            "sunday": []
+            "segunda": [],
+            "terça": [],
+            "quarta": [],
+            "quinta": [],
+            "sexta": [],
+            "sabado": [],
+            "domingo": []
         },
 
         "milestones": []
     }
 
-    for task in tasks:
+        for task in tasks:
+            board["days"][task.day_of_week].append({
+                "id": task.id,
+                "activity": task.activity,
+                "category_id": task.category_id,
+                "category_name": task.category.name if task.category else None,
+                "category_color": task.category.color if task.category else None,
+                "order_position": task.order_position
+            })
 
-        board["days"][task.day_of_week].append({
-            "id": task.id,
-            "activity": task.activity,
-            "stage": task.stage,
-            "order_position": task.order_position
-        })
+        for milestone in milestones:
+            board["milestones"].append({
+                "id": milestone.id,
+                "description": milestone.description,
+                "completed": milestone.completed
+            })
 
-    for milestone in milestones:
-
-        board["milestones"].append({
-            "id": milestone.id,
-            "description": milestone.description,
-            "completed": milestone.completed
-        })
-
-    return board
+        for category in categories:
+            board["categories"].append({
+                "id": category.id,
+                "name": category.name,
+                "color": category.color
+            })
+    
+        return board
+    
+    else:
+        return None

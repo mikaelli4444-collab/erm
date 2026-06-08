@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
-from core.enum.enum import TaskStatusEnum
+from core.enum.enum import WeekDayEnum
 
 class WeeklyScheduleCreate(BaseModel):
     title: str
@@ -16,15 +16,15 @@ class WeeklyScheduleUpdate(BaseModel):
     
 class ScheduleTaskCreate(BaseModel):
     weekly_schedule_id: int
-    day_of_week: str
+    day_of_week: WeekDayEnum
     activity: str
-    stage: TaskStatusEnum
+    category_id: int | None = None
     order_position: int
     
 class ScheduleTaskUpdate(BaseModel):
-    day_of_week: str | None = None
+    day_of_week: WeekDayEnum | None = None
     activity: str | None = None
-    stage: TaskStatusEnum | None = None
+    category_id: int | None = None
     order_position: int | None = None
     
 class WeeklyMilestoneCreate(BaseModel):
@@ -33,3 +33,14 @@ class WeeklyMilestoneCreate(BaseModel):
     
 class WeeklyMilestoneToggle(BaseModel):
     completed: bool
+    
+class ScheduleCategoryCreate(BaseModel):
+    name: str
+    color: str
+
+class ScheduleCategoryUpdate(BaseModel):
+    name: str | None = None
+    color: str | None = Field(
+        default=None,
+        pattern=r"^#[0-9A-Fa-f]{6}$"
+    )

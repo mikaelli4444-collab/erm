@@ -280,7 +280,14 @@
                 <span class="icon">💵</span>
                 <span class="label">Financeiro</span>
             </a>
+            
+            <a class="nav-item {% if '/schedule' in request.url.path %}active{% endif %}" href="/schedule">
+                <span class="icon">📆</span>
+                <span class="label">Cronograma</span>
+            </a>
         </nav>
+
+        
 
         <div class="sidebar-footer">
             <a class="logout-link" href="/home/login">

@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from core.enum.enum import TaskStatusEnum
     
 class WeeklySchedule(base):
     __tablename__ = "weekly_schedules"
@@ -23,10 +22,11 @@ class ScheduleTasks(base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     weekly_schedule_id = Column(Integer, ForeignKey("weekly_schedules.id"), nullable=False, index=True)
-    task_date = Column(Date, nullable=False)
+    day_of_week = Column(String, nullable=False)
     activity = Column(String, nullable=False)
-    stage = Column(String, SQLEnum(TaskStatusEnum), nullable=False)
     order_position = Column(Integer, nullable=False)
+    category_id = Column(Integer, ForeignKey("schedule_categories.id"), nullable=True)
+    category = relationship("ScheduleCategory", back_populates="tasks")
     
 class WeeklyMilestones(base):
     __tablename__ = "weekly_milestones"
@@ -36,3 +36,11 @@ class WeeklyMilestones(base):
     description = Column(String, nullable=False)
     completed = Column(Boolean, default=False, nullable=False)
     
+class ScheduleCategory(base):
+    __tablename__ = "schedule_categories"
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    name = Column(String, nullable=False, index=True)
+    color = Column(String(7), nullable=False)
+    tasks = relationship("ScheduleTasks", back_populates="category")
