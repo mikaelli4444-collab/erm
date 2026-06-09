@@ -33,80 +33,44 @@ def create_new_schedule(schedule_data: WeeklyScheduleCreate,session: Session = D
     )
     
 @cronograma_router.get("/current")
-def get_active_schedule(session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    return get_current_schedule(
-        session=session,
-        company_id=user.company_id
-    )
+def get_active_schedule(start_date: date, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    return get_current_schedule(session=session, company_id=user.company_id, start_date=start_date)
     
 @cronograma_router.put("/")
 def update_active_schedule(schedule_data: WeeklyScheduleUpdate,session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    return update_schedule(
-        session=session,
-        schedule_data=schedule_data,
-        company_id=user.company_id
-    )
+    return update_schedule(session=session, schedule_data=schedule_data, company_id=user.company_id, start_date=schedule_data.start)
     
 @cronograma_router.delete("/{schedule_id}")
 def remove_schedule(schedule_id: int,session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    delete_schedule(
-        session=session,
-        schedule_id=schedule_id,
-        company_id=user.company_id
-    )
+    delete_schedule(session=session, schedule_id=schedule_id, company_id=user.company_id)
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @cronograma_router.post("/tasks")
 def create_new_task(task_data: ScheduleTaskCreate,session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    return create_task(
-        session=session,
-        task_data=task_data,
-        company_id=user.company_id
-    )
+    return create_task(session=session, task_data=task_data, company_id=user.company_id)
     
 @cronograma_router.put("/tasks/{task_id}")
 def update_existing_task(task_id: int,task_data: ScheduleTaskUpdate,session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    return update_task(
-        session=session,
-        task_id=task_id,
-        task_data=task_data,
-        company_id=user.company_id
-    )
+    return update_task(session=session, task_id=task_id, task_data=task_data, company_id=user.company_id)
     
 @cronograma_router.delete("/tasks/{task_id}")
 def remove_task(task_id: int,session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    delete_task(
-        session=session,
-        task_id=task_id,
-        company_id=user.company_id
-    )
+    delete_task(session=session, task_id=task_id, company_id=user.company_id)
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @cronograma_router.post("/milestones")
 def create_new_milestone(milestone_data: WeeklyMilestoneCreate,session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    return create_milestone(
-        session=session,
-        milestone_data=milestone_data,
-        company_id=user.company_id
-    )
+    return create_milestone(session=session, milestone_data=milestone_data, company_id=user.company_id)
     
 @cronograma_router.patch("/milestones/{milestone_id}/toggle",)
 def toggle_existing_milestone(milestone_id: int,session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    return toggle_milestone(
-        session=session,
-        milestone_id=milestone_id,
-        company_id=user.company_id
-    )
+    return toggle_milestone(session=session, milestone_id=milestone_id, company_id=user.company_id)
     
 @cronograma_router.delete("/milestones/{milestone_id}",)
 def remove_milestone(milestone_id: int,session: Session = Depends(CreateSession),user: User = Depends(verify_token)):
-    delete_milestone(
-        session=session,
-        milestone_id=milestone_id,
-        company_id=user.company_id
-    )
+    delete_milestone(session=session, milestone_id=milestone_id, company_id=user.company_id)
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -138,7 +102,11 @@ def share_schedule(schedule_id: int, session: Session = Depends(CreateSession), 
     }
 
 
-#VIEWS
+
+
+
+#VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS #VIEWS
+
 
 
 @cronograma_router.get("/")
@@ -151,8 +119,8 @@ def get_board(request: Request):
             })
     
 @cronograma_router.get("/board")
-def get_board_data(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-    return {"board": get_schedule_board(session=session, company_id=user.company_id)}
+def get_board_data(start: date, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+    return {"board": get_schedule_board(session=session, company_id=user.company_id, start_date=start)}
 
 @cronograma_router.get("/categories")
 def get_categories(session: Session = Depends(CreateSession), user: User = Depends(verify_token)):

@@ -11,19 +11,18 @@ def create_schedule(session, schedule_data: WeeklyScheduleCreate, company_id: in
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="End date cannot be earlier than start date"
         )
+        
+    existing = session.query(WeeklySchedule).filter(WeeklySchedule.company_id==company_id,WeeklySchedule.start==schedule_data.start).first()
 
-    current_schedule = session.query(WeeklySchedule).filter(WeeklySchedule.company_id == company_id,WeeklySchedule.is_current == True).first()
-
-    if current_schedule:
-        current_schedule.is_current = False
+    if existing:
+        raise HTTPException(400, "Schedule already exists for this week.")
 
     schedule = WeeklySchedule(
         title=schedule_data.title,
         start=schedule_data.start,
         end=schedule_data.end,
         notes=schedule_data.notes,
-        company_id=company_id,
-        is_current=True
+        company_id=company_id
     )
 
     session.add(schedule)
@@ -32,9 +31,9 @@ def create_schedule(session, schedule_data: WeeklyScheduleCreate, company_id: in
 
     return schedule
 
-def get_current_schedule(session, company_id: int) -> WeeklySchedule:
+def get_current_schedule(session, company_id: int, start_date: date) -> WeeklySchedule:
 
-    schedule = session.query(WeeklySchedule).filter(WeeklySchedule.company_id == company_id,WeeklySchedule.is_current == True).first()
+    schedule = session.query(WeeklySchedule).filter(WeeklySchedule.company_id == company_id, WeeklySchedule.start == start_date).first()
 
     if not schedule:
         raise HTTPException(
@@ -44,9 +43,9 @@ def get_current_schedule(session, company_id: int) -> WeeklySchedule:
 
     return schedule
 
-def update_schedule(session, schedule_data: WeeklyScheduleUpdate, company_id: int) -> WeeklySchedule:
+def update_schedule(session, schedule_data: WeeklyScheduleUpdate, company_id: int, start_date: date) -> WeeklySchedule:
 
-    schedule = session.query(WeeklySchedule).filter(WeeklySchedule.company_id == company_id,WeeklySchedule.is_current == True).first()
+    schedule = session.query(WeeklySchedule).filter(WeeklySchedule.company_id == company_id, WeeklySchedule.start == start_date).first()
 
     if not schedule:
         raise HTTPException(
@@ -292,9 +291,9 @@ def delete_schedule_category(session, category_id: int, company_id: int):
     session.delete(category)
     session.commit()
 
-def get_schedule_board(session,company_id: int):
+def get_schedule_board(session, company_id: int, start_date: date):
 
-    schedule = session.query(WeeklySchedule).filter(WeeklySchedule.company_id == company_id,WeeklySchedule.is_current == True).first()
+    schedule = session.query(WeeklySchedule).filter(WeeklySchedule.company_id == company_id, WeeklySchedule.start == start_date).first()
 
     if schedule:
         tasks = session.query(ScheduleTasks).filter(ScheduleTasks.weekly_schedule_id == schedule.id).order_by(ScheduleTasks.day_of_week, ScheduleTasks.order_position).all()

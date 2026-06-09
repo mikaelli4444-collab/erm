@@ -13,7 +13,6 @@ class WeeklySchedule(base):
     end = Column(Date, nullable=False, index=True) #final del cronograma, normalmente deberia ser de solo una semana el cronograma, pero lo dejo asi por si lo quieren modificar
     notes = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")), nullable=False)
-    is_current = Column(Boolean, default=False, nullable=False)
     shared_token = Column(String, nullable=True, unique=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     company = relationship("Company", back_populates="company_schedules")

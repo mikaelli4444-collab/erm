@@ -68,6 +68,18 @@
                     <div class="task-list"></div><button class="btn-add-task" onclick="openTaskModal('sexta')">+
                         Atividade</button>
                 </div>
+
+                <!-- <div class="day-column" data-day="sexta">
+                    <div class="day-header">SABADO <br><small class="date-label"></small></div>
+                    <div class="task-list"></div><button class="btn-add-task" onclick="openTaskModal('sexta')">+
+                        Atividade</button>
+                </div>
+
+                <div class="day-column" data-day="sexta">
+                    <div class="day-header">DOMINGO <br><small class="date-label"></small></div>
+                    <div class="task-list"></div><button class="btn-add-task" onclick="openTaskModal('sexta')">+
+                        Atividade</button>
+                </div> -->
             </div>
 
             <div class="milestones-section" style="border-top: 1px solid var(--border); padding-top: 20px;">
@@ -160,7 +172,16 @@
             });
         }
 
-        async function navigateWeek(dir) { viewDate.setDate(viewDate.getDate() + (dir * 7)); updateViewDisplay(); await loadBoard(); }
+        async function navigateWeek(dir) {
+
+            viewDate.setDate(
+                viewDate.getDate() + (dir * 7)
+            );
+
+            updateViewDisplay();
+
+            await loadBoard();
+        }
 
         async function loadCategories() {
             const res = await fetch('/schedule/categories');
@@ -172,17 +193,53 @@
         }
 
         async function loadBoard() {
+
             try {
-                const res = await fetch('/schedule/board');
-                const data = await res.json();
+
                 const range = getWeekRange(viewDate);
-                document.querySelectorAll('.task-list').forEach(l => l.innerHTML = '');
-                document.getElementById('no-schedule-warning').style.display = 'none';
-                document.getElementById('weekly-grid').style.opacity = '1';
-                document.getElementById('milestones-list').innerHTML = '';
-                if (data.board && data.board.start === range.start) { currentBoard = data.board; renderBoard(currentBoard); }
-                else { currentBoard = null; document.getElementById('no-schedule-warning').style.display = 'block'; document.getElementById('weekly-grid').style.opacity = '0.3'; }
-            } catch (e) { console.error(e); }
+
+                const res = await fetch(
+                    `/schedule/board?start=${range.start}`
+                );
+
+                const data = await res.json();
+
+                document.querySelectorAll(".task-list")
+                    .forEach(l => l.innerHTML = "");
+
+                document.getElementById("no-schedule-warning")
+                    .style.display = "none";
+
+                document.getElementById("weekly-grid")
+                    .style.opacity = "1";
+
+                document.getElementById("milestones-list")
+                    .innerHTML = "";
+
+                if (data.board) {
+
+                    currentBoard = data.board;
+
+                    renderBoard(currentBoard);
+
+                } else {
+
+                    currentBoard = null;
+
+                    document.getElementById(
+                        "no-schedule-warning"
+                    ).style.display = "block";
+
+                    document.getElementById(
+                        "weekly-grid"
+                    ).style.opacity = "0.3";
+                }
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
         }
 
         function renderBoard(board) {
@@ -202,9 +259,27 @@
 
         // Acciones simplificadas
         async function createScheduleForCurrentView() {
+
             const range = getWeekRange(viewDate);
-            const res = await fetch('/schedule/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: `Semana ${range.start}`, start: range.start, end: range.end, notes: "" }) });
-            if (res.ok) await loadBoard();
+
+            const res = await fetch(
+                "/schedule/",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        title: `Semana ${range.start}`,
+                        start: range.start,
+                        end: range.end,
+                        notes: ""
+                    })
+                }
+            );
+
+            if (res.ok)
+                await loadBoard();
         }
 
         function openTaskModal(day) { if (!currentBoard) { alert("Crie o cronograma primeiro!"); return; } document.getElementById('task-id').value = ''; document.getElementById('task-day').value = day; document.getElementById('task-activity').value = ''; document.getElementById('task-category').value = ''; document.getElementById('delete-task-btn').classList.add('hidden'); showModal('task-modal'); }
@@ -226,7 +301,15 @@
         document.getElementById('category-form').onsubmit = async (e) => { e.preventDefault(); const res = await fetch('/schedule/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('cat-name').value, color: document.getElementById('cat-color').value }) }); if (res.ok) { document.getElementById('cat-name').value = ''; await loadCategories(); closeModal('category-modal'); } };
         async function deleteCategory(id) { if (confirm('Excluir?')) { await fetch(`/schedule/categories/${id}`, { method: 'DELETE' }); await loadCategories(); await loadBoard(); } }
 
-        window.onload = async () => { updateViewDisplay(); await loadCategories(); await loadBoard(); };
+        window.onload = async () => {
+
+            updateViewDisplay();
+
+            await loadCategories();
+
+            await loadBoard();
+
+        };
 
         async function shareProject() {
 
@@ -236,6 +319,11 @@
 
                 button.disabled = true;
                 button.innerHTML = "<span>⏳</span> Gerando...";
+
+                if (!currentBoard) {
+                    alert("Nenhum cronograma carregado.");
+                    return;
+                }
 
                 const cronogramaId = currentBoard.id;
 
@@ -264,6 +352,8 @@
 
                     alert("Link copiado para a área de transferência");
                 }
+
+
 
             } catch (error) {
 
