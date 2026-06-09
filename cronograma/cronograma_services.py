@@ -1,6 +1,8 @@
 from fastapi import HTTPException, status
 from cronograma.cronograma_models import *
 from cronograma.cronograma_schemas import *
+import secrets
+from core.config import BASE_URL
 
 def create_schedule(session, schedule_data: WeeklyScheduleCreate, company_id: int) -> WeeklySchedule:
 
@@ -351,3 +353,90 @@ def get_schedule_board(session,company_id: int):
     
     else:
         return None
+    
+def generate_share_link(session, schedule_id: int, company_id: int):
+
+    schedule = session.query(WeeklySchedule).filter(WeeklySchedule.id == schedule_id, WeeklySchedule.company_id == company_id).first()
+
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Schedule not found"
+        )
+
+    share_token = secrets.token_urlsafe(16)
+    link = f"{BASE_URL}/schedule/public/schedule?token={share_token}"
+
+    schedule.shared_token = share_token
+    session.commit()
+    session.refresh(schedule)
+
+    return {
+        "link": link,
+        "token": share_token
+    }
+    
+def get_shared_schedule(session, token):
+
+    schedule = session.query(WeeklySchedule).filter(WeeklySchedule.shared_token == token).first()
+
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Shared schedule not found"
+        )
+
+    tasks = session.query(ScheduleTasks).filter(ScheduleTasks.weekly_schedule_id == schedule.id).order_by(ScheduleTasks.day_of_week, ScheduleTasks.order_position).all()
+
+    milestones = session.query(WeeklyMilestones).filter(WeeklyMilestones.weekly_schedule_id == schedule.id).all()
+    
+    categories = session.query(ScheduleCategory).filter(ScheduleCategory.company_id == schedule.company_id).all()
+
+    board = {
+        "id": schedule.id,
+        "title": schedule.title,
+        "start": schedule.start,
+        "end": schedule.end,
+        "notes": schedule.notes,
+
+        "categories": [],
+
+        "days": {
+            "segunda": [],
+            "terça": [],
+            "quarta": [],
+            "quinta": [],
+            "sexta": [],
+            "sabado": [],
+            "domingo": []
+        },
+
+        "milestones": []
+    }
+
+    for task in tasks:
+        board["days"][task.day_of_week].append({
+            "id": task.id,
+            "activity": task.activity,
+            "category_id": task.category_id,
+            "category_name": task.category.name if task.category else None,
+            "category_color": task.category.color if task.category else None,
+            "order_position": task.order_position
+        })
+
+    for milestone in milestones:
+        board["milestones"].append({
+            "id": milestone.id,
+            "description": milestone.description,
+            "completed": milestone.completed
+        })
+
+    for category in categories:
+        board["categories"].append({
+            "id": category.id,
+            "name": category.name,
+            "color": category.color
+        })
+
+    return board
+
