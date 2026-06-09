@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from core.dependencies import CreateSession, templates
 from core.security import verify_token
 from contacts.contacts_models import Contacts
-from contacts.contacts_services import CreateContact
-from contacts.contacts_schema import ContactsBase
+from contacts.contacts_services import CreateContact, update_contact, delete_contact
+from contacts.contacts_schema import ContactsBase, ContactUpdate
 from users.users_model import User
 from utilities.limiter.limiter import limiter
 
@@ -28,8 +28,15 @@ def create_contact(request: Request, name: str = Form(...), email: str | None = 
     
     return RedirectResponse(url="/ctc", status_code=303)
 
+@contacts_router.put("/edit/{contactId}")
+@limiter.limit("7/minute")
+def edit_contact(request: Request, contactId: int, data: ContactUpdate, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+    return update_contact(session, contactId, user, data.name, data.email, data.phone, data.type)
 
-
+@contacts_router.delete("/delete/{contactId}")
+@limiter.limit("7/minute")
+def delete_contact_router(request: Request, contactId: int, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
+    return delete_contact(session, contactId, user)
 
 #VIEWS
 

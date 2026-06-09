@@ -37,6 +37,42 @@ def create_project_in_production(request: Request, production: create_production
         "item": new_production_item
     }
 
+@production_router.put("/edit/{production_id}")
+@limiter.limit("5/minute")
+def edit_project_in_production(request: Request, production_id: int, production: create_production, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
+
+    production_item = session.query(Production).filter(
+        Production.id == production_id,
+        Production.company_id == user.company_id
+    ).first()
+
+    if not production_item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Production item not found")
+
+    duplicated_item = session.query(Production).filter(
+        Production.id != production_id,
+        Production.project_name == production.project_name,
+        Production.client_name == production.client_name,
+        Production.company_id == user.company_id
+    ).first()
+
+    if duplicated_item:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This production item already exists")
+
+    production_item.project_name = production.project_name
+    production_item.client_name = production.client_name
+    production_item.description = production.description
+    production_item.delivery_date = production.delivery_date
+    production_item.status = production.status
+
+    session.commit()
+    session.refresh(production_item)
+
+    return {
+        "message": "Production item updated successfully",
+        "item": production_item
+    }
+
 @production_router.post("/delete/{production_name}")
 @limiter.limit("5/minute")
 def delete_production_route(request: Request, project_name: str, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):

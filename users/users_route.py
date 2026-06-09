@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 from users.users_model import User, Company, CompanyJoinRequest
 from notification.notification_services import manager, create_notification, notify_company_join, ensure_company_assignment_reminder
-from core.security import bcrypt_context
+from core.security import bcrypt_context, verify_token
 from core.dependencies import CreateSession
 from core.security import create_token, create_verification_token, verify_verification_token, create_refresh_token
 from fastapi.security import OAuth2PasswordRequestForm
@@ -45,7 +45,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=True, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
+        secure=False, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
         samesite="lax"
     )
 
@@ -53,7 +53,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
+        secure=False, #mantener este valor en false en desarrollo y true en produccion porque puede hacer que la cookie no se guarde
         samesite="lax"
     )
 
@@ -239,6 +239,8 @@ def create_company_router(request: Request, session: Session = Depends(CreateSes
     company.owner_id = user.id
     
     user.company_id = company.id
+    
+    user.role = "owner"
 
     session.commit()
 

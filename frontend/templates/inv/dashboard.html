@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Estoque</title>
 
-    <link rel="stylesheet" href="../../static/inv/dashboard.css?v=inventory-mobile-2">
+    <link rel="stylesheet" href="../../static/inv/dashboard.css?v=3">
     <script type="module" src="/static/js/refresh_token.js"></script>
 </head>
 
@@ -58,26 +58,26 @@
             <tbody>
                 {% for item in items %}
 
-<tr data-item-id="{{ item.id }}">
-    <td>{{ item.owner }}</td>
-    <td>{{ item.item_name }}</td>
-    <td>{{ item.description }}</td>
-    <td>{{ item.quantity }}</td>
+                <tr data-item-id="{{ item.id }}">
+                    <td>{{ item.owner }}</td>
+                    <td>{{ item.item_name }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
 
-    <td class="actions">
-        <button class="edit-btn" data-item-id="{{ item.id }}">
-            ✏️ Editar
-        </button>
+                    <td class="actions">
+                        <button class="edit-btn" data-item-id="{{ item.id }}">
+                            ✏️ Editar
+                        </button>
 
-        <button class="delete-btn" data-item-id="{{ item.id }}">
-            🗑️ Excluir
-        </button>
-    </td>
+                        <button class="delete-btn" data-item-id="{{ item.id }}">
+                            🗑️ Excluir
+                        </button>
+                    </td>
 
-    <td>{{ item.updated_at.strftime('%d/%m/%Y') if item.updated_at else '' }}</td>
-</tr>
+                    <td>{{ item.updated_at.strftime('%d/%m/%Y') if item.updated_at else '' }}</td>
+                </tr>
 
-{% endfor %}
+                {% endfor %}
             </tbody>
         </table>
 
@@ -86,7 +86,7 @@
         {% set param = param %}
 
         {% include "pagination.html" %}
-</main>
+    </main>
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('collapsed');
@@ -129,16 +129,36 @@
                     const originalName = row.children[1].innerText.trim();
                     const originalDesc = row.children[2].innerText.trim();
                     const originalQty = row.children[3].innerText.trim();
-                    const originalDate = row.children[6].innerText.trim();
+                    const originalDate = row.children[5].innerText.trim();
 
                     row.innerHTML = `
                         <td>${originalOwner}</td>
-                        <td><input type="text" id="edit-name" value="${originalName}"></td>
-                        <td><input type="text" id="edit-desc" value="${originalDesc}"></td>
-                        <td><input type="number" id="edit-qty" value="${originalQty}"></td>
+                        <td>
+    <input
+        type="text"
+        class="edit-input"
+        id="edit-name"
+        value="${originalName}">
+</td>
+
+<td>
+    <input
+        type="text"
+        class="edit-input"
+        id="edit-desc"
+        value="${originalDesc}">
+</td>
+
+<td>
+    <input
+        type="number"
+        class="edit-input"
+        id="edit-qty"
+        value="${originalQty}">
+</td>
                         <td class="actions">
-                            <button type="button" class="save-btn">💾 Salvar</button>
-                            <button type="button" class="cancel-edit">❌ Cancelar</button>
+                            <button type="button" class="save-btn">Salvar</button>
+                            <button type="button" class="cancel-edit">Cancelar</button>
                         </td>
                         <td>${originalDate}</td>
                     `;
@@ -168,4 +188,5 @@
     {% include 'aside.html' %}
     {% include 'loading.html' %}
 </body>
+
 </html>

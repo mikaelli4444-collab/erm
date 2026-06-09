@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma Semanal - ProntoERP</title>
+    <link rel="stylesheet" href="../../static/cronograma/share_cronograma.css?v=4">
+</head>
+
+<body>
+
+    <div id="cronograma-app-wrapper">
+
+        <div class="schedule-container">
+
+            <div class="schedule-header">
+
+                <div class="header-titles">
+
+                    <h1>{{ schedule.title }}</h1>
+
+                    <div class="week-navigation">
+                        <div class="current-week-display">
+                            {{ schedule.start }} - {{ schedule.end }}
+                        </div>
+                    </div>
+
+                    {% if schedule.notes %}
+                    <p style="margin-top:10px;">
+                        {{ schedule.notes }}
+                    </p>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            <!-- LEYENDA -->
+
+            <div class="legend-section">
+
+                <div class="legend-list">
+
+                    {% for category in schedule.categories %}
+
+                    <div class="legend-item">
+
+                        <span class="dot" style="background: {{ category.color }};">
+                        </span>
+
+                        <span>
+                            {{ category.name }}
+                        </span>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+            <!-- GRID -->
+
+            <div class="grid-container">
+
+                <!-- SEGUNDA -->
+
+                <div class="day-column">
+
+                    <div class="day-header">
+                        SEGUNDA
+                    </div>
+
+                    <div class="task-list">
+
+                        {% for task in schedule.days.segunda %}
+
+                        <div class="task-item" style="border-left:4px solid {{ task.category_color }};">
+
+                            {{ task.activity }}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <!-- TERÇA -->
+
+                <div class="day-column">
+
+                    <div class="day-header">
+                        TERÇA
+                    </div>
+
+                    <div class="task-list">
+
+                        {% for task in schedule.days.terça %}
+
+                        <div class="task-item" style="border-left:4px solid {{ task.category_color }};">
+
+                            {{ task.activity }}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <!-- QUARTA -->
+
+                <div class="day-column">
+
+                    <div class="day-header">
+                        QUARTA
+                    </div>
+
+                    <div class="task-list">
+
+                        {% for task in schedule.days.quarta %}
+
+                        <div class="task-item" style="border-left:4px solid {{ task.category_color }};">
+
+                            {{ task.activity }}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <!-- QUINTA -->
+
+                <div class="day-column">
+
+                    <div class="day-header">
+                        QUINTA
+                    </div>
+
+                    <div class="task-list">
+
+                        {% for task in schedule.days.quinta %}
+
+                        <div class="task-item" style="border-left:4px solid {{ task.category_color }};">
+
+                            {{ task.activity }}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <!-- SEXTA -->
+
+                <div class="day-column">
+
+                    <div class="day-header">
+                        SEXTA
+                    </div>
+
+                    <div class="task-list">
+
+                        {% for task in schedule.days.sexta %}
+
+                        <div class="task-item" style="border-left:4px solid {{ task.category_color }};">
+
+                            {{ task.activity }}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                <!-- SÁBADO
+
+                <div class="day-column">
+
+                    <div class="day-header">
+                        SÁBADO
+                    </div>
+
+                    <div class="task-list">
+
+                        {% for task in schedule.days.sabado %}
+
+                        <div class="task-item" style="border-left:4px solid {{ task.category_color }};">
+
+                            {{ task.activity }}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+                 DOMINGO 
+
+                <div class="day-column">
+
+                    <div class="day-header">
+                        DOMINGO
+                    </div>
+
+                    <div class="task-list">
+
+                        {% for task in schedule.days.domingo %}
+
+                        <div class="task-item" style="border-left:4px solid {{ task.category_color }};">
+
+                            {{ task.activity }}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div> -->
+
+            </div>
+
+            <!-- OBJETIVOS -->
+
+            <div class="milestones-section"
+                style="border-top:1px solid var(--border); margin-top:20px; padding-top:20px;">
+
+                <h3>🎯 Objetivos da Semana</h3>
+
+                {% for milestone in schedule.milestones %}
+
+                <div class="milestone-row">
+
+                    {% if milestone.completed %}
+                    ✅
+                    {% else %}
+                    ⬜
+                    {% endif %}
+
+                    {{ milestone.description }}
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

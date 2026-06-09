@@ -2,91 +2,63 @@
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Plans | ERM System</title>
-
+    <title>Plans | ProntoERP System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="../../static/plans.css">
-
-    <!-- SDK Mercado Pago -->
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
-
+    <link rel="stylesheet" href="../../static/plans.css?v=9">
 </head>
 
 <body>
 
     <div class="login-container">
-
         <div class="login-header">
-
             <h1>Escolha seu plano</h1>
-
             <p>Selecione o melhor plano para sua empresa</p>
-
         </div>
 
         <div class="plans-container">
-
             <!-- BASIC -->
             <div class="plan-card" data-plan-id="{{ plan_basic_id }}">
-
                 <div class="plan-title">Básico</div>
-
-                <div class="plan-price">
-                    {{ plan_basic_price }} <span>/mês</span>
-                </div>
-
+                <div class="plan-price">R$ {{ plan_basic_price }} <span>/mês</span></div>
                 <ul class="plan-features">
                     <li>✔ Até 3 usuários</li>
                     <li>✖ Sem resumo financeiro</li>
                     <li>✖ Sem links públicos</li>
                     <li>✔ Espaço limitado de estoque</li>
                 </ul>
-
-                <button type="button" class="btn-login">
+                <button type="button" class="btn-login btn-open-modal" 
+                    data-plan-id="{{ plan_basic_id }}" 
+                    data-plan-name="Básico" 
+                    data-plan-price="{{ plan_basic_price }}">
                     Escolher plano
                 </button>
-
             </div>
 
             <!-- PREMIUM -->
             <div class="plan-card highlight" data-plan-id='{{ plan_premium_id }}'>
-
                 <div class="badge">Most Popular</div>
-
                 <div class="plan-title">Premium</div>
-
-                <div class="plan-price">
-                    {{ plan_premium_price }} <span>/mês</span>
-                </div>
-
+                <div class="plan-price">R$ {{ plan_premium_price }} <span>/mês</span></div>
                 <ul class="plan-features">
                     <li>✔ Até 10 usuários</li>
                     <li>✔ Resumo financeiro mensal</li>
                     <li>✔ 2 links públicos / mês</li>
                     <li>✔ Espaço de estoque maior</li>
                 </ul>
-
-                <button type="button" class="btn-login">
+                <button type="button" class="btn-login btn-open-modal" 
+                    data-plan-id="{{ plan_premium_id }}" 
+                    data-plan-name="Premium" 
+                    data-plan-price="{{ plan_premium_price }}">
                     Escolher plano
                 </button>
-
             </div>
 
             <!-- ENTERPRISE -->
             <div class="plan-card" data-plan-id="{{ plan_enterprise_id }}">
-
                 <div class="plan-title">Enterprise</div>
-
-                <div class="plan-price">
-                    {{ plan_enterprise_price }} <span>/mês</span>
-                </div>
-
+                <div class="plan-price">R$ {{ plan_enterprise_price }} <span>/mês</span></div>
                 <ul class="plan-features">
                     <li>✔ Até 20 usuários</li>
                     <li>✔ Resumo financeiro mensal (PDF)</li>
@@ -94,358 +66,152 @@
                     <li>✔ Espaço ilimitado de estoque</li>
                     <li>✔ Suporte prioritário</li>
                 </ul>
-
-                <button type="button" class="btn-login">
+                <button type="button" class="btn-login btn-open-modal" 
+                    data-plan-id="{{ plan_enterprise_id }}" 
+                    data-plan-name="Enterprise" 
+                    data-plan-price="{{ plan_enterprise_price }}">
                     Escolher plano
                 </button>
-
             </div>
 
             <!-- ANNUAL -->
             <div class="plan-card highlight" data-plan-id="{{ plan_annual_id }}">
-
                 <div class="badge">Best Value</div>
-
                 <div class="plan-title">Enterprise (Anual)</div>
-
-                <div class="plan-price">
-                    {{ plan_annual_price }} <span>/ano</span>
-                </div>
-
+                <div class="plan-price">R$ {{ plan_annual_price }} <span>/ano</span></div>
                 <p class="discount">
-                    2 meses grátis! Economize 15% em comparação ao faturamento mensal
+                    Economize R$ {{ descuento }} por ano!
                 </p>
-
                 <ul class="plan-features">
                     <li>✔ Tudo no Enterprise</li>
-                    <li>✔ Economize ${{ descuento }} por ano</li>
-                    <li>✔ Pague uma vez e esqueça o faturamento mensal</li>
+                    <li>✔ Pagamento anual simplificado</li>
                 </ul>
-
-                <button type="button" class="btn-login">
+                <button type="button" class="btn-login btn-open-modal" 
+                    data-plan-id="{{ plan_annual_id }}" 
+                    data-plan-name="Enterprise Anual" 
+                    data-plan-price="{{ plan_annual_price }}">
                     Escolher plano
                 </button>
-
             </div>
-
-        </div>
-
-        <!-- PAYMENT MODAL -->
-        <div class="payment-overlay" id="paymentOverlay">
-
-            <div class="payment-modal">
-
-                <div class="close-btn" onclick="closeModal()">
-                    ✕
-                </div>
-
-                <h3>Finalizar pagamento</h3>
-
-                <form id="form-checkout" action="/payment/create_checkout" method="POST">
-
-                    <!-- PLAN -->
-                    <input type="hidden" name="plan_id" id="modal_plan_id">
-
-                    <!-- TOKEN -->
-                    <input type="hidden" name="card_token_id" id="card_token_id">
-
-                    <!-- CARD NUMBER -->
-                    <label>Número do cartão</label>
-
-                    <div id="form-checkout__cardNumber" class="mp-input"></div>
-
-                    <div class="row">
-
-                        <!-- EXPIRY -->
-                        <div>
-
-                            <label>Validade</label>
-
-                            <div id="form-checkout__expirationDate" class="mp-input"></div>
-
-                        </div>
-
-                        <!-- CVV -->
-                        <div>
-
-                            <label>CVV</label>
-
-                            <div id="form-checkout__securityCode" class="mp-input"></div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Nuevos campos obligatorios para evitar el bloqueo -->
-                    <div class="form-group form-group-issuer">
-                        <label>Banco emissor</label>
-                        <select id="form-checkout__issuer" name="issuer"></select>
-                    </div>
-
-                    <div class="form-group form-group-installments">
-                        <label>Parcelas</label>
-                        <select id="form-checkout__installments" name="installments"></select>
-                    </div>
-
-
-                    <!-- NAME -->
-                    <label>Nome</label>
-
-                    <input type="text" id="form-checkout__cardholderNome" name="cardholderNome"
-                        placeholder="Nome on card">
-
-                    <!-- EMAIL -->
-                    <label>E-mail</label>
-
-                    <input type="email" id="form-checkout__cardholderE-mail" name="cardholderE-mail"
-                        value="{{ userE-mail }}" placeholder="E-mail@domain.com">
-
-                    <!-- DOCUMENT TYPE -->
-                    <label>Tipo de documento</label>
-
-                    <select id="form-checkout__identificationType" name="identificationType"></select>
-
-                    <!-- CPF -->
-                    <label>CPF</label>
-
-                    <input type="text" id="form-checkout__identificationNumber" name="identificationNumber"
-                        placeholder="CPF">
-
-                    <!-- SUBMIT -->
-                    <button type="submit" class="pay-btn" id="form-checkout__submit">
-                        Pagar agora
-                    </button>
-
-                    <input type="hidden" name="cpf" id="cpf_hidden">
-
-                    <input type="hidden" name="payment_method_id" id="payment_method_id">
-
-                    <input type="hidden" name="issuer_id" id="issuer_id_hidden">
-
-                    <input type="hidden" name="installments" id="installments_hidden">
-
-                </form>
-
-            </div>
-
         </div>
 
         <p class="footer-links">
             <a href="/">Voltar para a home</a>
         </p>
-
     </div>
 
+    <!-- MODAL DE CONFIRMAÇÃO -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h2>Confirmar Assinatura</h2>
+                <p>Verifique os detalhes da sua conta</p>
+            </div>
+
+            <div class="summary-box">
+                <div class="summary-item">
+                    <span>Plano:</span>
+                    <strong id="modal-plan-name">---</strong>
+                </div>
+                <div class="summary-total">
+                    <span>Total:</span>
+                    <span id="modal-plan-price">R$ 0,00</span>
+                </div>
+            </div>
+
+            <form id="payment-form">
+                <div class="form-group">
+                    <label>E-mail cadastrado</label>
+                    <input type="email" value="{{ userEmail }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Nome / Empresa</label>
+                    <input type="text" value="{{ user.name if user.name else '' }}" placeholder="Confirmar nome da empresa" required>
+                </div>
+                
+                <button type="submit" class="btn-confirm">
+                    Ir para o pagamento
+                </button>
+                <p style="text-align: center; font-size: 0.75rem; color: #888; margin-top: 15px;">
+                    Você será redirecionado para o checkout seguro do AbacatePay.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    {% include 'loading.html' %}
+
     <script>
-        const overlay = document.getElementById("paymentOverlay");
-        const planInput = document.getElementById("modal_plan_id");
+        const modal = document.getElementById("paymentModal");
+        const closeModal = document.querySelector(".close-modal");
+        const paymentForm = document.getElementById("payment-form");
+        let selectedPlanId = null;
 
-        let cardFormInstance = null;
+        // Abrir modal e preencher dados dinâmicos
+        document.querySelectorAll('.btn-open-modal').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const btn = e.currentTarget;
+                selectedPlanId = btn.getAttribute('data-plan-id');
+                const planName = btn.getAttribute('data-plan-name');
+                const planPrice = btn.getAttribute('data-plan-price');
 
-        function openModal(planId) {
-
-            planInput.value = planId;
-
-            overlay.classList.add("active");
-
-            if (!cardFormInstance) {
-
-                setTimeout(() => {
-
-                    initMercadoPago();
-
-                }, 300);
-
-            }
-
-        }
-
-        function closeModal() {
-
-            overlay.classList.remove("active");
-
-        }
-
-        document.querySelectorAll(".btn-login").forEach(btn => {
-
-            btn.addEventListener("click", (e) => {
-
-                e.preventDefault();
-
-                const card = btn.closest(".plan-card");
-
-                openModal(card.dataset.planId);
-
+                document.getElementById('modal-plan-name').innerText = planName;
+                document.getElementById('modal-plan-price').innerText = `R$ ${planPrice}`;
+                
+                modal.style.display = "flex";
             });
-
         });
 
-        function initMercadoPago() {
+        // Fechar modal
+        closeModal.onclick = () => modal.style.display = "none";
+        window.onclick = (event) => {
+            if (event.target == modal) modal.style.display = "none";
+        }
 
-            if (cardFormInstance) return;
+        // Enviar requisição ao backend (FastAPI)
+        paymentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-            try {
-
-                const mp = new MercadoPago("{{ public_key }}", {
-                    locale: "pt-BR"
-                });
-
-                cardFormInstance = mp.cardForm({
-
-                    amount: "{{ amount }}",
-
-                    iframe: true,
-
-                    form: {
-
-                        id: "form-checkout",
-
-                        cardNumber: {
-                            id: "form-checkout__cardNumber",
-                            placeholder: "Número do cartão"
-                        },
-
-                        expirationDate: {
-                            id: "form-checkout__expirationDate",
-                            placeholder: "MM/YY"
-                        },
-
-                        securityCode: {
-                            id: "form-checkout__securityCode",
-                            placeholder: "CVV"
-                        },
-
-                        cardholderName: {
-                            id: "form-checkout__cardholderNome"
-                        },
-
-                        cardholderEmail: {
-                            id: "form-checkout__cardholderE-mail"
-                        },
-
-                        identificationType: {
-                            id: "form-checkout__identificationType"
-                        },
-
-                        identificationNumber: {
-                            id: "form-checkout__identificationNumber"
-                        },
-
-                        issuer: {
-                            id: "form-checkout__issuer"
-                        },
-
-                        installments: {
-                            id: "form-checkout__installments"
-                        }
-
-                    },
-
-                    callbacks: {
-
-                        onFormMounted: error => {
-
-                            if (error) {
-
-                                console.error("ERRO DE MONTAGEM:", error);
-
-                                return;
-
-                            }
-
-                            console.log("MP READY");
-
-                        },
-
-                        onSubmit: event => {
-
-                            event.preventDefault();
-
-                            const formData =
-                                cardFormInstance.getCardFormData();
-
-                            console.log("FORM DATA:", formData);
-
-                            if (!formData.token) {
-
-                                alert("Token não gerado");
-
-                                return;
-
-                            }
-
-                            // TOKEN
-                            document.getElementById(
-                                "card_token_id"
-                            ).value = formData.token;
-
-                            // CPF
-                            document.getElementById(
-                                "cpf_hidden"
-                            ).value =
-                                formData.identificationNumber;
-
-                            // PAYMENT METHOD
-                            document.getElementById(
-                                "payment_method_id"
-                            ).value =
-                                formData.paymentMethodId;
-
-                            // ISSUER
-                            document.getElementById(
-                                "issuer_id_hidden"
-                            ).value =
-                                formData.issuerId;
-
-                            // INSTALLMENTS
-                            document.getElementById(
-                                "installments_hidden"
-                            ).value =
-                                formData.installments;
-
-                            console.log({
-                                plan_id: planInput.value,
-                                token: formData.token,
-                                cpf: formData.identificationNumber,
-                                payment_method:
-                                    formData.paymentMethodId,
-                                issuer:
-                                    formData.issuerId,
-                                installments:
-                                    formData.installments
-                            });
-
-                            document.getElementById(
-                                "form-checkout"
-                            ).submit();
-
-                        },
-
-                        onError: error => {
-
-                            console.error(
-                                "ERRO SDK:",
-                                error
-                            );
-
-                        }
-
-                    }
-
-                });
-
-            } catch (e) {
-
-                console.error(
-                    "MP INIT ERROR:",
-                    e
-                );
-
+            if (!selectedPlanId || selectedPlanId === 'None') {
+                alert('Erro: Plano não selecionado corretamente.');
+                return;
             }
 
-        }
+            // Ativar loading overlay
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) loadingOverlay.style.display = 'flex';
+            modal.style.display = "none";
+
+            try {
+                // Chamada para a rota POST /payments/subscribe/{plan_id}
+                const response = await fetch(`/payments/subscribe/${selectedPlanId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor');
+                }
+
+                const result = await response.json();
+
+                // Verifica o retorno {"status": "success", "payment_url": "..."}
+                if (result.status === 'success' && result.payment_url) {
+                    window.location.href = result.payment_url;
+                } else {
+                    alert('Erro ao gerar o link de pagamento. Por favor, tente novamente.');
+                    if (loadingOverlay) loadingOverlay.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                alert('Erro de conexão com o servidor. Verifique sua internet.');
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
+            }
+        });
     </script>
-    {% include 'loading.html' %}
 </body>
 
 </html>

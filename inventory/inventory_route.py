@@ -23,7 +23,7 @@ def create_inventory_item_route(request: Request, item_name: str = Form(...), de
 @inventory_router.post("/edit/{item_name}")
 @limiter.limit("5/minute")
 def update_inventory_item_route(request: Request, item_name: str, item_name_new: str = Form(...), description: str = Form(...), quantity: int = Form(...), session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
-    item_update = ItemCreate( item_name=item_name_new, description=description, quantity=quantity, owner_id=user.id)
+    item_update = ItemCreate(item_name=item_name_new, description=description, quantity=quantity, owner_id=user.id)
     edit_inventory_item(item_name, item_update, user, session)
     return RedirectResponse(url="/inv/dashboard", status_code=303)
 

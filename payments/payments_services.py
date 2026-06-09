@@ -1,208 +1,130 @@
 import requests
-from core.config import MERCADO_PAGO_ACCESS_TOKEN, BACK_URL, NOTIFY_URL
-from payments.payments_models import Plans, Subscription
+from core.config import ABACATE_PAY_KEY
+from payments.payments_models import Plans
 from users.users_model import Company
+from dataclasses import dataclass
+from core.enum.enum import SubscriptionCycle
+from typing import Optional
 
-def create_plan(name: str, amount: float, frequency: int):
-    url = "https://api.mercadopago.com/preapproval_plan"
+@dataclass
+class Plan:
+    """Estructura de un plan de suscripción."""
+    external_id: str
+    name: str
+    price_cents: int  # Valor en centavos para evitar problema de punto flotante
+    cycle: SubscriptionCycle
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+
+
+def create_plan(name: str, amount: float, frequency: int, session):
+    url = "https://api.abacatepay.com/v2/products/create"
 
     headers = {
-        "Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}",
+        "Authorization": f"Bearer {ABACATE_PAY_KEY}",
         "Content-Type": "application/json"
     }
 
-    data = {
-        "reason": f"Subscription {name} plan for ERM",
-        "auto_recurring": {
-            "frequency": frequency,
-            "frequency_type": "months",
-            "transaction_amount": amount,
-            "currency_id": "BRL"
-        },
-        "back_url": BACK_URL
+    price_in_cents = int(amount * 100)
+
+
+    cycle_map = {
+        1: "MONTHLY",
+        12: "ANNUALLY"
     }
 
-    try:
-        response = requests.post(url, json=data, headers=headers)
-
-        if response.status_code != 201:
-            raise ValueError("Error creando plan en Mercado Pago")
-
-        return response.json()["id"]
-
-    except Exception as e:
-        print("Error creating plan:", e)
-        raise ValueError("Failed to create plan in Mercado Pago")
-
-def save_plan(mp_plan_id, name, amount, frequency, session):
-    
-    plan = session.query(Plans).filter(Plans.name == name, Plans.frequency == frequency, Plans.amount == amount).first()
-    
-    if plan:
-        return {
-                "id": plan.mp_plan_id,
-                "name": plan.name,
-                "amount": plan.amount,
-                "frequency": plan.frequency,
-            }
-            
-    plans = Plans(
-        mp_plan_id = mp_plan_id,
-        name = name,
-        amount = amount,
-        frequency = frequency
-    )
-    
-    try:
-        session.add(plans)
-        session.commit()
-        return plans
-    
-    except Exception as e:
-        session.rollback()
-        raise ValueError(f"Error al subir plan a la DB: {e}")
-    
-def select_plan(plan_id, session):
-    plan = session.query(Plans).filter(Plans.id == plan_id).first()
-
-    return plan
-
-def create_subscription(user,plan,card_token_id,cpf,payment_method_id,issuer_id,installments,session):
-
-    if not user:
-        raise ValueError("Usuario no encontrado")
-
-    company = user.company
-
-    if user.id != company.owner_id:
-        raise ValueError("Solo el owner puede pagar")
-
-    if not plan:
-        raise ValueError("Plan no encontrado")
-
-    existing_subscription = session.query(
-        Subscription
-    ).filter(
-        Subscription.company_id == company.id,
-        Subscription.status == "authorized"
-    ).first()
-
-    if existing_subscription:
-        raise ValueError(
-            "La empresa ya tiene suscripción"
-        )
-
-    url = "https://api.mercadopago.com/preapproval"
+    cycle = cycle_map.get(frequency, "MONTHLY")
 
     data = {
-        #"preapproval_plan_id": plan.mp_plan_id, #esta linea me estaba dando problema
-        "card_token_id": card_token_id,
-        "payment_method_id": payment_method_id,
-        "issuer_id": issuer_id,
-
-        "auto_recurring": {
-            "frequency": 1,
-            "frequency_type": "months",
-            "transaction_amount": float(plan.amount),
-            "currency_id": "BRL"
-        },
-
-        "payer_email": user.email,
-        
-        "payer": {
-            "identification": {
-                "type": "CPF",
-                "number": cpf
-            }
-        },
-
-        "reason":
-            f"Subscription for {plan.name}",
-            
-        "external_reference":
-            f"{company.id}:{plan.id}",
-            
-        "back_url": BACK_URL,
-        "status": "authorized",
-        "notification_url":
-            NOTIFY_URL
+        "externalId": f"plan_{name.lower()}",
+        "name": name,
+        "price": int(amount * 100),
+        "currency": "BRL",
+        "cycle": cycle
     }
 
-    headers = {
-        "Authorization":
-            f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}",
-        "Content-Type":
-            "application/json"
-    }
-    
-    response = requests.post(
-        url,
-        json=data,
-        headers=headers,
-        timeout=15
-    )
+    response = requests.post(url, json=data, headers=headers, timeout=15)
 
     if response.status_code not in [200, 201]:
-        raise ValueError(
-            f"Error creando suscripción: {response.text}"
-        )
-
-    response_data = response.json()
-
-    checkout_url = response_data.get("init_point")
-
-    if not checkout_url:
-        raise ValueError(
-            "Mercado Pago no devolvió init_point"
-        )
-
-    subscription = Subscription(
-        user_id=user.id,
-        company_id=company.id,
-        plan_id=plan.id,
-        status="pending",
-        amount=plan.amount,
-        mp_subscription_id=response_data.get("id")
+        raise ValueError(f"Error creando plan en AbacatePay: {response.text}")
+    
+    data = response.json()
+    
+    plan = Plans(
+        name=name,
+        amount=amount,
+        frequency=frequency,
+        external_id=data["id"]
     )
-
-    session.add(subscription)
+    session.add(plan)
     session.commit()
 
-    return checkout_url
+    return {
+        "plan_id": plan.id,
+        "external_id": plan.external_id
+        }
     
-def save_subscription(user, plan, mp_subscription, session):
-    subscription = Subscription(
-        user_id=user.id,
-        plan_id=plan.id,
-        mp_subscription_id=mp_subscription["id"],
-        status=mp_subscription["status"],
-        company_id=user.company_id
-    )
-    session.add(subscription)
-    session.commit()
-    
-def update_subscription(mp_subscription_id, status, session):
-    
-    subscription = session.query(Subscription).filter(Subscription.mp_subscription_id == mp_subscription_id).first()
-    
-    if subscription:
-        subscription.status = status
-        session.commit()
-        return subscription
-    
-    else:
-        raise ValueError("Suscripción no encontrada para actualizar")
-    
-def get_subscription(mp_subscription_id): #esta funcion es para el futuro, quiero hacer yo mismo el formulario para obtener tarjetas y poder cobrar directamente en mi app
-    url = f"https://api.mercadopago.com/preapproval/{mp_subscription_id}"
+def get_subscription_status(subscription_id):
+    # En AbacatePay, las suscripciones se consultan a través del ID del checkout generado
+    url = f"https://api.abacatepay.com/v2/checkouts/one?id={subscription_id}"
 
     headers = {
-        "Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}"
+        "Authorization": f"Bearer {ABACATE_PAY_KEY}"
+    }
+
+    response = requests.get(url, headers=headers )
+
+    if response.status_code != 200:
+        return None
+
+    return response.json()["data"]
+
+
+def select_plan(plan_id, session):
+    plan = session.query(Plans).filter(Plans.id == plan_id).first()
+    return plan
+
+def create_subscription(email, product_id, external_id=None):
+    url = "https://api.abacatepay.com/v2/subscriptions/create"
+    
+    headers = {
+        "Authorization": f"Bearer {ABACATE_PAY_KEY}",
+        "Content-Type": "application/json"
     }
     
-    response = requests.get(url, headers=headers)
+    customer_url = "https://api.abacatepay.com/v2/customers/create"
+    customer_res = requests.post(customer_url, headers=headers, json={"email": email} )
     
-    return response.json()
+    if customer_res.status_code not in [200, 201]:
+        return f"Error creando cliente en AbacatePay: {customer_res.text}"
+    
+    customer_id = customer_res.json()["data"]["id"]
+
+    payload = {
+        "customerId": customer_id,
+        "items": [
+            {
+                "id": product_id,
+                "quantity": 1
+            }
+        ],
+        "externalId": external_id
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    if response.status_code not in [200, 201]:
+        return f"Error creando suscripción en AbacatePay: {response.text}"
+
+    # Devolvemos la URL donde el usuario debe pagar
+    return response.json()["data"]["url"]
+
+    
+def update_subscription(subscription, status, session):
+    subscription.status = status
+    session.commit()
+    return subscription
+
 
 def update_company_value(company_id, plan, session):
     company = session.query(Company).filter(Company.id == company_id).first()
@@ -214,18 +136,18 @@ def update_company_value(company_id, plan, session):
         return company_id
     
     else:
-        raise ValueError("Empresa no encontrada para actualizar suscripción")
+        raise ValueError("404")
     
-def get_payment(payment_id):
-    url = f"https://api.mercadopago.com/v1/payments/{payment_id}"
+def get_payment_status(checkout_id):
+    url = f"https://api.abacatepay.com/v2/checkouts/one?id={checkout_id}"
 
     headers = {
-        "Authorization": f"Bearer {MERCADO_PAGO_ACCESS_TOKEN}"
+    "Authorization": f"Bearer {ABACATE_PAY_KEY}"
     }
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers )
 
     if response.status_code != 200:
-        return None
+        return f"Error obteniendo estado de pago: {response.text}"
 
-    return response.json()
+    return response.json()["data"]
