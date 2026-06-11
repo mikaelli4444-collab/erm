@@ -1,19 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from enum import Enum
-
-class types(str, Enum):
-    architect = 'architect'
-    personal = 'personal'
-    employed = 'employed'
-    client = 'client'
+from core.enum.enum import ContactsTypes
 
 
 class ContactsBase(BaseModel):
     name: str
     email: Optional[str] = None
     phone: str
-    type: types
+    type: ContactsTypes
     
 class ContactUpdate(BaseModel):
     name: str

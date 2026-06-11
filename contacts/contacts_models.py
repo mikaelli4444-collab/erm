@@ -1,8 +1,6 @@
 from sqlalchemy import Integer, String, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from core.database import base
-
-
 class Contacts(base):
     __tablename__ = 'contacts'
 

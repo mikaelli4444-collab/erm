@@ -11,6 +11,11 @@ class StatusEnum(str, Enum):
     completed = "Concluído"
     cancelled = "Cancelado"
 
+class ContactsTypes(str, Enum):
+    architect = 'arquiteto'
+    personal = 'pessoal'
+    employed = 'colaborador'
+    client = 'cliente'
 
 class DebtStatusEnum(str, Enum):
     pending = "Pendente"
@@ -56,11 +61,11 @@ class PlansEnum(str, Enum):
 
 
 class SubscriptionStatusEnum(str, Enum):
-    active = "Ativa"
-    canceled = "Cancelada"
-    overdue = "Vencida"
-    pending = "Pendente"
-    expired = "Expirada"
+    PENDING = "PENDING"
+    PAID = "PAID"
+    CANCELLED = "CANCELLED"
+    EXPIRED = "EXPIRED"
+    REFUNDED = "REFUNDED"
 
 
 class SubscriptionCycle(str, Enum):
