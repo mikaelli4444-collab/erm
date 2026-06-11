@@ -2,6 +2,7 @@ from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, DECIMAL, B
 from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime, date
+from zoneinfo import ZoneInfo
 from core.enum.enum import StatusEnum, DebtStatusEnum, TransactionTypeEnum, TransactionCategoryEnum, ReceivablesStatusEnum
     
 class Sells(base):
@@ -23,7 +24,7 @@ class Sells(base):
     delivery = Column(Date, nullable=False) #definir fecha manualmente
     carpenter_id = Column(Integer, ForeignKey("users.id"))
     carpenter = relationship("User", foreign_keys=[carpenter_id], back_populates="in_charge")
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")), nullable=False)
 
 
 class Debt(base): #Deudas

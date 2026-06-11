@@ -2,6 +2,7 @@
 #uvicorn main:app --reload --log-level debug para debugar cuando el log del error no es tan claro
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from users.users_route import home_router 
 from inventory.inventory_route import inventory_router
 from production.production_route import production_router
@@ -11,11 +12,18 @@ from notification.ws_route import ws_route
 from financery.financery_route import financery_router
 from projects.projects_route import projects_router
 from payments.payments_router import payments_router
+from admin.admin_router import admin_router
 from core.database import base, engine
 from core.dependencies import templates
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
-app = FastAPI()
+app = FastAPI(
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None
+)
 
 base.metadata.create_all(bind=engine)
 
@@ -28,6 +36,18 @@ def home(request: Request):
     {"request": request}
     )
 
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, error ):
+    if error.status_code == 404:
+        print(f"404: {request.client.host} -> {request.url.path} hora: {datetime.now(ZoneInfo('America/Sao_Paulo'))}")
+
+        return templates.TemplateResponse(
+            "responses/404.html",
+            {"request": request},
+            status_code=404
+        )
+
+    raise error
 
 app.include_router(home_router)
 app.include_router(inventory_router)
@@ -38,6 +58,4 @@ app.include_router(ws_route)
 app.include_router(financery_router)
 app.include_router(projects_router)
 app.include_router(payments_router)
-
-for r in app.routes:
-    print(r.path)
+app.include_router(admin_router)

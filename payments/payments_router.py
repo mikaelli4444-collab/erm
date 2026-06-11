@@ -5,17 +5,11 @@ from core.dependencies import templates, CreateSession
 from users.users_model import User
 from core.security import verify_token
 from payments.payments_models import Subscription, Plans
-from payments.payments_services import select_plan, create_subscription, update_subscription, update_company_value, create_plan
+from payments.payments_services import select_plan, create_subscription, update_subscription, update_company_value
 from payments.webhook import verify_webhook
 from utilities.limiter.limiter import limiter
 
 payments_router = APIRouter(prefix="/payments", tags=["Payments"])
-
-@payments_router.post("/create-plan")
-@limiter.limit("5/minute")
-def create_plan_route(request: Request, payload: dict, session: Session = Depends(CreateSession)):
-    return create_plan(name=payload["name"], amount=payload["amount"], frequency=payload["frequency"], session=session)
-
 
 @payments_router.post("/update-plan/{plan_id}")
 @limiter.limit("1/minute")
@@ -151,7 +145,7 @@ def plans_view(request: Request, user: User = Depends(verify_token), session: Se
         "plan_premium_price": plans[1].amount/100 if len(plans) > 1 else 0,
         "plan_enterprise_price": plans[2].amount/100 if len(plans) > 2 else 0,
         "plan_annual_price": plans[3].amount/100 if len(plans) > 3 else 0,
-        "descuento": round((plans[2].amount * 12) - plans[3].amount, 2) if len(plans) > 3 else 0
+        "descuento": round((plans[2].amount * 12) - plans[3].amount, 2) / 100 if len(plans) > 3 else 0 #dividir entre 100 por lo centavos, bruh
     })
     
 @payments_router.get("/success")
@@ -174,16 +168,6 @@ def pending_view(request: Request, user: User = Depends(verify_token)):
 @limiter.limit("5/minute")
 def failure_view(request: Request, user: User = Depends(verify_token)):
     return templates.TemplateResponse("payments/pay_failure.html", {
-        "request": request,
-        "user": user
-    })
-
-@payments_router.get("/create-plan")
-@limiter.limit("5/minute")
-def create_plan_page(request: Request, user: User = Depends(verify_token), session: Session = Depends(CreateSession)):
-    print(user)
-    print(session)
-    return templates.TemplateResponse("plans/create_plans.html", {
         "request": request,
         "user": user
     })

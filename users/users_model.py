@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from core.database import base
 from datetime import datetime
 from core.enum.enum import UserRoleEnum
+from zoneinfo import ZoneInfo
 
 class User(base):
     __tablename__ = 'users'
@@ -14,8 +15,8 @@ class User(base):
     fullname = Column(String, nullable=False)
     password = Column(String, nullable=False)
     temp_password = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")), nullable=False)
     is_verified = Column(Integer, default=0, nullable=False)
     verification_code = Column(String, nullable=True)
     verification_code_expires_at = Column(DateTime(timezone=True), nullable=True)
@@ -62,5 +63,5 @@ class CompanyJoinRequest(base):
     company_id = Column(Integer, ForeignKey("companies.id"), index=True)
     company = relationship("Company", foreign_keys=[company_id])
     status = Column(String, default="pending", index=True, nullable=False)#pending, rejected, accepted
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(ZoneInfo("America/Sao_Paulo")), nullable=False)
     message = Column(JSONB, index=True, nullable=True)
