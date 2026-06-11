@@ -57,6 +57,7 @@ NOTIFY_URL = string_parse("mercado_pago.notify_url")
 #refion AbacatePay config
 ABACATE_PAY_KEY = string_parse("abacatepay.abacatepay_key")
 ABACATE_PAY_WEBHOOK_SECRET = string_parse("abacatepay.abacate_pay_webhook_secret")
+ABACATE_BASE_URL = string_parse("abacatepay.abacate_base_url")
 #endregion
 
 #region URL config

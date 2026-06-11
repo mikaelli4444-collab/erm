@@ -1,4 +1,5 @@
 #uvicorn core.main:app --reload para rodar o app
+#uvicorn main:app --reload --log-level debug para debugar cuando el log del error no es tan claro
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from users.users_route import home_router 
@@ -37,3 +38,6 @@ app.include_router(ws_route)
 app.include_router(financery_router)
 app.include_router(projects_router)
 app.include_router(payments_router)
+
+for r in app.routes:
+    print(r.path)

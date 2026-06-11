@@ -46,6 +46,7 @@ mercado_pago:
 abacatepay:
   abacatepay_key: ${ABACATE_PAY_KEY}
   abacate_pay_webhook_secret: ${ABACATE_PAY_WEBHOOK_SECRET}
+  abacate_base_url: ${ABACATE_BASE_URL}
 
 url:
   expiration_minutes: 43200

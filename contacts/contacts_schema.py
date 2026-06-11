@@ -3,10 +3,10 @@ from typing import Optional
 from enum import Enum
 
 class types(str, Enum):
-    architect = 'architect'
-    personal = 'personal'
-    employed = 'employed'
-    client = 'client'
+    architect = 'arquiteto'
+    personal = 'pessoal'
+    employed = 'colaborador'
+    client = 'cliente'
 
 
 class ContactsBase(BaseModel):

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Plans</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f4f4f4;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        input, select {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+            background: black;
+            color: white;
+            border: none;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #222;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Crear Plan</h2>
+
+    <input id="name" placeholder="Nombre">
+    <input id="amount" type="number" placeholder="Precio">
+
+    <select id="frequency">
+        <option value="1">Mensual</option>
+        <option value="12">Anual</option>
+    </select>
+
+    <button onclick="createPlan()">Crear</button>
+
+    <hr>
+
+    <h2>Planes existentes</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Frecuencia</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+
+        <tbody id="plansTable"></tbody>
+    </table>
+
+</div>
+
+<script>
+console.log("Admin Plans JS loaded");
+
+async function loadPlans() {
+    try {
+        const res = await fetch("/payments/plans-json");
+        const data = await res.json();
+
+        const table = document.getElementById("plansTable");
+        table.innerHTML = "";
+
+        data.forEach(plan => {
+            table.innerHTML += `
+                <tr>
+                    <td>${plan.id}</td>
+
+                    <td>
+                        <input value="${plan.name}" id="name-${plan.id}">
+                    </td>
+
+                    <td>
+                        <input value="${plan.amount}" id="amount-${plan.id}">
+                    </td>
+
+                    <td>
+                        <select id="freq-${plan.id}">
+                            <option value="1" ${plan.frequency == 1 ? "selected" : ""}>Mensual</option>
+                            <option value="12" ${plan.frequency == 12 ? "selected" : ""}>Anual</option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <button onclick="updatePlan(${plan.id})">Guardar</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (err) {
+        console.error("Error loading plans:", err);
+    }
+}
+
+async function createPlan() {
+    try {
+        console.log("Creating plan...");
+
+        const payload = {
+            name: document.getElementById("name").value,
+            amount: parseFloat(document.getElementById("amount").value),
+            frequency: parseInt(document.getElementById("frequency").value)
+        };
+
+        console.log("Payload:", payload);
+
+        const res = await fetch("/payments/create-plan", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const text = await res.text();
+
+        console.log("Response status:", res.status);
+        console.log("Response:", text);
+
+        if (!res.ok) {
+            alert("Error creando plan");
+            return;
+        }
+
+        loadPlans();
+
+    } catch (err) {
+        console.error("Create plan error:", err);
+    }
+}
+
+async function updatePlan(id) {
+    try {
+        const res = await fetch(`/payments/update-plan/${id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: document.getElementById(`name-${id}`).value,
+                amount: parseFloat(document.getElementById(`amount-${id}`).value),
+                frequency: parseInt(document.getElementById(`freq-${id}`).value)
+            })
+        });
+
+        console.log("Update status:", res.status);
+
+        loadPlans();
+
+    } catch (err) {
+        console.error("Update error:", err);
+    }
+}
+
+loadPlans();
+</script>
+
+</body>
+</html>
