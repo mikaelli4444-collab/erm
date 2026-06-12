@@ -29,7 +29,7 @@ class Plans(base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     #mp_plan_id = Column(String, nullable=False, index=True) MALDITA BASURA DE MERCADO_PAGO
     name = Column(SQLEnum(plansEnum), nullable=False, index=True)
-    amount = Column(Integer, nullable=False, index=True)
+    amount = Column(Float, nullable=False, index=True)
     frequency = Column(Integer, nullable=False, index=True)
     external_id = Column(String, nullable=True, index=True) #id del plan en el proveedor de pagos
     currency = Column(String, nullable=False, default="BRL", index=True) #siempre va a ser BRL no jodas

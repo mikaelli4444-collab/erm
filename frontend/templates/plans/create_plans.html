@@ -94,7 +94,7 @@ console.log("Admin Plans JS loaded");
 
 async function loadPlans() {
     try {
-        const res = await fetch("/payments/plans-json");
+        const res = await fetch("/admin/plans-json");
         const data = await res.json();
 
         const table = document.getElementById("plansTable");
@@ -144,7 +144,7 @@ async function createPlan() {
 
         console.log("Payload:", payload);
 
-        const res = await fetch("/payments/create-plan", {
+        const res = await fetch("/admin/create-plan", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -171,7 +171,7 @@ async function createPlan() {
 
 async function updatePlan(id) {
     try {
-        const res = await fetch(`/payments/update-plan/${id}`, {
+        const res = await fetch(`/admin/update-plan/${id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

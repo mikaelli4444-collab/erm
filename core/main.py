@@ -20,6 +20,10 @@ from zoneinfo import ZoneInfo
 
 
 app = FastAPI()
+#     docs_url=None,
+#     redoc_url=None,
+#     openapi_url=None
+# )
 
 base.metadata.create_all(bind=engine)
 

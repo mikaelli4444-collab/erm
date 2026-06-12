@@ -53,6 +53,7 @@ def create_subscription(email, product_id, external_id=None):
     }
 
     response = requests.post(url, json=payload, headers=HEADERS, timeout=15)
+    print(response.text)
     data = safe_response(response)
 
     # URL de pago (checkout hosted)

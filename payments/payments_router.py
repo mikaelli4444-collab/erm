@@ -11,48 +11,15 @@ from utilities.limiter.limiter import limiter
 
 payments_router = APIRouter(prefix="/payments", tags=["Payments"])
 
-@payments_router.post("/update-plan/{plan_id}")
-@limiter.limit("1/minute")
-def update_plan_route(request: Request, plan_id: int, payload: dict, session: Session = Depends(CreateSession)):
-    plan = session.query(Plans).filter(Plans.id == plan_id).first()
-
-    if not plan:
-        raise HTTPException(status_code=404)
-
-    if "name" in payload:
-        plan.name = payload["name"]
-
-    if "amount" in payload:
-        plan.amount = payload["amount"]
-
-    if "frequency" in payload:
-        plan.frequency = payload["frequency"]
-
-    session.commit()
-
-    return {"status": "updated"}
-
-@payments_router.get("/plans-json")
-@limiter.limit("1/minute")
-def plans_json(request: Request, session: Session = Depends(CreateSession)):
-    plans = session.query(Plans).all()
-
-    return [
-        {
-            "id": plan.id,
-            "name": plan.name,
-            "amount": plan.amount,
-            "frequency": plan.frequency
-        }
-        for plan in plans
-    ]
-
 @payments_router.post("/subscribe/{plan_id}")
 @limiter.limit("2/minute")
 async def subscribe_logic(request: Request, plan_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     plan = select_plan(plan_id, session)
+    
     if not plan:
         raise HTTPException(status_code=404, detail="404")
+    
+    amount = plan.amount/100
 
     new_sub = Subscription(
         user_id=user.id,
@@ -61,7 +28,7 @@ async def subscribe_logic(request: Request, plan_id: int, session: Session = Dep
         status="PENDING",
         provider_subscription_id=None,
         payment_provider_id=None,
-        amount=plan.amount,
+        amount=amount,
         current_period_start=None,
         current_period_end=None,
         cancel_at_period_end=None,
