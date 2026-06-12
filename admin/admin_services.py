@@ -9,7 +9,7 @@ HEADERS = {
 }
 
 
-def _safe_response(response):
+def safe_response(response):
     try:
         data = response.json()
     except Exception:
@@ -49,7 +49,7 @@ def create_plan(user, name: str, amount: float, frequency: int, session):
     print("STATUS:", response.status_code)
     print("TEXT:", response.text)
     
-    data = _safe_response(response)
+    data = safe_response(response)
 
     plan = Plans(
         name=name,
@@ -65,3 +65,18 @@ def create_plan(user, name: str, amount: float, frequency: int, session):
         "plan_id": plan.id,
         "external_id": plan.external_id
     }
+    
+def delete_plan_abacatepay(product_id, api_key, user):
+    if user.role != "admin":
+        raise ValueError("Unauthorized")
+    url = "https://api.abacatepay.com/v2/products/delete"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "id": product_id
+    }
+    
+    response = requests.post(url, json=payload, headers=headers )
+    return safe_response(response)

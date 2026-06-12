@@ -19,11 +19,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 
-app = FastAPI(
-    docs_url=None,
-    redoc_url=None,
-    openapi_url=None
-)
+app = FastAPI()
 
 base.metadata.create_all(bind=engine)
 

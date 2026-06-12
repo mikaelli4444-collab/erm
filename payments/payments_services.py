@@ -10,7 +10,7 @@ HEADERS = {
 }
 
 
-def _safe_response(response):
+def safe_response(response):
     try:
         data = response.json()
     except Exception:
@@ -38,7 +38,7 @@ def create_subscription(email, product_id, external_id=None):
         timeout=15
     )
 
-    customer_data = _safe_response(customer_res)
+    customer_data = safe_response(customer_res)
     customer_id = customer_data["id"]
 
     payload = {
@@ -53,7 +53,7 @@ def create_subscription(email, product_id, external_id=None):
     }
 
     response = requests.post(url, json=payload, headers=HEADERS, timeout=15)
-    data = _safe_response(response)
+    data = safe_response(response)
 
     # URL de pago (checkout hosted)
     return data["url"]
@@ -67,7 +67,7 @@ def get_subscription_status(subscription_id):
     if response.status_code != 200:
         return None
 
-    return _safe_response(response)
+    return safe_response(response)
 
 def update_subscription(subscription, status, session):
     subscription.status = status
@@ -98,4 +98,5 @@ def get_payment_status(checkout_id):
     if response.status_code != 200:
         return None
 
-    return _safe_response(response)
+    return safe_response(response)
+
