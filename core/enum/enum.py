@@ -1,59 +1,81 @@
 from enum import Enum
 
+
 class StatusEnum(str, Enum):
-    planning = "planning"
-    cutting = "cutting"
-    pre_assembly = "pre_assembly"
-    lamination = "lamination"
-    truck_loading = "truck_loading"
-    installation = "installation"
-    completed = "completed"
-    cancelled = "cancelled"
+    planning = "Planejamento"
+    cutting = "Corte"
+    pre_assembly = "Pré-montagem"
+    lamination = "Laminação"
+    truck_loading = "Carregamento"
+    installation = "Instalação"
+    completed = "Concluído"
+    cancelled = "Cancelado"
+
+class ContactsTypes(str, Enum):
+    architect = 'arquiteto'
+    personal = 'pessoal'
+    employed = 'colaborador'
+    client = 'cliente'
 
 class DebtStatusEnum(str, Enum):
-    pending = "pending"
-    cancelled = "cancelled"
-    paid = "paid"
-    overdue = "overdue"
-    
+    pending = "Pendente"
+    cancelled = "Cancelado"
+    paid = "Pago"
+    overdue = "Vencido"
+
+
 class TransactionTypeEnum(str, Enum):
-    income = "income"
-    expense = "expense"
+    income = "Receita"
+    expense = "Despesa"
+
 
 class TransactionCategoryEnum(str, Enum):
-    sale = "sale"
-    rent = "rent"
-    other_income = "other_income" #idk how to call this lol
-    salary = "salary"
-    purchases = "purchases"
-    utilities = "utilities"
-    debt_payment = "debt_payment"
-    receivable_payment = "receivable_payment"
-    material = "material"
-    
-class ReceivablesStatusEnum(str, Enum):
-    pending = "pending"
-    paid = "paid"
-    cancelled = "cancelled"
-    overdue = "overdue"
-    
-class UserRoleEnum(str, Enum):
-    admin = "admin"
-    carpenter = "carpenter"
-    auxiliary = "auxiliary"
+    sale = "Venda"
+    rent = "Aluguel"
+    other_income = "Outras Receitas"
+    salary = "Salários"
+    purchases = "Compras"
+    utilities = "Despesas Operacionais"
+    debt_payment = "Pagamento de Dívida"
+    receivable_payment = "Recebimento"
+    material = "Material"
 
-class plansEnum(str, Enum):
-    basic = "basic"
-    premium = "premium"
-    enterprise = "enterprise"
-    
+
+class ReceivablesStatusEnum(str, Enum):
+    pending = "Pendente"
+    paid = "Pago"
+    cancelled = "Cancelado"
+    overdue = "Vencido"
+
+
+class UserRoleEnum(str, Enum):
+    admin = "Administrador"
+    carpenter = "Marceneiro"
+    auxiliary = "Auxiliar"
+
+
+class PlansEnum(str, Enum):
+    basic = "Básico"
+    premium = "Premium"
+    enterprise = "Empresarial"
+
+
 class SubscriptionStatusEnum(str, Enum):
-    PENDING = "PENDING"
-    PAID = "PAID"
-    CANCELLED = "CANCELLED"
-    EXPIRED = "EXPIRED"
-    REFUNDED = "REFUNDED"
+    active = "active"
+    canceled = "canceled"
+    overdue = "overdue"
+    pending = "pending"
+    expired = "expired"
     
 class SubscriptionCycle(str, Enum):
-    MONTHLY = "MONTHLY"
-    ANNUALLY = "ANNUALLY"
+    MONTHLY = "Mensal"
+    ANNUALLY = "Anual"
+    
+class WeekDayEnum(str, Enum):
+    monday = "segunda"
+    tuesday = "terça"
+    wednesday = "quarta"
+    thursday = "quinta"
+    friday = "sexta"
+    saturday = "sabado"
+    sunday = "domingo"

@@ -45,8 +45,12 @@ def create_refresh_token(user_id: int):
     return RefreshToken
 
 def verify_token(request: Request, session: Session = Depends(CreateSession)) -> User:
-
+    
+    #print("COOKIES:", request.cookies)
+    
     token = request.cookies.get("access_token")
+    
+    #print("TOKEN:", token)
 
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -104,7 +108,7 @@ def get_user_from_token(token: str, session: Session):
         id_user = int(payload.get("sub"))
 
     except Exception as e:
-        print("ERROR DECODING JWT:", e)
+        #print("ERROR DECODING JWT:", e)
         return None
 
     user = session.query(User).filter(User.id == id_user).first()
