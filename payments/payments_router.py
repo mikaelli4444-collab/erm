@@ -84,8 +84,11 @@ async def create_plan(request: Request, session: Session = Depends(CreateSession
 @limiter.limit("2/minute")
 async def subscribe_logic(request: Request, plan_id: int, session: Session = Depends(CreateSession), user: User = Depends(verify_token)):
     plan = select_plan(plan_id, session)
+    
     if not plan:
         raise HTTPException(status_code=404, detail="404")
+    
+    amount = plan.amount/100
 
     new_sub = Subscription(
         user_id=user.id,
@@ -94,7 +97,7 @@ async def subscribe_logic(request: Request, plan_id: int, session: Session = Dep
         status="PENDING",
         provider_subscription_id=None,
         payment_provider_id=None,
-        amount=plan.amount,
+        amount=amount,
         current_period_start=None,
         current_period_end=None,
         cancel_at_period_end=None,
@@ -164,7 +167,7 @@ def plans_view(request: Request, user: User = Depends(verify_token), session: Se
     """Renderiza la página de selección de planes."""
     plans = session.query(Plans).order_by(Plans.id).all()
      
-    return templates.TemplateResponse("payments/plans.html", {
+    return templates.TemplateResponse("plans/plans.html", {
         "request": request,
         "plans": plans,
         "user": user,
@@ -178,7 +181,7 @@ def plans_view(request: Request, user: User = Depends(verify_token), session: Se
         "plan_premium_price": plans[1].amount/100 if len(plans) > 1 else 0,
         "plan_enterprise_price": plans[2].amount/100 if len(plans) > 2 else 0,
         "plan_annual_price": plans[3].amount/100 if len(plans) > 3 else 0,
-        "descuento": round((plans[2].amount * 12) - plans[3].amount, 2) if len(plans) > 3 else 0
+        "descuento": round((plans[2].amount * 12) - plans[3].amount, 2) / 100 if len(plans) > 3 else 0 #dividir entre 100 por lo centavos, bruh
     })
     
 @payments_router.get("/success")

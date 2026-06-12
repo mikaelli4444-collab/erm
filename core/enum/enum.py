@@ -67,7 +67,6 @@ class SubscriptionStatusEnum(str, Enum):
     EXPIRED = "EXPIRED"
     REFUNDED = "REFUNDED"
 
-
 class SubscriptionCycle(str, Enum):
     MONTHLY = "Mensal"
     ANNUALLY = "Anual"

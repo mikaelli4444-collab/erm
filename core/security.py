@@ -117,3 +117,9 @@ def get_user_from_token(token: str, session: Session):
         return None
 
     return user
+
+def verify_admin(user: User = Depends(verify_token)):
+    if user.role != "admin":
+        raise HTTPException(status_code=404)
+
+    return user
