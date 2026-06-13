@@ -144,6 +144,10 @@ erm/
 ├── config.yaml
 ├── errors_tracking.md
 ├── requirements.txt
+├── Dockerfile
+├── admin/
+│   ├── admin_router.py
+│   └── admin_services.py
 ├── alembic/
 │   └── versions/
 ├── contacts/
@@ -159,13 +163,16 @@ erm/
 │   ├── main.py
 │   ├── security.py
 │   ├── config/
-│   │   ├── __init__.backup.py
 │   │   ├── __init__.py
-│   │   ├── __main__.py
 │   │   ├── config_loader.py
 │   │   └── parsers.py
 │   └── enum/
 │       └── enum.py
+├── cronograma/
+│   ├── cronograma_models.py
+│   ├── cronograma_router.py
+│   ├── cronograma_schemas.py
+│   └── cronograma_services.py
 ├── financery/
 │   ├── financery_models.py
 │   ├── financery_route.py
@@ -212,7 +219,8 @@ erm/
 │   ├── payments_models.py
 │   ├── payments_router.py
 │   ├── payments_services.py
-│   └── prueba.py
+│   ├── prueba.py
+│   └── webhook.py
 ├── production/
 │   ├── production_model.py
 │   ├── production_route.py
@@ -230,10 +238,13 @@ erm/
 │   ├── users_schema.py
 │   └── users_service.py
 └── utilities/
+    ├── limiter/
     ├── net/
     │   └── autorouter.py
+    ├── responses/
     └── storage/
         └── storage_service.py
+
 ```
 
 ## 🚀 Instalación
@@ -545,6 +556,10 @@ erm/
 ├── config.yaml
 ├── errors_tracking.md
 ├── requirements.txt
+├── Dockerfile
+├── admin/
+│   ├── admin_router.py
+│   └── admin_services.py
 ├── alembic/
 │   └── versions/
 ├── contacts/
@@ -560,13 +575,16 @@ erm/
 │   ├── main.py
 │   ├── security.py
 │   ├── config/
-│   │   ├── __init__.backup.py
 │   │   ├── __init__.py
-│   │   ├── __main__.py
 │   │   ├── config_loader.py
 │   │   └── parsers.py
 │   └── enum/
 │       └── enum.py
+├── cronograma/
+│   ├── cronograma_models.py
+│   ├── cronograma_router.py
+│   ├── cronograma_schemas.py
+│   └── cronograma_services.py
 ├── financery/
 │   ├── financery_models.py
 │   ├── financery_route.py
@@ -613,7 +631,8 @@ erm/
 │   ├── payments_models.py
 │   ├── payments_router.py
 │   ├── payments_services.py
-│   └── prueba.py
+│   ├── prueba.py
+│   └── webhook.py
 ├── production/
 │   ├── production_model.py
 │   ├── production_route.py
@@ -631,10 +650,13 @@ erm/
 │   ├── users_schema.py
 │   └── users_service.py
 └── utilities/
+    ├── limiter/
     ├── net/
     │   └── autorouter.py
+    ├── responses/
     └── storage/
         └── storage_service.py
+
 ```
 
 ## 🚀 Installation
@@ -953,6 +975,10 @@ erm/
 ├── config.yaml
 ├── errors_tracking.md
 ├── requirements.txt
+├── Dockerfile
+├── admin/
+│   ├── admin_router.py
+│   └── admin_services.py
 ├── alembic/
 │   └── versions/
 ├── contacts/
@@ -968,13 +994,16 @@ erm/
 │   ├── main.py
 │   ├── security.py
 │   ├── config/
-│   │   ├── __init__.backup.py
 │   │   ├── __init__.py
-│   │   ├── __main__.py
 │   │   ├── config_loader.py
 │   │   └── parsers.py
 │   └── enum/
 │       └── enum.py
+├── cronograma/
+│   ├── cronograma_models.py
+│   ├── cronograma_router.py
+│   ├── cronograma_schemas.py
+│   └── cronograma_services.py
 ├── financery/
 │   ├── financery_models.py
 │   ├── financery_route.py
@@ -1021,7 +1050,8 @@ erm/
 │   ├── payments_models.py
 │   ├── payments_router.py
 │   ├── payments_services.py
-│   └── prueba.py
+│   ├── prueba.py
+│   └── webhook.py
 ├── production/
 │   ├── production_model.py
 │   ├── production_route.py
@@ -1039,10 +1069,13 @@ erm/
 │   ├── users_schema.py
 │   └── users_service.py
 └── utilities/
+    ├── limiter/
     ├── net/
     │   └── autorouter.py
+    ├── responses/
     └── storage/
         └── storage_service.py
+
 ```
 
 ## 🚀 Instalação
