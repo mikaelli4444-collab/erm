@@ -125,19 +125,27 @@ async def subscribe_logic(request: Request, plan_id: int, session: Session = Dep
 @limiter.limit("10/minute")
 async def abacate_pay_webhook(request: Request, session: Session = Depends(CreateSession)):
 
+    print("WEBHOOK HIT")
+    
     body_bytes = await verify_webhook(request)
+    
+    print("VERIFY OK")
 
     try:
         data = json.loads(body_bytes)
+        print(data)
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON")
 
     event = data.get("event")
     payload = data.get("data")
+    print("EVENT:", event)
+    print("PAYLOAD:", payload)
 
     if event == "subscription.completed":
         try:
             sub_id = int(payload["externalId"])
+            
         except (KeyError, ValueError, TypeError):
             raise HTTPException(status_code=400, detail="Invalid externalId")
 

@@ -16,7 +16,7 @@
 ![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
 ![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
 ![Google Gemini](https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=googlecloud)
-![MercadoPago](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
+![CloudFlare](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
 
 
 # ProntoERP
@@ -115,7 +115,7 @@ Este sistema permite a pequeñas y medianas carpinterias y negocios del sector m
 - rpds-py
 
 ### 💸 Pagos
-- MercadoPago
+- AbacatePay
 
 ### 🧪 Otras Dependencias Internas
 - anyio
@@ -417,7 +417,7 @@ git commit -m "refactor: improve service layer structure"
 ![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
 ![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
 ![Google Gemini](https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=googlecloud)
-![MercadoPago](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
+![CloudFlare](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
 
 # ProntoERP
 
@@ -517,7 +517,7 @@ This system allows small and medium-sized carpenter shops and furniture business
 - rpds-py
 
 ### 💸 Payments
-- MercadoPago
+- AbacatePay
 
 ### 🧪 Other Internal Dependencies
 - anyio
@@ -824,7 +824,7 @@ git commit -m "refactor: improve service layer structure"
 ![Html](https://img.shields.io/badge/html-000000?style=for-the-badge&logo=html5)
 ![Css](https://img.shields.io/badge/Css-000000?style=for-the-badge&logo=css)
 ![Google Gemini](https://img.shields.io/badge/Gemini-000000?style=for-the-badge&logo=googlecloud)
-![MercadoPago](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
+![Cloudflare](https://img.shields.io/badge/CloudFlare-000000?style=for-the-badge&logo=Cloudflare)
 
 # ProntoERP
 
@@ -924,7 +924,7 @@ Este sistema permite que pequenas e médias marcenarias e negócios do setor mov
 - rpds-py
 
 ### 💸 Pagamentos
-- MercadoPago
+- AbacatePay
 
 ### 🧪 Outras Dependências Internas
 - anyio

@@ -8,7 +8,7 @@ from admin.admin_services import create_plan, delete_plan_abacatepay
 from core.config import ABACATE_PAY_KEY
 from utilities.limiter.limiter import limiter
 
-admin_router = APIRouter(prefix="/admin", tags=["admin"])#, include_in_schema=False)
+admin_router = APIRouter(prefix="/admin", tags=["admin"], include_in_schema=False)
 
 @admin_router.post("/create-plan")
 @limiter.limit("5/minute")
@@ -37,21 +37,6 @@ def update_plan_route(request: Request, plan_id: int, payload: dict, session: Se
 
     return {"status": "updated"}
 
-@admin_router.get("/plans-json")
-@limiter.limit("1/minute")
-def plans_json(request: Request, session: Session = Depends(CreateSession)):
-    plans = session.query(Plans).all()
-
-    return [
-        {
-            "id": plan.id,
-            "name": plan.name,
-            "amount": plan.amount,
-            "frequency": plan.frequency
-        }
-        for plan in plans
-    ]
-
 @admin_router.delete("/delete-plan")
 def delete_plan_route(external_id: str, session: Session = Depends(CreateSession), user: User = Depends(verify_admin)):
     delete_plan_abacatepay(external_id, ABACATE_PAY_KEY, user, session)
@@ -69,7 +54,19 @@ def create_plan_page(request: Request, user: User = Depends(verify_admin), sessi
         })
     
     else:
+        plans = session.query(Plans).all()
+        
         return templates.TemplateResponse("plans/create_plans.html", {
             "request": request,
-            "user": user
-        })
+            "user": user,
+            "planes": [
+                {
+                    "id": plan.id,
+                    "name": plan.name.value,
+                    "amount": plan.amount,
+                    "frequency": plan.frequency
+                    } 
+                
+                for plan in plans
+                ]
+            })
