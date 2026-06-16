@@ -15,7 +15,7 @@ class Subscription(base):
     current_period_start = Column(Date, nullable=True, index=True)
     cancel_at_period_end = Column(Date, nullable=True, index=True)
     current_period_end = Column(Date, nullable=True, index=True)
-    amount = Column(Integer, nullable=False)
+    amount = Column(Float, nullable=False)
     payment_provider_id = Column(String, nullable=True)
     provider_subscription_id = Column(String, nullable=True)
     status = Column(SQLEnum(SubscriptionStatusEnum), nullable=False)

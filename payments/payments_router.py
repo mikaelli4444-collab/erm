@@ -88,7 +88,7 @@ async def subscribe_logic(request: Request, plan_id: int, session: Session = Dep
     if not plan:
         raise HTTPException(status_code=404, detail="404")
     
-    amount = plan.amount/100
+    amount = plan.amount
 
     new_sub = Subscription(
         user_id=user.id,
@@ -104,9 +104,10 @@ async def subscribe_logic(request: Request, plan_id: int, session: Session = Dep
         is_active=False
         
     )
-    session.add(new_sub)
-    session.commit()
     
+    session.add(new_sub)
+    session.flush()
+
     payment_url = create_subscription(
         email=user.email,
         product_id=plan.external_id,
@@ -114,59 +115,85 @@ async def subscribe_logic(request: Request, plan_id: int, session: Session = Dep
     )
 
     if not payment_url or "Error" in str(payment_url):
+        session.rollback()
         raise HTTPException(status_code=400)
-        
+    
+    session.commit()
+    
     return {
         "status": "success", 
         "payment_url": payment_url
         }
 
 @payments_router.post("/webhook/signature")
-@limiter.limit("10/minute")
-async def abacate_pay_webhook(request: Request, session: Session = Depends(CreateSession)):
+async def abacate_pay_webhook(request: Request,session: Session = Depends(CreateSession)):
 
-    print("WEBHOOK HIT")
-    
     body_bytes = await verify_webhook(request)
-    
-    print("VERIFY OK")
 
     try:
         data = json.loads(body_bytes)
         print(data)
+        
     except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid JSON")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid JSON"
+        )
 
     event = data.get("event")
     payload = data.get("data")
-    print("EVENT:", event)
-    print("PAYLOAD:", payload)
+    checkout = payload.get("checkout")
+    payment = payload.get("payment")
+    subscription_data = payload.get("subscription")
 
+    sub_id = int(checkout["externalId"])
+ 
+    
     if event == "subscription.completed":
+
         try:
-            sub_id = int(payload["externalId"])
-            
+            checkout = payload["checkout"]
+            payment = payload["payment"]
+            subscription_data = payload["subscription"]
+
+            sub_id = int(checkout["externalId"])
+
         except (KeyError, ValueError, TypeError):
-            raise HTTPException(status_code=400, detail="Invalid externalId")
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid webhook payload"
+            )
 
         subscription = session.query(Subscription).filter(Subscription.id == sub_id).first()
-        
+
         if not subscription:
-            raise HTTPException(status_code=404, detail="Subscription not found")
-        
-        if subscription.status == "ACTIVE":
-            return {"status": "already_processed"}
-        
+            print(f"Subscription {sub_id} not found")
+            return {"status": "not_found"}
+
+        if subscription.status == "PAID":
+            return {
+                "status": "already_processed"
+            }
 
         subscription.is_active = True
-        subscription.payment_provider_id = payload.get("id")
-        subscription.provider_subscription_id = payload.get("subscriptionId")
+        subscription.payment_provider_id = payment["id"]
+        subscription.provider_subscription_id = subscription_data["id"]
 
-        update_subscription(subscription, "ACTIVE", session)
-        update_company_value(subscription.company_id, subscription.plan_id, session)
-            
-    return {"status": "200"}
+        update_subscription(
+            subscription,
+            "PAID",
+            session
+        )
 
+        update_company_value(
+            subscription.company_id,
+            subscription.plan_id,
+            session
+        )
+
+    return {
+        "status": "200"
+    }
 #VIEWS
 
 @payments_router.get("/plans")
