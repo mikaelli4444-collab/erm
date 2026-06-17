@@ -36,13 +36,6 @@ storage:
   secret_key: ${STORAGE_SECRET_KEY}
   media_base_url: ${STORAGE_MEDIA_BASE_URL}
 
-mercado_pago:
-  access_token: ${MERCADO_PAGO_ACCESS_TOKEN}
-  public_key: ${PUBLIC_KEY}
-  back_url: ${BACK_URL}
-  assinatura_mp: ${ASSINATURA_MP}
-  notify_url: ${NOTIFY_URL}
-
 abacatepay:
   abacatepay_key: ${ABACATE_PAY_KEY}
   abacate_pay_webhook_secret: ${ABACATE_PAY_WEBHOOK_SECRET}

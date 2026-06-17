@@ -1,0 +1,1 @@
+#esto es para colocar las dependencias en los router y no tener que repetir logica a cada rato
