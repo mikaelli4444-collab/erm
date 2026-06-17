@@ -10,6 +10,8 @@ class Subscription(base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     user = relationship("User", back_populates="subscription")
+    plan_id = Column(Integer, ForeignKey("plans.id"), nullable=True, index=True)
+    plan = relationship("Plans", back_populates="plan_subscription")
     current_period_start = Column(Date, nullable=True, index=True)
     cancel_at_period_end = Column(Date, nullable=True, index=True)
     current_period_end = Column(Date, nullable=True, index=True)
@@ -32,6 +34,7 @@ class Plans(base):
     frequency = Column(Integer, nullable=False, index=True)
     external_id = Column(String, nullable=True, index=True) #id del plan en el proveedor de pagos
     currency = Column(String, nullable=False, default="BRL", index=True) #siempre va a ser BRL no jodas
+    plan_subscription = relationship("Subscription", back_populates="plan") 
     
 class Moduls(base):
     __tablename__ = 'moduls'
