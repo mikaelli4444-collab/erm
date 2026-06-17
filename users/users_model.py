@@ -54,6 +54,7 @@ class Company(base):
     company_projects = relationship("Projects", back_populates="company")
     company_subscription = relationship("Subscription", back_populates="company", uselist=False)
     company_schedules = relationship("WeeklySchedule", back_populates="company")
+    moduls_company = relationship("Moduls_Companies", back_populates="company")
     
 class CompanyJoinRequest(base):
     __tablename__ = 'company_join_requests'

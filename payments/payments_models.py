@@ -10,12 +10,11 @@ class Subscription(base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     user = relationship("User", back_populates="subscription")
-    plan_id = Column(Integer, ForeignKey("plans.id"), nullable=True, index=True)
-    plan = relationship("Plans", back_populates="plan_subscription")
     current_period_start = Column(Date, nullable=True, index=True)
     cancel_at_period_end = Column(Date, nullable=True, index=True)
     current_period_end = Column(Date, nullable=True, index=True)
-    amount = Column(Float, nullable=False)
+    amount = Column(Float, index=True, nullable=True)
+    frequency = Column(String, index=True, nullable=True)
     payment_provider_id = Column(String, nullable=True)
     provider_subscription_id = Column(String, nullable=True)
     status = Column(SQLEnum(SubscriptionStatusEnum), nullable=False)
@@ -33,4 +32,21 @@ class Plans(base):
     frequency = Column(Integer, nullable=False, index=True)
     external_id = Column(String, nullable=True, index=True) #id del plan en el proveedor de pagos
     currency = Column(String, nullable=False, default="BRL", index=True) #siempre va a ser BRL no jodas
-    plan_subscription = relationship("Subscription", back_populates="plan") 
+    
+class Moduls(base):
+    __tablename__ = 'moduls'
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String, index=True, nullable=False)
+    price = Column(Float, nullable=False, index=True)
+    slug = Column(String, index=True, nullable=False)
+    company_moduls = relationship("Moduls_Companies", back_populates="modul")
+    
+class Moduls_Companies(base):
+    __tablename__ = 'moduls_companies'
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    modul_id = Column(Integer, ForeignKey('moduls.id'), nullable=False)
+    modul = relationship("Moduls", back_populates="company_moduls")
+    company_id = Column(Integer, ForeignKey('companies.id'))
+    company = relationship("Company", back_populates="moduls_company")
