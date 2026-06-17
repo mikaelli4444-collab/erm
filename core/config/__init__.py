@@ -46,14 +46,6 @@ STORAGE_BUCKET_NAME = string_parse("storage.bucket_name")
 MEDIA_BASE_URL = string_parse("storage.media_base_url")
 #endregion
 
-#region Mercado Pago config
-MERCADO_PAGO_ACCESS_TOKEN = string_parse("mercado_pago.access_token")
-PUBLIC_KEY = string_parse("mercado_pago.public_key")
-BACK_URL = string_parse("mercado_pago.back_url")
-ASSINATURA_MP = string_parse("mercado_pago.assinatura_mp")
-NOTIFY_URL = string_parse("mercado_pago.notify_url")
-#endregion
-
 #refion AbacatePay config
 ABACATE_PAY_KEY = string_parse("abacatepay.abacatepay_key")
 ABACATE_PAY_WEBHOOK_SECRET = string_parse("abacatepay.abacate_pay_webhook_secret")
