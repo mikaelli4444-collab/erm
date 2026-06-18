@@ -1,7 +1,6 @@
 from sqlalchemy import Integer, String, Column, ForeignKey, Boolean, Date, Enum as SQLEnum, Float
 from sqlalchemy.orm import relationship
 from core.database import base
-from datetime import date
 from core.enum.enum import PlansEnum, SubscriptionStatusEnum
 
 class Subscription(base):
@@ -44,12 +43,3 @@ class Moduls(base):
     price = Column(Float, nullable=False, index=True)
     slug = Column(String, index=True, nullable=False)
     company_moduls = relationship("Moduls_Companies", back_populates="modul")
-    
-class Moduls_Companies(base):
-    __tablename__ = 'moduls_companies'
-    
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    modul_id = Column(Integer, ForeignKey('moduls.id'), nullable=False)
-    modul = relationship("Moduls", back_populates="company_moduls")
-    company_id = Column(Integer, ForeignKey('companies.id'))
-    company = relationship("Company", back_populates="moduls_company")
