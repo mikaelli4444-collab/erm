@@ -132,7 +132,6 @@ async def abacate_pay_webhook(request: Request,session: Session = Depends(Create
 
     try:
         data = json.loads(body_bytes)
-        print(data)
         
     except json.JSONDecodeError:
         raise HTTPException(
